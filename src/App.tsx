@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Download, Filter, ChevronDown, ChevronUp, Network, BarChart3, Upload, Map, CheckCircle, AlertTriangle, Shield, Activity, Zap } from 'lucide-react';
+import { Search, Download, Filter, ChevronDown, ChevronUp, Network, BarChart3, Upload, Map, CheckCircle, Shield, Activity, Zap } from 'lucide-react';
 
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
@@ -30,7 +30,12 @@ const AIGovernancePlatform = () => {
     { id: 12, concept: "Accuracy & Performance", riskTier: "High-Risk", priority: "High", lifecycle: "Monitoring", description: "Continuous measurement of accuracy and reliability.", mappings: { "NIST AI RMF": ["MEASURE 1.1", "MEASURE 2.1"], "ISO/IEC 42001": ["Clause 9.1", "Annex A.9"], "EU AI Act": ["Article 15"], "SOC 2 / ISO 27001": ["CC 4.2"] }, evidence: ["Accuracy Metrics", "Drift Reports"], implementation: "Monitor for model drift and accuracy decay." },
     { id: 13, concept: "Cybersecurity", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Protection against adversarial attacks and poisoning.", mappings: { "NIST AI RMF": ["MAP 3.1", "MANAGE 2.3"], "ISO/IEC 42001": ["Annex A.13", "Clause 8.2"], "EU AI Act": ["Article 15"], "SOC 2 / ISO 27001": ["CC 6.1"] }, evidence: ["Pen Test Reports", "Vuln Scans"], implementation: "Secure training environments and model weights." },
     { id: 14, concept: "Bias & Fairness", riskTier: "High-Risk", priority: "Critical", lifecycle: "Development", description: "Evaluation and mitigation of discriminatory bias.", mappings: { "NIST AI RMF": ["MEASURE 2.4", "MANAGE 1.1"], "ISO/IEC 42001": ["Annex A.8", "Clause 9.1"], "EU AI Act": ["Article 10(2)(f)"], "SOC 2 / ISO 27001": ["CC 4.1"] }, evidence: ["Fairness Audits", "Bias Mitigation Docs"], implementation: "Test across protected groups for equalized odds." },
-    { id: 15, concept: "AI Safety & Alignment", riskTier: "High-Risk", priority: "Critical", lifecycle: "Design", description: "Ensuring systems behave as intended and aligned with values.", mappings: { "NIST AI RMF": ["MAP 1.2", "GOVERN 1.3"], "ISO/IEC 42001": ["Annex A.3"], "EU AI Act": ["Recital 27"], "SOC 2 / ISO 27001": ["CC 2.1"] }, evidence: ["Safety Tests", "Alignment Docs"], implementation: "Red teaming for alignment failures." }
+    { id: 15, concept: "AI Safety & Alignment", riskTier: "High-Risk", priority: "Critical", lifecycle: "Design", description: "Ensuring systems behave as intended and aligned with values.", mappings: { "NIST AI RMF": ["MAP 1.2", "GOVERN 1.3"], "ISO/IEC 42001": ["Annex A.3"], "EU AI Act": ["Recital 27"], "SOC 2 / ISO 27001": ["CC 2.1"] }, evidence: ["Safety Tests", "Alignment Docs"], implementation: "Red teaming for alignment failures." },
+    { id: 16, concept: "Appeals & Redress", riskTier: "High-Risk", priority: "High", lifecycle: "Deployment", description: "Processes for individuals to challenge automated decisions.", mappings: { "NIST AI RMF": ["MANAGE 2.4", "MEASURE 3.1"], "ISO/IEC 42001": ["Clause 10.1", "Annex B.9"], "EU AI Act": ["Article 86"], "SOC 2 / ISO 27001": ["CC 3.3"] }, evidence: ["Appeals Log", "Redress Policy"], implementation: "Clear channels for users to contest AI decisions." },
+    { id: 17, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", lifecycle: "Development", description: "Tracking energy consumption and carbon footprint.", mappings: { "NIST AI RMF": ["MAP 1.6", "GOVERN 1.6"], "ISO/IEC 42001": ["Annex A.14"], "EU AI Act": ["Recital 93"], "SOC 2 / ISO 27001": ["ISO 14001"] }, evidence: ["Carbon Report", "Energy Metrics"], implementation: "Measure training compute energy and optimize efficiency." },
+    { id: 18, concept: "Accountability Structure", riskTier: "All Systems", priority: "High", lifecycle: "All Stages", description: "Defined roles and responsibilities for AI governance.", mappings: { "NIST AI RMF": ["GOVERN 1.1", "GOVERN 2.2"], "ISO/IEC 42001": ["Clause 5.3"], "EU AI Act": ["Article 26"], "SOC 2 / ISO 27001": ["CC 2.2"] }, evidence: ["RACI Matrix", "Governance Charter"], implementation: "Establish AI Board and assign accountable officers." },
+    { id: 19, concept: "Training & Competence", riskTier: "All Systems", priority: "Medium", lifecycle: "All Stages", description: "Ensuring staff have AI literacy and skills.", mappings: { "NIST AI RMF": ["GOVERN 2.1", "GOVERN 5.2"], "ISO/IEC 42001": ["Clause 7.2"], "EU AI Act": ["Article 4"], "SOC 2 / ISO 27001": ["CC 1.4"] }, evidence: ["Training Logs", "Certifications"], implementation: "Role-based AI ethics and security training." },
+    { id: 20, concept: "Continuous Improvement", riskTier: "All Systems", priority: "High", lifecycle: "Monitoring", description: "Regular audits and performance reviews.", mappings: { "NIST AI RMF": ["MEASURE 4.1", "GOVERN 4.3"], "ISO/IEC 42001": ["Clause 10.2", "Clause 9.2"], "EU AI Act": ["Article 72"], "SOC 2 / ISO 27001": ["CC 5.3"] }, evidence: ["Audit Reports", "Improvement Plan"], implementation: "Quarterly governance reviews and annual third-party audits." }
   ];
 
   // FILTERS
@@ -65,6 +70,34 @@ const AIGovernancePlatform = () => {
       gaps: gaps
     };
   }, [userControls]);
+
+  // EXPORT PDF FUNCTION
+  const exportToPDF = () => {
+    const printWindow = window.open('', '', 'height=800,width=1000');
+    if (!printWindow) return alert('Please allow popups');
+    const html = `
+      <html><head><title>AI Governance Report</title>
+      <style>body{font-family:sans-serif;padding:40px}h1{color:#0f172a}h2{color:#334155;border-bottom:2px solid #e2e8f0;padding-bottom:10px}.control{margin-bottom:30px;page-break-inside:avoid}.badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;margin-right:8px;background:#e2e8f0}.critical{background:#fee2e2;color:#991b1b}</style>
+      </head><body><h1>AI Governance Audit Report</h1><p>Date: ${new Date().toLocaleDateString()}</p>
+      ${filteredData.map(item => `<div class="control"><h2>${item.concept} <span class="badge ${item.priority === 'Critical' ? 'critical' : ''}">${item.priority}</span></h2><p>${item.description}</p><p><strong>Evidence:</strong> ${item.evidence.join(', ')}</p></div>`).join('')}
+      </body></html>`;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  // EXPORT CSV FUNCTION
+  const exportToCSV = () => {
+    const headers = ['Concept', 'Risk Tier', 'Lifecycle', 'Priority', 'Description', 'Implementation'];
+    const rows = filteredData.map(item => [item.concept, item.riskTier, item.lifecycle, item.priority, item.description, item.implementation]);
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ai-governance-map.csv';
+    a.click();
+  };
 
   // STYLING HELPERS
   const getPriorityColor = (p) => {
@@ -126,18 +159,20 @@ const AIGovernancePlatform = () => {
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all placeholder:text-slate-600"
                 />
               </div>
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${showFilters ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
-              >
-                <Filter className="w-4 h-4" />
-                <span className="hidden sm:inline">Filter</span>
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${showFilters ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                >
+                  <Filter className="w-4 h-4" />
+                </button>
+                <button onClick={exportToCSV} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 border border-slate-700">CSV</button>
+                <button onClick={exportToPDF} className="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 border border-slate-700">PDF</button>
+              </div>
             </div>
 
             {showFilters && (
                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-900/50 rounded-xl border border-slate-800 animate-in slide-in-from-top-2">
-                 {/* Simplified filters for mobile */}
                  <div className="space-y-2">
                    <label className="text-xs font-semibold text-slate-500 uppercase">Risk Tier</label>
                    <select onChange={(e) => setSelectedRiskTier(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-300 focus:ring-1 focus:ring-cyan-500">
@@ -146,7 +181,6 @@ const AIGovernancePlatform = () => {
                      <option value="All Systems">All Systems</option>
                    </select>
                  </div>
-                 {/* Add more filters here if needed */}
                </div>
             )}
 
@@ -249,7 +283,7 @@ const AIGovernancePlatform = () => {
           </div>
         )}
 
-                        {/* NETWORK TAB - REAL VISUALIZATION */}
+        {/* NETWORK TAB */}
         {activeTab === 'network' && (
           <div className="space-y-6 animate-in fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -335,92 +369,6 @@ const AIGovernancePlatform = () => {
               </div>
             </div>
           </div>
-        )}
-
-              {/* MATRIX VIEW */}
-              <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl backdrop-blur-sm">
-                <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-purple-400" />
-                  Framework Interconnections
-                </h3>
-                <div className="space-y-2">
-                  {frameworks.map((fw1, i) => (
-                    <div key={fw1} className="flex items-center gap-2">
-                      <div className="w-24 text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate text-right">{fw1.split(' ')[0]}</div>
-                      <div className="flex gap-1">
-                        {frameworks.map((fw2, j) => {
-                          const overlap = complianceData.filter(item => 
-                            item.mappings[fw1]?.length > 0 && item.mappings[fw2]?.length > 0
-                          ).length;
-                          const intensity = overlap / complianceData.length;
-                          return (
-                            <div
-                              key={`${fw1}-${fw2}`}
-                              className={`w-12 h-10 rounded transition-all duration-500 flex items-center justify-center text-xs font-bold ${
-                                i === j 
-                                  ? 'bg-slate-800/50 text-slate-600' 
-                                  : `bg-cyan-500/${Math.max(10, Math.floor(intensity * 100))} text-cyan-200 border border-cyan-500/20`
-                              }`}
-                              title={`${fw1} + ${fw2}: ${overlap} shared controls`}
-                            >
-                              {i === j ? '—' : overlap}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* DISTRIBUTIONS */}
-              <div className="space-y-6">
-                <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl">
-                  <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-orange-400" />
-                    Risk Distribution
-                  </h3>
-                  <div className="space-y-4">
-                    {['High-Risk', 'All Systems'].map(tier => {
-                      const count = complianceData.filter(item => item.riskTier === tier).length;
-                      const pct = Math.round((count / complianceData.length) * 100);
-                      return (
-                        <div key={tier}>
-                          <div className="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>{tier}</span>
-                            <span>{pct}%</span>
-                          </div>
-                          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${tier === 'High-Risk' ? 'bg-orange-500' : 'bg-cyan-500'}`} 
-                              style={{ width: `${pct}%` }} 
-                            />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl">
-                   <h3 className="text-lg font-bold text-slate-200 mb-4">Lifecycle Coverage</h3>
-                   <div className="flex flex-wrap gap-2">
-                     {['Design', 'Development', 'Deployment', 'Monitoring'].map(stage => {
-                        const count = complianceData.filter(item => item.lifecycle.includes(stage) || item.lifecycle === 'All Stages').length;
-                        return (
-                          <div key={stage} className="flex-1 min-w-[100px] bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
-                            <div className="text-2xl font-bold text-slate-200">{count}</div>
-                            <div className="text-[10px] uppercase text-slate-500 font-bold">{stage}</div>
-                          </div>
-                        )
-                     })}
-                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         )}
 
       </div>
