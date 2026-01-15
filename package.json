@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
+  "dependencies": {"lucide-react": "^0.263.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
