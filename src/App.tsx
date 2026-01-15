@@ -249,13 +249,94 @@ const AIGovernancePlatform = () => {
           </div>
         )}
 
-        {/* NETWORK TAB PLACEHOLDER */}
+                {/* NETWORK TAB - REAL VISUALIZATION */}
         {activeTab === 'network' && (
-          <div className="flex flex-col items-center justify-center h-64 text-slate-500 bg-slate-900/20 rounded-xl border border-slate-800 border-dashed">
-            <Activity className="w-12 h-12 mb-4 opacity-50" />
-            <p>Network Visualization Engine</p>
-            <p className="text-xs opacity-50">Optimized for Desktop Viewing</p>
+          <div className="space-y-6 animate-in fade-in">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* MATRIX VIEW */}
+              <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl backdrop-blur-sm">
+                <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-purple-400" />
+                  Framework Interconnections
+                </h3>
+                <div className="space-y-2">
+                  {frameworks.map((fw1, i) => (
+                    <div key={fw1} className="flex items-center gap-2">
+                      <div className="w-24 text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate text-right">{fw1.split(' ')[0]}</div>
+                      <div className="flex gap-1">
+                        {frameworks.map((fw2, j) => {
+                          const overlap = complianceData.filter(item => 
+                            item.mappings[fw1]?.length > 0 && item.mappings[fw2]?.length > 0
+                          ).length;
+                          const intensity = overlap / complianceData.length;
+                          return (
+                            <div
+                              key={`${fw1}-${fw2}`}
+                              className={`w-12 h-10 rounded transition-all duration-500 flex items-center justify-center text-xs font-bold ${
+                                i === j 
+                                  ? 'bg-slate-800/50 text-slate-600' 
+                                  : `bg-cyan-500/${Math.max(10, Math.floor(intensity * 100))} text-cyan-200 border border-cyan-500/20`
+                              }`}
+                              title={`${fw1} + ${fw2}: ${overlap} shared controls`}
+                            >
+                              {i === j ? '—' : overlap}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DISTRIBUTIONS */}
+              <div className="space-y-6">
+                <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl">
+                  <h3 className="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-orange-400" />
+                    Risk Distribution
+                  </h3>
+                  <div className="space-y-4">
+                    {['High-Risk', 'All Systems'].map(tier => {
+                      const count = complianceData.filter(item => item.riskTier === tier).length;
+                      const pct = Math.round((count / complianceData.length) * 100);
+                      return (
+                        <div key={tier}>
+                          <div className="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>{tier}</span>
+                            <span>{pct}%</span>
+                          </div>
+                          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${tier === 'High-Risk' ? 'bg-orange-500' : 'bg-cyan-500'}`} 
+                              style={{ width: `${pct}%` }} 
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-800 shadow-xl">
+                   <h3 className="text-lg font-bold text-slate-200 mb-4">Lifecycle Coverage</h3>
+                   <div className="flex flex-wrap gap-2">
+                     {['Design', 'Development', 'Deployment', 'Monitoring'].map(stage => {
+                        const count = complianceData.filter(item => item.lifecycle.includes(stage) || item.lifecycle === 'All Stages').length;
+                        return (
+                          <div key={stage} className="flex-1 min-w-[100px] bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                            <div className="text-2xl font-bold text-slate-200">{count}</div>
+                            <div className="text-[10px] uppercase text-slate-500 font-bold">{stage}</div>
+                          </div>
+                        )
+                     })}
+                   </div>
+                </div>
+              </div>
+            </div>
           </div>
+        )}
+
         )}
 
       </div>
