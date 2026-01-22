@@ -1,261 +1,64 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, Network, BarChart3, Upload, Save, ArrowRight } from 'lucide-react';
+// FIX: Added 'Download', 'X', 'AlertCircle' to imports to prevent crash
+import { 
+  Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, 
+  TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, 
+  Network, BarChart3, Upload, Save, ArrowRight, Download, X, AlertCircle 
+} from 'lucide-react';
 
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFrameworks, setSelectedFrameworks] = useState(['all']);
+  const [selectedRiskTier, setSelectedRiskTier] = useState('all');
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [showFilters, setShowFilters] = useState(false);
   const [controlState, setControlState] = useState({});
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // EXPANDED FRAMEWORK LIST (Global & Sector Specific)
+  // EXPANDED FRAMEWORK LIST
   const frameworks = [
-    'NIST AI RMF', 
-    'ISO/IEC 42001', 
-    'EU AI Act', 
-    'OECD Principles',      // NEW: Global Foundation
-    'Canada AIDA',          // NEW: North American Regulation
-    'Singapore Model FW',   // NEW: APAC Standard
-    'US SR 11-7 (Banking)', // NEW: Financial Model Risk
-    'OWASP Top 10', 
-    'GDPR'
+    'NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'OECD Principles',
+    'Canada AIDA', 'Singapore Model FW', 'US SR 11-7 (Banking)', 
+    'OWASP Top 10', 'GDPR'
   ];
   
   const maturityLevels = [
-    { level: 0, label: 'Non-Existent', color: 'bg-slate-800', border: 'border-slate-700', text: 'text-slate-500', glow: '' },
-    { level: 1, label: 'Initial', color: 'bg-red-500/10', border: 'border-red-500/50', text: 'text-red-400', glow: 'shadow-red-500/20' },
-    { level: 2, label: 'Managed', color: 'bg-orange-500/10', border: 'border-orange-500/50', text: 'text-orange-400', glow: 'shadow-orange-500/20' },
-    { level: 3, label: 'Defined', color: 'bg-yellow-500/10', border: 'border-yellow-500/50', text: 'text-yellow-400', glow: 'shadow-yellow-500/20' },
-    { level: 4, label: 'Measured', color: 'bg-cyan-500/10', border: 'border-cyan-500/50', text: 'text-cyan-400', glow: 'shadow-cyan-500/20' },
-    { level: 5, label: 'Optimized', color: 'bg-emerald-500/10', border: 'border-emerald-500/50', text: 'text-emerald-400', glow: 'shadow-emerald-500/20' }
+    { level: 0, label: 'Non-Existent', color: 'bg-slate-800', border: 'border-slate-700', text: 'text-slate-500' },
+    { level: 1, label: 'Initial', color: 'bg-red-500/10', border: 'border-red-500/50', text: 'text-red-400' },
+    { level: 2, label: 'Managed', color: 'bg-orange-500/10', border: 'border-orange-500/50', text: 'text-orange-400' },
+    { level: 3, label: 'Defined', color: 'bg-yellow-500/10', border: 'border-yellow-500/50', text: 'text-yellow-400' },
+    { level: 4, label: 'Measured', color: 'bg-cyan-500/10', border: 'border-cyan-500/50', text: 'text-cyan-400' },
+    { level: 5, label: 'Optimized', color: 'bg-emerald-500/10', border: 'border-emerald-500/50', text: 'text-emerald-400' }
   ];
 
-  // LEGISLATIVE GRADE DATA (Updated with Global Mappings)
+  // DATA
   const complianceData = [
-    { 
-      id: 1, 
-      concept: "Risk Management System", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Systematic approach to identify, assess, and mitigate AI-related risks.", 
-      mappings: { 
-        "NIST AI RMF": ["MAP 1.1"], 
-        "ISO/IEC 42001": ["Clause 8.2"], 
-        "EU AI Act": ["Article 9"], 
-        "OECD Principles": ["Principle 1.4"],
-        "Singapore Model FW": ["Internal Governance"]
-      }, 
-      implementation: "Maintain a living AI Risk Register with quarterly reviews and executive oversight." 
-    },
-    { 
-      id: 2, 
-      concept: "Human Oversight (HITL)", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Mechanisms ensuring human intervention and control over AI decisions.", 
-      mappings: { 
-        "NIST AI RMF": ["GOVERN 2.2"], 
-        "EU AI Act": ["Article 14"],
-        "Canada AIDA": ["Section 12"],
-        "Singapore Model FW": ["Human-in-the-loop"]
-      }, 
-      implementation: "Establish oversight committee with defined intervention triggers and escalation procedures." 
-    },
-    { 
-      id: 3, 
-      concept: "Model Inventory & Registration", 
-      riskTier: "All Systems", 
-      priority: "High", 
-      description: "Centralized inventory of all AI models in production and development.", 
-      mappings: { 
-        "US SR 11-7 (Banking)": ["Inventory Mandate"], 
-        "ISO/IEC 42001": ["Clause 6.1.3"],
-        "EU AI Act": ["Article 49 (Database)"]
-      }, 
-      implementation: "Maintain centralized GRC registry of all active models, owners, and risk ratings." 
-    },
-    { 
-      id: 4, 
-      concept: "Data Governance & Quality", 
-      riskTier: "All Systems", 
-      priority: "High", 
-      description: "Controls for data acquisition, quality, bias detection, and lineage.", 
-      mappings: { 
-        "ISO/IEC 42001": ["Annex A.7"], 
-        "EU AI Act": ["Article 10"],
-        "OECD Principles": ["Principle 1.2"]
-      }, 
-      implementation: "Data classified as restricted and encrypted at rest and in transit." 
-    },
-    { 
-      id: 5, 
-      concept: "Effective Challenge (Validation)", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Independent validation of models by a team separate from development.", 
-      mappings: { 
-        "US SR 11-7 (Banking)": ["Independent Validation"], 
-        "NIST AI RMF": ["MEASURE 2.6"] 
-      }, 
-      implementation: "Second-line-of-defense (2LOD) must validate models pre-deployment." 
-    },
-    { 
-      id: 6, 
-      concept: "Privacy Impact Assessment", 
-      riskTier: "All Systems", 
-      priority: "Critical", 
-      description: "Safeguards for personal data and GDPR/State Law compliance.", 
-      mappings: { 
-        "GDPR": ["Article 35"], 
-        "ISO/IEC 42001": ["Annex A.7"],
-        "Canada AIDA": ["Anonymization"]
-      }, 
-      implementation: "Conduct DPIA before processing personal data with AI systems." 
-    },
-    { 
-      id: 7, 
-      concept: "Explainability & Transparency", 
-      riskTier: "High-Risk", 
-      priority: "High", 
-      description: "Mechanisms to explain AI decisions to stakeholders and affected parties.", 
-      mappings: { 
-        "EU AI Act": ["Article 13"], 
-        "NIST AI RMF": ["GOVERN 3.1"],
-        "OECD Principles": ["Principle 1.3"],
-        "Singapore Model FW": ["Operations Management"]
-      }, 
-      implementation: "Provide clear decision explanations (SHAP/LIME) to affected users." 
-    },
-    { 
-      id: 8, 
-      concept: "Data Drift Detection", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Monitoring for shifts in input data distribution affecting model accuracy.", 
-      mappings: { 
-        "NIST AI RMF": ["MEASURE 2.7"], 
-        "ISO/IEC 42001": ["Annex A.9.2"],
-        "US SR 11-7 (Banking)": ["Ongoing Monitoring"]
-      }, 
-      implementation: "Automated alerts when input data distribution diverges >5% from baseline." 
-    },
-    { 
-      id: 9, 
-      concept: "Model Versioning & Rollback", 
-      riskTier: "High-Risk", 
-      priority: "High", 
-      description: "Ability to revert to previous model versions in case of failure.", 
-      mappings: { 
-        "ISO/IEC 42001": ["Annex A.9.3"], 
-        "NIST AI RMF": ["MANAGE 3.3"] 
-      }, 
-      implementation: "Immutable version history of all models with one-click rollback capability." 
-    },
-    { 
-      id: 10, 
-      concept: "Adversarial Testing (Red Teaming)", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Testing against prompt injection, jailbreaking, and evasion attacks.", 
-      mappings: { 
-        "OWASP Top 10": ["LLM01", "LLM07"], 
-        "NIST AI RMF": ["MEASURE 2.5"],
-        "Canada AIDA": ["Harm Mitigation"]
-      }, 
-      implementation: "Conduct red-teaming exercises specifically targeting LLM jailbreaks." 
-    },
-    { 
-      id: 11, 
-      concept: "Bias Testing & Fairness", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      description: "Assessment of algorithmic bias across protected classes.", 
-      mappings: { 
-        "NIST AI RMF": ["MEASURE 2.3"], 
-        "EU AI Act": ["Article 10(2)"],
-        "Canada AIDA": ["Biased Output"],
-        "OECD Principles": ["Principle 1.2"]
-      }, 
-      implementation: "Quarterly bias testing across demographic groups with independent validation." 
-    },
-    { 
-      id: 12, 
-      concept: "Secure Weights Storage", 
-      riskTier: "Critical", 
-      priority: "Critical", 
-      description: "Preventing theft or unauthorized copying of proprietary model weights.", 
-      mappings: { 
-        "OWASP Top 10": ["LLM10"], 
-        "ISO/IEC 42001": ["Annex A.13"] 
-      }, 
-      implementation: "Store model weights in Hardware Security Modules (HSM) or encrypted buckets." 
-    },
-    { 
-      id: 13, 
-      concept: "Copyright Compliance (GenAI)", 
-      riskTier: "GenAI", 
-      priority: "High", 
-      description: "Ensuring training data respects IP laws and transparency.", 
-      mappings: { 
-        "EU AI Act": ["Article 53"], 
-        "ISO/IEC 42001": ["Annex A.5"] 
-      }, 
-      implementation: "Maintain IP ledger of training data and publish summaries per EU AI Act." 
-    },
-    { 
-      id: 14, 
-      concept: "Contestability & Redress", 
-      riskTier: "High-Risk", 
-      priority: "Medium", 
-      description: "Process for subjects to challenge automated decisions.", 
-      mappings: { 
-        "GDPR": ["Article 22"], 
-        "Canada AIDA": ["Plain Language"],
-        "Singapore Model FW": ["Customer Relationship"]
-      }, 
-      implementation: "Clear 'Appeal Decision' workflow for end-users affected by AI." 
-    },
-    { 
-      id: 15, 
-      concept: "Environmental Impact", 
-      riskTier: "All Systems", 
-      priority: "Medium", 
-      description: "Monitoring energy consumption and carbon footprint.", 
-      mappings: { 
-        "EU AI Act": ["Article 40"], 
-        "OECD Principles": ["Principle 1.1"] 
-      }, 
-      implementation: "Log compute hours and estimate carbon emissions for training/inference." 
-    },
-    { 
-      id: 16, 
-      concept: "Vendor/Third-Party Risk", 
-      riskTier: "All Systems", 
-      priority: "High", 
-      description: "Oversight of third-party AI providers and components.", 
-      mappings: { 
-        "NIST AI RMF": ["MAP 1.5"], 
-        "US SR 11-7 (Banking)": ["Vendor Models"],
-        "ISO/IEC 42001": ["Clause 8.4"]
-      }, 
-      implementation: "Mandatory risk assessment for all 3rd party AI tools before procurement." 
-    }
+    { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF": ["MAP 1.1"], "ISO/IEC 42001": ["Clause 8.2"], "EU AI Act": ["Article 9"], "OECD Principles": ["Principle 1.4"], "Singapore Model FW": ["Internal Governance"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews and executive oversight." },
+    { id: 2, concept: "Human Oversight (HITL)", riskTier: "High-Risk", priority: "Critical", description: "Mechanisms ensuring human intervention and control over AI decisions.", mappings: { "NIST AI RMF": ["GOVERN 2.2"], "EU AI Act": ["Article 14"], "Canada AIDA": ["Section 12"], "Singapore Model FW": ["Human-in-the-loop"] }, implementation: "Establish oversight committee with defined intervention triggers and escalation procedures." },
+    { id: 3, concept: "Model Inventory & Registration", riskTier: "All Systems", priority: "High", description: "Centralized inventory of all AI models in production and development.", mappings: { "US SR 11-7 (Banking)": ["Inventory Mandate"], "ISO/IEC 42001": ["Clause 6.1.3"], "EU AI Act": ["Article 49 (Database)"] }, implementation: "Maintain centralized GRC registry of all active models, owners, and risk ratings." },
+    { id: 4, concept: "Data Governance & Quality", riskTier: "All Systems", priority: "High", description: "Controls for data acquisition, quality, bias detection, and lineage.", mappings: { "ISO/IEC 42001": ["Annex A.7"], "EU AI Act": ["Article 10"], "OECD Principles": ["Principle 1.2"] }, implementation: "Data classified as restricted and encrypted at rest and in transit." },
+    { id: 5, concept: "Effective Challenge (Validation)", riskTier: "High-Risk", priority: "Critical", description: "Independent validation of models by a team separate from development.", mappings: { "US SR 11-7 (Banking)": ["Independent Validation"], "NIST AI RMF": ["MEASURE 2.6"] }, implementation: "Second-line-of-defense (2LOD) must validate models pre-deployment." },
+    { id: 6, concept: "Privacy Impact Assessment", riskTier: "All Systems", priority: "Critical", description: "Safeguards for personal data and GDPR/State Law compliance.", mappings: { "GDPR": ["Article 35"], "ISO/IEC 42001": ["Annex A.7"], "Canada AIDA": ["Anonymization"] }, implementation: "Conduct DPIA before processing personal data with AI systems." },
+    { id: 7, concept: "Explainability & Transparency", riskTier: "High-Risk", priority: "High", description: "Mechanisms to explain AI decisions to stakeholders and affected parties.", mappings: { "EU AI Act": ["Article 13"], "NIST AI RMF": ["GOVERN 3.1"], "OECD Principles": ["Principle 1.3"], "Singapore Model FW": ["Operations Management"] }, implementation: "Provide clear decision explanations (SHAP/LIME) to affected users." },
+    { id: 8, concept: "Data Drift Detection", riskTier: "High-Risk", priority: "Critical", description: "Monitoring for shifts in input data distribution affecting model accuracy.", mappings: { "NIST AI RMF": ["MEASURE 2.7"], "ISO/IEC 42001": ["Annex A.9.2"], "US SR 11-7 (Banking)": ["Ongoing Monitoring"] }, implementation: "Automated alerts when input data distribution diverges >5% from baseline." },
+    { id: 9, concept: "Model Versioning & Rollback", riskTier: "High-Risk", priority: "High", description: "Ability to revert to previous model versions in case of failure.", mappings: { "ISO/IEC 42001": ["Annex A.9.3"], "NIST AI RMF": ["MANAGE 3.3"] }, implementation: "Immutable version history of all models with one-click rollback capability." },
+    { id: 10, concept: "Adversarial Testing (Red Teaming)", riskTier: "High-Risk", priority: "Critical", description: "Testing against prompt injection, jailbreaking, and evasion attacks.", mappings: { "OWASP Top 10": ["LLM01", "LLM07"], "NIST AI RMF": ["MEASURE 2.5"], "Canada AIDA": ["Harm Mitigation"] }, implementation: "Conduct red-teaming exercises specifically targeting LLM jailbreaks." },
+    { id: 11, concept: "Bias Testing & Fairness", riskTier: "High-Risk", priority: "Critical", description: "Assessment of algorithmic bias across protected classes.", mappings: { "NIST AI RMF": ["MEASURE 2.3"], "EU AI Act": ["Article 10(2)"], "Canada AIDA": ["Biased Output"], "OECD Principles": ["Principle 1.2"] }, implementation: "Quarterly bias testing across demographic groups with independent validation." },
+    { id: 12, concept: "Secure Weights Storage", riskTier: "Critical", priority: "Critical", description: "Preventing theft or unauthorized copying of proprietary model weights.", mappings: { "OWASP Top 10": ["LLM10"], "ISO/IEC 42001": ["Annex A.13"] }, implementation: "Store model weights in Hardware Security Modules (HSM) or encrypted buckets." },
+    { id: 13, concept: "Copyright Compliance (GenAI)", riskTier: "GenAI", priority: "High", description: "Ensuring training data respects IP laws and transparency.", mappings: { "EU AI Act": ["Article 53"], "ISO/IEC 42001": ["Annex A.5"] }, implementation: "Maintain IP ledger of training data and publish summaries per EU AI Act." },
+    { id: 14, concept: "Contestability & Redress", riskTier: "High-Risk", priority: "Medium", description: "Process for subjects to challenge automated decisions.", mappings: { "GDPR": ["Article 22"], "Canada AIDA": ["Plain Language"], "Singapore Model FW": ["Customer Relationship"] }, implementation: "Clear 'Appeal Decision' workflow for end-users affected by AI." },
+    { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", description: "Monitoring energy consumption and carbon footprint.", mappings: { "EU AI Act": ["Article 40"], "OECD Principles": ["Principle 1.1"] }, implementation: "Log compute hours and estimate carbon emissions for training/inference." },
+    { id: 16, concept: "Vendor/Third-Party Risk", riskTier: "All Systems", priority: "High", description: "Oversight of third-party AI providers and components.", mappings: { "NIST AI RMF": ["MAP 1.5"], "US SR 11-7 (Banking)": ["Vendor Models"], "ISO/IEC 42001": ["Clause 8.4"] }, implementation: "Mandatory risk assessment for all 3rd party AI tools before procurement." }
   ];
 
   const updateMaturity = (id, level) => {
-    setControlState(prev => ({
-      ...prev,
-      [id]: { ...prev[id], maturity: level }
-    }));
+    setControlState(prev => ({ ...prev, [id]: { ...prev[id], maturity: level } }));
   };
 
   const updateRemediation = (id, text) => {
-    setControlState(prev => ({
-      ...prev,
-      [id]: { ...prev[id], remediation: text }
-    }));
+    setControlState(prev => ({ ...prev, [id]: { ...prev[id], remediation: text } }));
   };
 
   const getMaturity = (id) => controlState[id]?.maturity || 0;
@@ -276,6 +79,37 @@ const AIGovernancePlatform = () => {
     return counts;
   }, [controlState]);
 
+  const handleMatrixClick = (fw1, fw2) => {
+    setSelectedFrameworks([fw1, fw2]);
+    setSearchTerm('');
+    setActiveTab('map');
+    setShowFilters(true);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedFrameworks(['all']);
+    setSelectedRiskTier('all');
+    setSearchTerm('');
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Concept', 'Risk Tier', 'Priority', 'Maturity', 'Remediation'];
+    const rows = complianceData.map(item => [
+      item.concept, 
+      item.riskTier, 
+      item.priority, 
+      getMaturity(item.id), 
+      getRemediation(item.id)
+    ]);
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ai-governance-assessment.csv';
+    a.click();
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -284,9 +118,7 @@ const AIGovernancePlatform = () => {
         try {
           setUserControls(JSON.parse(event.target.result));
           setUploadedFile(file.name);
-        } catch (error) {
-          alert('Invalid JSON file.');
-        }
+        } catch (error) { alert('Invalid JSON file.'); }
       };
       reader.readAsText(file);
     }
@@ -308,15 +140,16 @@ const AIGovernancePlatform = () => {
     return complianceData.filter(item => {
       const matchesSearch = searchTerm === '' || item.concept.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFramework = selectedFrameworks.includes('all') || selectedFrameworks.every(fw => item.mappings[fw]);
-      return matchesSearch && matchesFramework;
+      const matchesRisk = selectedRiskTier === 'all' || item.riskTier === selectedRiskTier;
+      return matchesSearch && matchesFramework && matchesRisk;
     });
-  }, [searchTerm, selectedFrameworks]);
+  }, [searchTerm, selectedFrameworks, selectedRiskTier]);
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden p-6">
-      
-      {/* HEADER */}
       <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* HEADER */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 border-b border-white/5 pb-8">
           <div className="space-y-2">
              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/30 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold tracking-widest uppercase mb-2">
@@ -330,8 +163,8 @@ const AIGovernancePlatform = () => {
             </p>
           </div>
           
-          {/* HUD */}
           <div className="flex flex-wrap gap-4 w-full xl:w-auto">
+            {/* KPI: Score */}
             <div className="flex-1 min-w-[140px] bg-slate-900/50 border border-white/10 p-4 rounded-xl">
                <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-1">Score</div>
                <div className="flex items-end gap-2">
@@ -342,16 +175,13 @@ const AIGovernancePlatform = () => {
                   <div className="bg-cyan-400 h-full transition-all duration-1000" style={{ width: `${overallScore}%` }} />
                </div>
             </div>
-
+            {/* KPI: Distribution */}
             <div className="flex-[2] min-w-[200px] bg-slate-900/50 border border-white/10 p-4 rounded-xl hidden md:block">
               <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-3">Maturity Spread</div>
               <div className="flex items-end justify-between h-10 gap-1">
                 {distribution.map((count, idx) => (
                   <div key={idx} className="flex flex-col items-center justify-end w-full h-full group">
-                    <div 
-                      className={`w-full mx-0.5 rounded-t-sm transition-all duration-500 ${maturityLevels[idx].color.replace('/10', '/50')}`} 
-                      style={{ height: `${Math.max(15, (count / complianceData.length) * 100)}%` }} 
-                    />
+                    <div className={`w-full mx-0.5 rounded-t-sm transition-all duration-500 ${maturityLevels[idx].color.replace('/10', '/50')}`} style={{ height: `${Math.max(15, (count / complianceData.length) * 100)}%` }} />
                     <div className="opacity-0 group-hover:opacity-100 absolute -top-5 text-[10px] bg-black px-2 py-1 rounded border border-white/10">Lvl {idx}</div>
                   </div>
                 ))}
@@ -374,19 +204,38 @@ const AIGovernancePlatform = () => {
           ))}
         </div>
 
-        {/* VIEW: MAP */}
+        {/* TAB: MAP */}
         {activeTab === 'map' && (
           <div className="space-y-6">
-            <div className="relative flex items-center bg-slate-900 border border-white/10 rounded-lg p-1">
-                <Search className="ml-3 text-slate-500 w-5 h-5" />
-                <input 
-                  type="text" 
-                  placeholder="Filter controls by framework (e.g. 'Banking', 'Singapore')..." 
-                  value={searchTerm} 
-                  onChange={(e) => setSearchTerm(e.target.value)} 
-                  className="w-full bg-transparent border-none text-slate-200 focus:ring-0 px-4 py-3 outline-none" 
-                />
+            <div className="flex gap-2">
+                <div className="relative flex-1 bg-slate-900 border border-white/10 rounded-lg p-1">
+                    <Search className="absolute left-4 top-3.5 text-slate-500 w-5 h-5" />
+                    <input type="text" placeholder="Filter controls..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-transparent border-none text-slate-200 focus:ring-0 pl-12 pr-4 py-3 outline-none" />
+                </div>
+                <button onClick={() => setShowFilters(!showFilters)} className={`px-4 rounded-lg border flex items-center gap-2 ${showFilters ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-900 border-white/10 text-slate-400'}`}><Filter className="w-4 h-4"/> Filters</button>
+                <button onClick={exportToCSV} className="px-4 rounded-lg border bg-slate-900 border-white/10 text-slate-400 hover:text-white"><Download className="w-4 h-4"/></button>
             </div>
+
+            {showFilters && (
+               <div className="p-4 bg-slate-900/50 border border-white/10 rounded-xl flex gap-4 items-center">
+                  <div className="flex-1">
+                     <label className="text-xs text-slate-500 uppercase font-bold">Frameworks</label>
+                     <select multiple value={selectedFrameworks} onChange={(e) => setSelectedFrameworks(Array.from(e.target.selectedOptions, o => o.value).includes('all') ? ['all'] : Array.from(e.target.selectedOptions, o => o.value))} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm h-20 text-slate-300 mt-1">
+                        <option value="all">All Frameworks</option>
+                        {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
+                     </select>
+                  </div>
+                  <div className="w-48">
+                      <label className="text-xs text-slate-500 uppercase font-bold">Risk Tier</label>
+                      <select value={selectedRiskTier} onChange={(e) => setSelectedRiskTier(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm mt-1 text-slate-300">
+                          <option value="all">All Tiers</option>
+                          <option value="High-Risk">High-Risk Only</option>
+                          <option value="GenAI">GenAI Only</option>
+                      </select>
+                  </div>
+                  <button onClick={handleResetFilters} className="text-xs text-cyan-400 hover:underline"><X className="w-3 h-3 inline"/> Reset</button>
+               </div>
+            )}
 
             <div className="grid gap-3">
               {filteredData.map((item) => {
@@ -399,9 +248,7 @@ const AIGovernancePlatform = () => {
                         newSet.has(item.id) ? newSet.delete(item.id) : newSet.add(item.id);
                         setExpandedRows(newSet);
                       }} className="p-5 cursor-pointer flex gap-5 items-center">
-                    
                     <div className={`w-1 h-12 rounded-full ${matStyle.color.replace('/10', '')}`} />
-                    
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h3 className="text-lg font-bold text-slate-100 truncate">{item.concept}</h3>
@@ -416,15 +263,10 @@ const AIGovernancePlatform = () => {
                     <div className="border-t border-white/5 bg-slate-950/50 p-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
-                           <div className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
-                              <TrendingUp className="w-4 h-4" /> Assessment: {matStyle.label}
-                           </div>
+                           <div className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4" /> Assessment: {matStyle.label}</div>
                            <div className="grid grid-cols-6 gap-2 mb-6">
                               {maturityLevels.map((lvl) => (
-                                <button key={lvl.level} onClick={() => updateMaturity(item.id, lvl.level)}
-                                  className={`h-10 rounded border text-sm font-bold transition-all ${currentMat === lvl.level ? `${lvl.color} ${lvl.border} ${lvl.text}` : 'bg-slate-900 border-white/5 text-slate-600'}`}>
-                                  {lvl.level}
-                                </button>
+                                <button key={lvl.level} onClick={() => updateMaturity(item.id, lvl.level)} className={`h-10 rounded border text-sm font-bold transition-all ${currentMat === lvl.level ? `${lvl.color} ${lvl.border} ${lvl.text}` : 'bg-slate-900 border-white/5 text-slate-600'}`}>{lvl.level}</button>
                               ))}
                            </div>
                            <div className="space-y-2">
@@ -458,7 +300,7 @@ const AIGovernancePlatform = () => {
           </div>
         )}
 
-        {/* VIEW: CROSS-WALK */}
+        {/* TAB: NETWORK */}
         {activeTab === 'network' && (
            <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10 overflow-x-auto">
               <h3 className="text-lg font-bold text-white mb-6">Framework Matrix</h3>
@@ -473,12 +315,13 @@ const AIGovernancePlatform = () => {
                   <div key={fw1} className="flex items-center gap-2">
                     <div className="w-32 text-[10px] font-bold text-slate-400 uppercase text-right pr-4">{fw1}</div>
                     {frameworks.slice(0, 5).map((fw2, j) => {
-                      const overlap = complianceData.filter(item => item.mappings[fw1] && item.mappings[fw2]).length;
+                      // SAFETY FIX: Using optional chaining ?. to prevent crash if mapping is missing
+                      const overlap = complianceData.filter(item => item.mappings?.[fw1] && item.mappings?.[fw2]).length;
                       const isSelf = i === j;
                       return (
-                        <div key={`${fw1}-${fw2}`} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
+                        <button key={`${fw1}-${fw2}`} disabled={isSelf} onClick={() => !isSelf && handleMatrixClick(fw1, fw2)} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20'}`}>
                           {isSelf ? '-' : overlap}
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -487,21 +330,18 @@ const AIGovernancePlatform = () => {
            </div>
         )}
 
-        {/* VIEW: GAP ANALYSIS */}
+        {/* TAB: GAP */}
         {activeTab === 'gap' && (
            <div className="space-y-6">
               <div className="bg-slate-900/40 border border-dashed border-white/20 rounded-xl p-12 text-center">
                 <Upload className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">Gap Analysis</h3>
                 <label className="inline-block cursor-pointer">
-                  <span className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold inline-flex items-center gap-2">
-                    Select JSON Manifest
-                  </span>
+                  <span className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold inline-flex items-center gap-2">Select JSON Manifest</span>
                   <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
                 </label>
                 {uploadedFile && <div className="mt-4 text-emerald-400 text-sm flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4"/> {uploadedFile}</div>}
               </div>
-
               {gapAnalysis && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
@@ -516,7 +356,6 @@ const AIGovernancePlatform = () => {
               )}
            </div>
         )}
-
       </div>
     </div>
   );
