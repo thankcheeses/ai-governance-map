@@ -151,13 +151,15 @@ const AIGovernancePlatform = () => {
 
   // MATRIX: Interactive Click Handler (Auto-Clears conflicts)
   const handleMatrixClick = (fw1, fw2) => {
-    setSearchTerm(''); // Clear Search
-    setSelectedRiskTier('all'); // Clear Risk
-    setSelectedLifecycle('all'); // Clear Lifecycle
-    setSelectedPriority('all'); // Clear Priority
-    setSelectedFrameworks([fw1, fw2]); // Set Intersection
-    setActiveTab('map'); 
-    setShowFilters(true); 
+    // Batch all state updates together
+    setSearchTerm('');
+    setSelectedRiskTier('all');
+    setSelectedLifecycle('all');
+    setSelectedPriority('all');
+    setShowFilters(true);
+    setSelectedFrameworks([fw1, fw2]);
+    // Switch tab last to ensure filters are set first
+    setTimeout(() => setActiveTab('map'), 0);
   };
 
   const exportToCSV = () => {
