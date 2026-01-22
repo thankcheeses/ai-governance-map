@@ -18,20 +18,34 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // 1. Load data from browser memory
+    // 1. Load data from browser memory (Now loads BOTH Text and Uploads)
   useEffect(() => {
+    // Load your typed text
     const savedData = localStorage.getItem('ai-gov-save');
     if (savedData) {
       setControlState(JSON.parse(savedData));
     }
+    
+    // NEW: Load your uploaded JSON file
+    const savedManifest = localStorage.getItem('ai-gov-manifest');
+    if (savedManifest) {
+      setUserControls(JSON.parse(savedManifest));
+      setUploadedFile("Restored Session"); // Shows this label so you know it loaded
+    }
   }, []);
 
-  // 2. Auto-save data
+  // 2. Auto-save data (Now saves BOTH Text and Uploads)
   useEffect(() => {
+    // Save text
     if (Object.keys(controlState).length > 0) {
       localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
     }
-  }, [controlState]);
+    // NEW: Save uploaded JSON
+    if (userControls.length > 0) {
+      localStorage.setItem('ai-gov-manifest', JSON.stringify(userControls));
+    }
+  }, [controlState, userControls]);
+
 
   // --- MASTER FRAMEWORK LIST ---
   const frameworks = [
