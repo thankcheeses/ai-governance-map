@@ -45,6 +45,42 @@ const AIGovernancePlatform = () => {
       localStorage.setItem('ai-gov-manifest', JSON.stringify(userControls));
     }
   }, [controlState, userControls]);
+  // 3. AUTO-GRADER: When a file is uploaded, automatically update the scores!
+  useEffect(() => {
+    if (userControls.length > 0) {
+      const newControlState = { ...controlState };
+      let hasUpdates = false;
+
+      userControls.forEach(uploadItem => {
+        // Find the matching control in our master list by name
+        const match = complianceData.find(c => c.concept === uploadItem.concept);
+        
+        if (match) {
+          // Determine score based on Engineering Status keywords
+          let score = 0;
+          const status = uploadItem.status?.toLowerCase() || '';
+          
+          if (status.includes('monitoring')) score = 4;      // Level 4: Measured
+          else if (status.includes('implemented') || status.includes('active') || status.includes('completed')) score = 3; // Level 3: Defined
+          else if (status.includes('assessed')) score = 2;   // Level 2: Managed
+          
+          // Apply the score if it's new
+          if ((newControlState[match.id]?.maturity || 0) < score) {
+            newControlState[match.id] = { 
+              ...newControlState[match.id], 
+              maturity: score,
+              remediation: `Auto-verified via Engineering Manifest (${uploadItem.last_audit || 'Imported'})` 
+            };
+            hasUpdates = true;
+          }
+        }
+      });
+
+      if (hasUpdates) {
+        setControlState(newControlState);
+      }
+    }
+  }, [userControls]);
 
 
   // --- MASTER FRAMEWORK LIST ---
