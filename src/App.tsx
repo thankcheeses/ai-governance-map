@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { 
+import React, { useState, useMemo, useEffect } from 'react';
+ 
   Map, Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, 
   TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, 
   Network, BarChart3, Upload, Save, ArrowRight, Download, X, AlertCircle 
@@ -18,6 +18,21 @@ const AIGovernancePlatform = () => {
   const [controlState, setControlState] = useState({});
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
+
+  // 1. Load data from browser memory when the app starts
+  useEffect(() => {
+    const savedData = localStorage.getItem('ai-gov-save');
+    if (savedData) {
+      setControlState(JSON.parse(savedData));
+    }
+  }, []);
+
+  // 2. Auto-save data to browser memory whenever you type or click
+  useEffect(() => {
+    if (Object.keys(controlState).length > 0) {
+      localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
+    }
+  }, [controlState]);
 
   // --- THE MASTER LIST ---
   const frameworks = [
