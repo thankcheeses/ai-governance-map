@@ -17,28 +17,27 @@ const maturityLevels = [
 
 const frameworks = ['NHID-Clinical', 'NIST AI RMF 1.0', 'EU AI Act (Final)', 'ISO/IEC 42001 (AIMS)', 'US Banking (SR 11-7)', 'OECD AI Principles', 'Singapore GenAI FW', 'OWASP Top 10 LLM', 'MITRE ATLAS', 'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety', 'GDPR', 'CCPA / CPRA', 'ISO/IEC 27001', 'NIST Privacy FW', 'IEEE 7000', 'Canada AIDA', 'US EO 14110', 'China GenAI Measures', 'UK AI Strategy', 'Japan AI Guidelines', 'Brazil Bill 2338', 'Australia Ethics', 'FDA AI/ML (Health)', 'NYC Law 144 (HR)', 'UNECE (Automotive)', 'Montreal Declaration', 'Microsoft RAI v2', 'UNESCO Ethics'];
 
+// UPDATED: Standardized "OECD AI Principles" key to match framework list
 const complianceData = [
-  // --- ORIGINAL 19 ---
-  { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF 1.0": ["MAP 1.1"], "ISO/IEC 42001 (AIMS)": ["Clause 8.2"], "EU AI Act (Final)": ["Article 9"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews." },
+  { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF 1.0": ["MAP 1.1"], "ISO/IEC 42001 (AIMS)": ["Clause 8.2"], "EU AI Act (Final)": ["Article 9"], "OECD AI Principles": ["Principle 1.4"], "Singapore GenAI FW": ["Internal Governance"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews." },
   { id: 2, concept: "Human Oversight (HITL)", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment", description: "Mechanisms ensuring human intervention and control over AI decisions.", mappings: { "NIST AI RMF 1.0": ["GOVERN 2.2"], "EU AI Act (Final)": ["Article 14"], "Singapore GenAI FW": ["Human-in-the-loop"] }, implementation: "Establish oversight committee with defined intervention triggers." },
   { id: 3, concept: "Model Inventory & Registration", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Centralized inventory of all AI models in production and development.", mappings: { "US Banking (SR 11-7)": ["Inventory Mandate"], "ISO/IEC 42001 (AIMS)": ["Clause 6.1.3"] }, implementation: "Maintain centralized GRC registry of all active models." },
-  { id: 4, concept: "Data Governance & Quality", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Controls for data acquisition, quality, bias detection, and lineage.", mappings: { "ISO/IEC 42001 (AIMS)": ["Annex A.7"], "EU AI Act (Final)": ["Article 10"] }, implementation: "Data classified as restricted and encrypted at rest." },
+  { id: 4, concept: "Data Governance & Quality", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Controls for data acquisition, quality, bias detection, and lineage.", mappings: { "ISO/IEC 42001 (AIMS)": ["Annex A.7"], "EU AI Act (Final)": ["Article 10"], "OECD AI Principles": ["Principle 1.2"] }, implementation: "Data classified as restricted and encrypted at rest." },
   { id: 5, concept: "Effective Challenge (Validation)", riskTier: "High-Risk", priority: "Critical", lifecycle: "Development", description: "Independent validation of models by a team separate from development.", mappings: { "US Banking (SR 11-7)": ["Independent Validation"], "NIST AI RMF 1.0": ["MEASURE 2.6"] }, implementation: "Second-line-of-defense (2LOD) validation pre-deployment." },
   { id: 6, concept: "Privacy Impact Assessment", riskTier: "All Systems", priority: "Critical", lifecycle: "Design", description: "Safeguards for personal data and GDPR/State Law compliance.", mappings: { "GDPR": ["Article 35"], "ISO/IEC 42001 (AIMS)": ["Annex A.7"] }, implementation: "Conduct DPIA before processing personal data." },
-  { id: 7, concept: "Explainability & Transparency", riskTier: "High-Risk", priority: "High", lifecycle: "Deployment", description: "Mechanisms to explain AI decisions to stakeholders.", mappings: { "EU AI Act (Final)": ["Article 13"], "NIST AI RMF 1.0": ["GOVERN 3.1"] }, implementation: "Provide clear decision explanations (SHAP/LIME)." },
+  { id: 7, concept: "Explainability & Transparency", riskTier: "High-Risk", priority: "High", lifecycle: "Deployment", description: "Mechanisms to explain AI decisions to stakeholders.", mappings: { "EU AI Act (Final)": ["Article 13"], "NIST AI RMF 1.0": ["GOVERN 3.1"], "OECD AI Principles": ["Principle 1.3"] }, implementation: "Provide clear decision explanations (SHAP/LIME)." },
   { id: 8, concept: "Data Drift Detection", riskTier: "High-Risk", priority: "Critical", lifecycle: "Monitoring", description: "Monitoring for shifts in input data distribution.", mappings: { "NIST AI RMF 1.0": ["MEASURE 2.7"], "US Banking (SR 11-7)": ["Ongoing Monitoring"] }, implementation: "Automated alerts when input data diverges >5%." },
   { id: 9, concept: "Model Versioning & Rollback", riskTier: "High-Risk", priority: "High", lifecycle: "Deployment", description: "Ability to revert to previous model versions in case of failure.", mappings: { "ISO/IEC 42001 (AIMS)": ["Annex A.9.3"], "NIST AI RMF 1.0": ["MANAGE 3.3"] }, implementation: "Immutable version history with one-click rollback." },
   { id: 10, concept: "Adversarial Testing (Red Teaming)", riskTier: "High-Risk", priority: "Critical", lifecycle: "Development", description: "Testing against prompt injection and evasion attacks.", mappings: { "OWASP Top 10 LLM": ["LLM01"], "NIST AI RMF 1.0": ["MEASURE 2.5"] }, implementation: "Conduct red-teaming targeting jailbreaks." },
-  { id: 11, concept: "Bias Testing & Fairness", riskTier: "High-Risk", priority: "Critical", lifecycle: "Development", description: "Assessment of algorithmic bias across protected classes.", mappings: { "NIST AI RMF 1.0": ["MEASURE 2.3"], "EU AI Act (Final)": ["Article 10(2)"] }, implementation: "Quarterly bias testing across demographic groups." },
+  { id: 11, concept: "Bias Testing & Fairness", riskTier: "High-Risk", priority: "Critical", lifecycle: "Development", description: "Assessment of algorithmic bias across protected classes.", mappings: { "NIST AI RMF 1.0": ["MEASURE 2.3"], "EU AI Act (Final)": ["Article 10(2)"], "OECD AI Principles": ["Principle 1.2"] }, implementation: "Quarterly bias testing across demographic groups." },
   { id: 12, concept: "Secure Weights Storage", riskTier: "Critical", priority: "Critical", lifecycle: "Deployment", description: "Preventing theft of proprietary model weights.", mappings: { "OWASP Top 10 LLM": ["LLM10"], "ISO/IEC 42001 (AIMS)": ["Annex A.13"] }, implementation: "Store weights in HSM or encrypted buckets." },
   { id: 13, concept: "Copyright Compliance (GenAI)", riskTier: "GenAI", priority: "High", lifecycle: "Design", description: "Ensuring training data respects IP laws.", mappings: { "EU AI Act (Final)": ["Article 53"], "ISO/IEC 42001 (AIMS)": ["Annex A.5"] }, implementation: "Maintain IP ledger of training data." },
   { id: 14, concept: "Contestability & Redress", riskTier: "High-Risk", priority: "Medium", lifecycle: "Monitoring", description: "Process for subjects to challenge automated decisions.", mappings: { "GDPR": ["Article 22"], "Singapore GenAI FW": ["Customer Relationship"] }, implementation: "Clear 'Appeal Decision' workflow." },
-  { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", lifecycle: "Monitoring", description: "Monitoring energy consumption.", mappings: { "EU AI Act (Final)": ["Article 40"], "OECD Principles": ["Principle 1.1"] }, implementation: "Log compute hours and carbon emissions." },
+  { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", lifecycle: "Monitoring", description: "Monitoring energy consumption.", mappings: { "EU AI Act (Final)": ["Article 40"], "OECD AI Principles": ["Principle 1.1"] }, implementation: "Log compute hours and carbon emissions." },
   { id: 16, concept: "Vendor/Third-Party Risk", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Oversight of third-party AI providers.", mappings: { "NIST AI RMF 1.0": ["MAP 1.5"], "US Banking (SR 11-7)": ["Vendor Models"] }, implementation: "Mandatory risk assessment for all 3rd party AI." },
   { id: 17, concept: "Pre-Interaction Disclosure", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment", description: "AI must disclose non-human status.", mappings: { "NHID-Clinical": ["Rule 1.1"], "EU AI Act (Final)": ["Article 50"] }, implementation: "Audio/Text banner: 'I am an AI assistant'." },
   { id: 18, concept: "Zero-Loop Escalation", riskTier: "High-Risk", priority: "Critical", lifecycle: "Monitoring", description: "Mandatory human hand-off if unresolved.", mappings: { "NHID-Clinical": ["Rule 2.4"], "US Banking (SR 11-7)": ["Complaint Mgmt"] }, implementation: "If confidence < 90%, route to human." },
-  { id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design", description: "Prohibition of deceptive human-like mimicry.", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, implementation: "Remove synthetic 'human' artifacts." },
-  
+  { id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design", description: "Prohibition of deceptive human-like mimicry.", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD AI Principles": ["Transparency"] }, implementation: "Remove synthetic 'human' artifacts." },
   // --- NEW CONTROLS TO REACH 30+ ---
   { id: 20, concept: "Data Retention Policy", riskTier: "All Systems", priority: "High", lifecycle: "Decommissioning", description: "Rules for retaining and deleting training data.", mappings: { "GDPR": ["Article 5"], "ISO/IEC 42001 (AIMS)": ["Annex A.7"] }, implementation: "Auto-delete user data after 30 days unless consented." },
   { id: 21, concept: "User Feedback Loops", riskTier: "All Systems", priority: "Medium", lifecycle: "Monitoring", description: "Mechanism for users to flag errors.", mappings: { "NIST AI RMF 1.0": ["MEASURE 2.2"], "Microsoft RAI v2": ["Reliability"] }, implementation: "Thumbs up/down feedback integrated into UI." },
@@ -50,7 +49,7 @@ const complianceData = [
   { id: 27, concept: "Automated Logging", riskTier: "High-Risk", priority: "High", lifecycle: "Monitoring", description: "Traceability of system functioning.", mappings: { "EU AI Act (Final)": ["Article 12"], "ISO/IEC 42001 (AIMS)": ["Clause 9.1"] }, implementation: "Immutable logs of all system inputs/outputs." },
   { id: 28, concept: "Incident Reporting System", riskTier: "All Systems", priority: "Critical", lifecycle: "Monitoring", description: "Reporting serious incidents to authorities.", mappings: { "EU AI Act (Final)": ["Article 62"], "NIST AI RMF 1.0": ["MANAGE 4.2"] }, implementation: "72-hour notification window for serious incidents." },
   { id: 29, concept: "Accessible User Interface", riskTier: "All Systems", priority: "Medium", lifecycle: "Deployment", description: "Usability for people with disabilities.", mappings: { "EU AI Act (Final)": ["Article 15"], "IEEE 7000": ["Values"] }, implementation: "WCAG 2.1 AA compliance for all AI interfaces." },
-  { id: 30, concept: "Sustainable Compute", riskTier: "GenAI", priority: "Low", lifecycle: "Design", description: "Minimizing carbon footprint.", mappings: { "OECD Principles": ["Principle 1.1"], "ISO/IEC 42001 (AIMS)": ["Objectives"] }, implementation: "Select green energy regions for training clusters." },
+  { id: 30, concept: "Sustainable Compute", riskTier: "GenAI", priority: "Low", lifecycle: "Design", description: "Minimizing carbon footprint.", mappings: { "OECD AI Principles": ["Principle 1.1"], "ISO/IEC 42001 (AIMS)": ["Objectives"] }, implementation: "Select green energy regions for training clusters." },
   { id: 31, concept: "Workforce Training", riskTier: "All Systems", priority: "Medium", lifecycle: "Deployment", description: "Training staff on safe AI use.", mappings: { "ISO/IEC 42001 (AIMS)": ["Clause 7.2"], "NIST AI RMF 1.0": ["GOVERN 1.2"] }, implementation: "Mandatory annual AI safety training for staff." }
 ];
 
@@ -67,7 +66,7 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // 1. LOAD: Loads Text + Uploads
+  // 1. LOAD
   useEffect(() => {
     const savedData = localStorage.getItem('ai-gov-save');
     if (savedData) setControlState(JSON.parse(savedData));
@@ -78,13 +77,13 @@ const AIGovernancePlatform = () => {
     }
   }, []);
 
-  // 2. SAVE: Saves Text + Uploads
+  // 2. SAVE
   useEffect(() => {
     if (Object.keys(controlState).length > 0) localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
     if (userControls.length > 0) localStorage.setItem('ai-gov-manifest', JSON.stringify(userControls));
   }, [controlState, userControls]);
 
-  // 3. AUTO-GRADE: Updates scores based on file uploads
+  // 3. AUTO-GRADE
   useEffect(() => {
     if (userControls.length > 0) {
       const newControlState = { ...controlState };
@@ -107,7 +106,7 @@ const AIGovernancePlatform = () => {
     }
   }, [userControls]);
 
-  // 4. RESET: Clears all data
+  // 4. RESET
   const handleFullReset = () => {
     if (window.confirm("Are you sure you want to clear all data? This cannot be undone.")) {
       localStorage.removeItem('ai-gov-save');
@@ -150,9 +149,13 @@ const AIGovernancePlatform = () => {
     setSearchTerm('');
   };
 
-  // MATRIX: Interactive Click Handler
+  // MATRIX: Interactive Click Handler (Auto-Clears conflicts)
   const handleMatrixClick = (fw1, fw2) => {
-    setSelectedFrameworks([fw1, fw2]); 
+    setSearchTerm(''); // Clear Search
+    setSelectedRiskTier('all'); // Clear Risk
+    setSelectedLifecycle('all'); // Clear Lifecycle
+    setSelectedPriority('all'); // Clear Priority
+    setSelectedFrameworks([fw1, fw2]); // Set Intersection
     setActiveTab('map'); 
     setShowFilters(true); 
   };
@@ -275,10 +278,18 @@ const AIGovernancePlatform = () => {
                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/50 border border-white/10 rounded-xl relative z-20">
                   <div className="md:col-span-1">
                      <label className="text-xs text-slate-500 uppercase font-bold">Frameworks</label>
-                     <select value={selectedFrameworks[0]} onChange={(e) => setSelectedFrameworks([e.target.value])} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
-                        <option value="all">All Frameworks</option>
-                        {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
-                     </select>
+                     {selectedFrameworks.length > 1 ? (
+                        <div className="flex items-center gap-2 bg-slate-950 border border-indigo-500/50 rounded p-2 text-sm text-indigo-300 cursor-default">
+                           <Network className="w-4 h-4" />
+                           <span>Intersection Mode</span>
+                           <button onClick={() => setSelectedFrameworks(['all'])} className="ml-auto hover:text-white"><X className="w-3 h-3"/></button>
+                        </div>
+                     ) : (
+                        <select value={selectedFrameworks[0]} onChange={(e) => setSelectedFrameworks([e.target.value])} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
+                            <option value="all">All Frameworks</option>
+                            {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
+                        </select>
+                     )}
                   </div>
                   <div>
                       <label className="text-xs text-slate-500 uppercase font-bold">Risk Tier</label>
