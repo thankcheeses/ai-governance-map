@@ -2,10 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Map, Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, 
   TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, 
-  Network, BarChart3, Upload, Save, ArrowRight, Download, X, AlertCircle 
+  Network, BarChart3, Upload, Save, ArrowRight, Download, X, AlertCircle, RotateCcw
 } from 'lucide-react';
 
-// --- STATIC DATA (Moved outside to prevent logic errors) ---
+// --- STATIC DATA ---
 const maturityLevels = [
   { level: 0, label: 'Non-Existent', color: 'bg-slate-800', border: 'border-slate-700', text: 'text-slate-500' },
   { level: 1, label: 'Initial', color: 'bg-red-500/10', border: 'border-red-500/50', text: 'text-red-400' },
@@ -17,7 +17,6 @@ const maturityLevels = [
 
 const frameworks = ['NHID-Clinical', 'NIST AI RMF 1.0', 'EU AI Act (Final)', 'ISO/IEC 42001 (AIMS)', 'US Banking (SR 11-7)', 'OECD AI Principles', 'Singapore GenAI FW', 'OWASP Top 10 LLM', 'MITRE ATLAS', 'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety', 'GDPR', 'CCPA / CPRA', 'ISO/IEC 27001', 'NIST Privacy FW', 'IEEE 7000', 'Canada AIDA', 'US EO 14110', 'China GenAI Measures', 'UK AI Strategy', 'Japan AI Guidelines', 'Brazil Bill 2338', 'Australia Ethics', 'FDA AI/ML (Health)', 'NYC Law 144 (HR)', 'UNECE (Automotive)', 'Montreal Declaration', 'Microsoft RAI v2', 'UNESCO Ethics'];
 
-// UPDATED: Now contains 31 Controls to match your "30+" claim
 const complianceData = [
   // --- ORIGINAL 19 ---
   { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF 1.0": ["MAP 1.1"], "ISO/IEC 42001 (AIMS)": ["Clause 8.2"], "EU AI Act (Final)": ["Article 9"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews." },
@@ -107,6 +106,18 @@ const AIGovernancePlatform = () => {
       if (hasUpdates) setControlState(newControlState);
     }
   }, [userControls]);
+
+  // 4. RESET: Clears all data
+  const handleFullReset = () => {
+    if (window.confirm("Are you sure you want to clear all data? This cannot be undone.")) {
+      localStorage.removeItem('ai-gov-save');
+      localStorage.removeItem('ai-gov-manifest');
+      setControlState({});
+      setUserControls([]);
+      setUploadedFile(null);
+      handleResetFilters();
+    }
+  };
 
   const updateMaturity = (id, level) => {
     setControlState(prev => ({ ...prev, [id]: { ...prev[id], maturity: level } }));
@@ -252,6 +263,10 @@ const AIGovernancePlatform = () => {
                     <Search className="absolute left-4 top-3.5 text-slate-500 w-5 h-5" />
                     <input type="text" placeholder="Filter controls..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-transparent pl-12 pr-4 py-3 outline-none" />
                 </div>
+                {/* RESET BUTTON */}
+                <button onClick={handleFullReset} className="px-4 rounded-lg border bg-slate-900 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500 flex items-center gap-2">
+                   <RotateCcw className="w-4 h-4" /> Reset
+                </button>
                 <button onClick={() => setShowFilters(!showFilters)} className="px-4 rounded-lg border bg-slate-900 border-white/10 text-slate-400">Filters</button>
                 <button onClick={exportToCSV} className="px-4 rounded-lg border bg-slate-900 border-white/10 text-slate-400 hover:text-white"><Download className="w-4 h-4"/></button>
             </div>
