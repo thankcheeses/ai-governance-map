@@ -8,7 +8,8 @@ import {
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFramework, setSelectedFramework] = useState('all');
+  // CHANGED: Back to array to support Matrix "Intersection" filtering (e.g. NIST + EU AI Act)
+  const [selectedFrameworks, setSelectedFrameworks] = useState(['all']);
   const [selectedRiskTier, setSelectedRiskTier] = useState('all');
   const [selectedLifecycle, setSelectedLifecycle] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
@@ -18,79 +19,37 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-    // 1. Load data from browser memory (Now loads BOTH Text and Uploads)
+  // 1. Load data from browser memory
   useEffect(() => {
-    // Load your typed text
     const savedData = localStorage.getItem('ai-gov-save');
-    if (savedData) {
-      setControlState(JSON.parse(savedData));
-    }
+    if (savedData) setControlState(JSON.parse(savedData));
     
-    // NEW: Load your uploaded JSON file
     const savedManifest = localStorage.getItem('ai-gov-manifest');
     if (savedManifest) {
       setUserControls(JSON.parse(savedManifest));
-      setUploadedFile("Restored Session"); // Shows this label so you know it loaded
+      setUploadedFile("Restored Session");
     }
   }, []);
 
-  // 2. Auto-save data (Now saves BOTH Text and Uploads)
+  // 2. Auto-save data
   useEffect(() => {
-    // Save text
-    if (Object.keys(controlState).length > 0) {
-      localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
-    }
-    // NEW: Save uploaded JSON
-    if (userControls.length > 0) {
-      localStorage.setItem('ai-gov-manifest', JSON.stringify(userControls));
-    }
+    if (Object.keys(controlState).length > 0) localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
+    if (userControls.length > 0) localStorage.setItem('ai-gov-manifest', JSON.stringify(userControls));
   }, [controlState, userControls]);
-  // 3. AUTO-GRADER: When a file is uploaded, automatically update the scores!
-  useEffect(() => {
-    if (userControls.length > 0) {
-      const newControlState = { ...controlState };
-      let hasUpdates = false;
 
-      userControls.forEach(uploadItem => {
-        // Find the matching control in our master list by name
-        const match = complianceData.find(c => c.concept === uploadItem.concept);
-        
-        if (match) {
-          // Determine score based on Engineering Status keywords
-          let score = 0;
-          const status = uploadItem.status?.toLowerCase() || '';
-          
-          if (status.includes('monitoring')) score = 4;      // Level 4: Measured
-          else if (status.includes('implemented') || status.includes('active') || status.includes('completed')) score = 3; // Level 3: Defined
-          else if (status.includes('assessed')) score = 2;   // Level 2: Managed
-          
-          // Apply the score if it's new
-          if ((newControlState[match.id]?.maturity || 0) < score) {
-            newControlState[match.id] = { 
-              ...newControlState[match.id], 
-              maturity: score,
-              remediation: `Auto-verified via Engineering Manifest (${uploadItem.last_audit || 'Imported'})` 
-            };
-            hasUpdates = true;
-          }
-        }
-      });
-
-      if (hasUpdates) {
-        setControlState(newControlState);
-      }
-    }
-  }, [userControls]);
-
-
-  // --- MASTER FRAMEWORK LIST ---
+  // --- MASTER FRAMEWORK LIST (Reordered to put NHID at top) ---
   const frameworks = [
-    'NIST AI RMF 1.0', 'ISO/IEC 42001 (AIMS)', 'EU AI Act (Final)', 'OECD AI Principles', 'Singapore GenAI FW', 
-    'OWASP Top 10 LLM', 'MITRE ATLAS', 'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety',
-    'GDPR', 'CCPA / CPRA', 'ISO/IEC 27001', 'NIST Privacy FW', 'IEEE 7000',
-    'Canada AIDA', 'US EO 14110', 'China GenAI Measures', 'UK AI Strategy', 'Japan AI Guidelines', 'Brazil Bill 2338', 'Australia Ethics',
-    'US Banking (SR 11-7)', 'FDA AI/ML (Health)', 'NYC Law 144 (HR)', 'UNECE (Automotive)',
-    'NHID-Clinical', 'Montreal Declaration', 'Microsoft RAI v2', 'UNESCO Ethics'
+    'NHID-Clinical', // Moved to top for visibility in Matrix
+    'NIST AI RMF 1.0', 
+    'EU AI Act (Final)', 
+    'ISO/IEC 42001 (AIMS)', 
+    'US Banking (SR 11-7)',
+    'OECD AI Principles', 'Singapore GenAI FW', 'OWASP Top 10 LLM', 'MITRE ATLAS', 
+    'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety', 'GDPR', 'CCPA / CPRA', 
+    'ISO/IEC 27001', 'NIST Privacy FW', 'IEEE 7000', 'Canada AIDA', 'US EO 14110', 
+    'China GenAI Measures', 'UK AI Strategy', 'Japan AI Guidelines', 'Brazil Bill 2338', 
+    'Australia Ethics', 'FDA AI/ML (Health)', 'NYC Law 144 (HR)', 'UNECE (Automotive)',
+    'Montreal Declaration', 'Microsoft RAI v2', 'UNESCO Ethics'
   ];
   
   const lifecycleStages = ['All Stages', 'Design', 'Development', 'Deployment', 'Monitoring', 'Decommissioning'];
@@ -126,6 +85,30 @@ const AIGovernancePlatform = () => {
     { id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design", description: "Prohibition of deceptive human-like mimicry (fake breathing, typing sounds).", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, implementation: "Remove synthetic 'human' artifacts from voice/text generation." }
   ];
 
+  // 3. AUTO-GRADER Logic
+  useEffect(() => {
+    if (userControls.length > 0) {
+      const newControlState = { ...controlState };
+      let hasUpdates = false;
+      userControls.forEach(uploadItem => {
+        const match = complianceData.find(c => c.concept === uploadItem.concept);
+        if (match) {
+          let score = 0;
+          const status = uploadItem.status?.toLowerCase() || '';
+          if (status.includes('monitoring')) score = 4;
+          else if (status.includes('implemented') || status.includes('active') || status.includes('completed')) score = 3;
+          else if (status.includes('assessed')) score = 2;
+          
+          if ((newControlState[match.id]?.maturity || 0) < score) {
+            newControlState[match.id] = { ...newControlState[match.id], maturity: score, remediation: `Auto-verified via Engineering Manifest (${uploadItem.last_audit || 'Imported'})` };
+            hasUpdates = true;
+          }
+        }
+      });
+      if (hasUpdates) setControlState(newControlState);
+    }
+  }, [userControls]);
+
   const updateMaturity = (id, level) => {
     setControlState(prev => ({ ...prev, [id]: { ...prev[id], maturity: level } }));
   };
@@ -145,26 +128,28 @@ const AIGovernancePlatform = () => {
 
   const distribution = useMemo(() => {
     const counts = [0, 0, 0, 0, 0, 0];
-    complianceData.forEach(item => {
-      const level = getMaturity(item.id);
-      counts[level]++;
-    });
+    complianceData.forEach(item => { counts[getMaturity(item.id)]++; });
     return counts;
   }, [controlState]);
 
   const handleResetFilters = () => {
-    setSelectedFramework('all');
+    setSelectedFrameworks(['all']);
     setSelectedRiskTier('all');
     setSelectedLifecycle('all');
     setSelectedPriority('all');
     setSearchTerm('');
   };
 
+  const handleMatrixClick = (fw1, fw2) => {
+    // This connects the Matrix to the Main View
+    setSelectedFrameworks([fw1, fw2]); // Select both frameworks to show overlap
+    setActiveTab('map'); // Switch to map view
+    setShowFilters(true); // Open filters so user sees what happened
+  };
+
   const exportToCSV = () => {
     const headers = ['Concept', 'Risk Tier', 'Priority', 'Maturity', 'Remediation'];
-    const rows = complianceData.map(item => [
-      item.concept, item.riskTier, item.priority, getMaturity(item.id), getRemediation(item.id)
-    ]);
+    const rows = complianceData.map(item => [item.concept, item.riskTier, item.priority, getMaturity(item.id), getRemediation(item.id)]);
     const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -203,22 +188,19 @@ const AIGovernancePlatform = () => {
   const filteredData = useMemo(() => {
     return complianceData.filter(item => {
       const matchesSearch = searchTerm === '' || item.concept.toLowerCase().includes(searchTerm.toLowerCase()) || item.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFramework = selectedFramework === 'all' || (item.mappings && item.mappings[selectedFramework]);
+      // Intersection Logic: Item must map to ALL selected frameworks (unless 'all' is selected)
+      const matchesFramework = selectedFrameworks.includes('all') || selectedFrameworks.every(fw => item.mappings && item.mappings[fw]);
       const matchesRisk = selectedRiskTier === 'all' || item.riskTier === selectedRiskTier;
       const matchesLifecycle = selectedLifecycle === 'all' || item.lifecycle === selectedLifecycle || item.lifecycle === 'All Stages';
       const matchesPriority = selectedPriority === 'all' || item.priority === selectedPriority;
       return matchesSearch && matchesFramework && matchesRisk && matchesLifecycle && matchesPriority;
     });
-  }, [searchTerm, selectedFramework, selectedRiskTier, selectedLifecycle, selectedPriority]);
+  }, [searchTerm, selectedFrameworks, selectedRiskTier, selectedLifecycle, selectedPriority]);
 
   const getPriorityColor = (p) => {
     if (p === 'Critical') return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
     if (p === 'High') return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
     return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-  };
-
-  const handleMatrixClick = (fw1, fw2) => {
-    setActiveTab('network');
   };
 
   return (
@@ -295,7 +277,7 @@ const AIGovernancePlatform = () => {
                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/50 border border-white/10 rounded-xl relative z-20">
                   <div className="md:col-span-1">
                      <label className="text-xs text-slate-500 uppercase font-bold">Frameworks</label>
-                     <select value={selectedFramework} onChange={(e) => setSelectedFramework(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
+                     <select value={selectedFrameworks[0]} onChange={(e) => setSelectedFrameworks([e.target.value])} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
                         <option value="all">All Frameworks</option>
                         {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
                      </select>
@@ -322,7 +304,7 @@ const AIGovernancePlatform = () => {
             )}
 
             <div className="grid gap-3">
-              {filteredData.map((item) => {
+              {filteredData.length === 0 ? <div className="text-center p-8 text-slate-500">No controls match this filter combination.</div> : filteredData.map((item) => {
                 const currentMat = getMaturity(item.id);
                 const matStyle = maturityLevels[currentMat];
                 const isNHID = item.mappings && item.mappings["NHID-Clinical"];
@@ -389,27 +371,37 @@ const AIGovernancePlatform = () => {
           </div>
         )}
 
-        {/* TAB: NETWORK */}
+        {/* TAB: NETWORK (The Matrix) */}
         {activeTab === 'network' && (
            <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10 overflow-x-auto">
-              <h3 className="text-lg font-bold text-white mb-6">Framework Matrix</h3>
+              <h3 className="text-lg font-bold text-white mb-6">Cross-Walk Matrix (Interactive)</h3>
+              <p className="text-sm text-slate-400 mb-4">Click any number to filter for controls shared by both frameworks.</p>
               <div className="grid gap-2 min-w-[600px]">
                 <div className="flex gap-2 mb-2">
                    <div className="w-32"></div>
-                   {frameworks.slice(0, 5).map(fw => (
+                   {frameworks.slice(0, 6).map(fw => (
                       <div key={fw} className="w-24 text-[10px] font-bold text-slate-500 uppercase text-center">{fw.split(' ')[0]}</div>
                    ))}
                 </div>
-                {frameworks.slice(0, 5).map((fw1, i) => (
+                {frameworks.slice(0, 6).map((fw1, i) => (
                   <div key={fw1} className="flex items-center gap-2">
-                    <div className="w-32 text-[10px] font-bold text-slate-400 uppercase text-right pr-4">{fw1}</div>
-                    {frameworks.slice(0, 5).map((fw2, j) => {
+                    <div className="w-32 text-[10px] font-bold text-slate-400 uppercase text-right pr-4 truncate">{fw1}</div>
+                    {frameworks.slice(0, 6).map((fw2, j) => {
                       const overlap = complianceData.filter(item => item.mappings?.[fw1] && item.mappings?.[fw2]).length;
                       const isSelf = i === j;
                       return (
-                        <div key={`${fw1}-${fw2}`} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20 cursor-pointer'}`}>
+                        <button 
+                          key={`${fw1}-${fw2}`} 
+                          disabled={isSelf || overlap === 0}
+                          onClick={() => handleMatrixClick(fw1, fw2)}
+                          className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono transition-all duration-200
+                            ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 
+                              overlap === 0 ? 'bg-slate-900/50 text-slate-600 border-white/5 cursor-not-allowed' :
+                              'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/30 hover:border-cyan-400 cursor-pointer shadow-[0_0_10px_rgba(34,211,238,0.1)]'
+                            }`}
+                        >
                           {isSelf ? '-' : overlap}
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -431,7 +423,6 @@ const AIGovernancePlatform = () => {
                 {uploadedFile && <div className="mt-4 text-emerald-400 text-sm flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4"/> {uploadedFile}</div>}
               </div>
 
-              {/* THIS WAS MISSING BEFORE - NOW IT IS HERE */}
               {gapAnalysis && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
