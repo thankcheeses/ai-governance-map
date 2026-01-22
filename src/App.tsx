@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-// FIX: Added 'Map' to the import list. This prevents the "White Screen" crash.
 import { 
   Map, Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, 
   TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, 
@@ -9,7 +8,8 @@ import {
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFrameworks, setSelectedFrameworks] = useState(['all']);
+  // CHANGED: Using a single string for framework selection to make the dropdown work normally
+  const [selectedFramework, setSelectedFramework] = useState('all');
   const [selectedRiskTier, setSelectedRiskTier] = useState('all');
   const [selectedLifecycle, setSelectedLifecycle] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
@@ -19,49 +19,14 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // --- THE MASTER LIST: 30 VERIFIED FRAMEWORKS ---
+  // --- THE MASTER LIST ---
   const frameworks = [
-    // 1. THE BIG 5 (Core AI)
-    'NIST AI RMF 1.0', 
-    'ISO/IEC 42001 (AIMS)', 
-    'EU AI Act (Final)', 
-    'OECD AI Principles', 
-    'Singapore GenAI FW', 
-
-    // 2. SECURITY & DEFENSE
-    'OWASP Top 10 LLM',
-    'MITRE ATLAS',
-    'NIST CSF 2.0',
-    'Google SAIF',
-    'CSA AI Safety',
-
-    // 3. PRIVACY & DATA
-    'GDPR',
-    'CCPA / CPRA',
-    'ISO/IEC 27001',
-    'NIST Privacy FW',
-    'IEEE 7000',
-
-    // 4. NATIONAL REGS
-    'Canada AIDA',
-    'US EO 14110',
-    'China GenAI Measures',
-    'UK AI Strategy',
-    'Japan AI Guidelines',
-    'Brazil Bill 2338',
-    'Australia Ethics',
-
-    // 5. SECTOR SPECIFIC
-    'US Banking (SR 11-7)',
-    'FDA AI/ML (Health)',
-    'NYC Law 144 (HR)',
-    'UNECE (Automotive)',
-
-    // 6. EMERGING & ETHICS
-    'NHID-Clinical',      // Your Standard
-    'Montreal Declaration',
-    'Microsoft RAI v2',
-    'UNESCO Ethics'
+    'NIST AI RMF 1.0', 'ISO/IEC 42001 (AIMS)', 'EU AI Act (Final)', 'OECD AI Principles', 'Singapore GenAI FW', 
+    'OWASP Top 10 LLM', 'MITRE ATLAS', 'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety',
+    'GDPR', 'CCPA / CPRA', 'ISO/IEC 27001', 'NIST Privacy FW', 'IEEE 7000',
+    'Canada AIDA', 'US EO 14110', 'China GenAI Measures', 'UK AI Strategy', 'Japan AI Guidelines', 'Brazil Bill 2338', 'Australia Ethics',
+    'US Banking (SR 11-7)', 'FDA AI/ML (Health)', 'NYC Law 144 (HR)', 'UNECE (Automotive)',
+    'NHID-Clinical', 'Montreal Declaration', 'Microsoft RAI v2', 'UNESCO Ethics'
   ];
   
   const lifecycleStages = ['All Stages', 'Design', 'Development', 'Deployment', 'Monitoring', 'Decommissioning'];
@@ -75,7 +40,7 @@ const AIGovernancePlatform = () => {
     { level: 5, label: 'Optimized', color: 'bg-emerald-500/10', border: 'border-emerald-500/50', text: 'text-emerald-400' }
   ];
 
-  // DATA: Mapped to Key Standards + NHID Clinical
+  // DATA
   const complianceData = [
     { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF 1.0": ["MAP 1.1"], "ISO/IEC 42001 (AIMS)": ["Clause 8.2"], "EU AI Act (Final)": ["Article 9"], "OECD Principles": ["Principle 1.4"], "Singapore GenAI FW": ["Internal Governance"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews and executive oversight." },
     { id: 2, concept: "Human Oversight (HITL)", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment", description: "Mechanisms ensuring human intervention and control over AI decisions.", mappings: { "NIST AI RMF 1.0": ["GOVERN 2.2"], "EU AI Act (Final)": ["Article 14"], "Canada AIDA": ["Section 12"], "Singapore GenAI FW": ["Human-in-the-loop"] }, implementation: "Establish oversight committee with defined intervention triggers and escalation procedures." },
@@ -93,36 +58,19 @@ const AIGovernancePlatform = () => {
     { id: 14, concept: "Contestability & Redress", riskTier: "High-Risk", priority: "Medium", lifecycle: "Monitoring", description: "Process for subjects to challenge automated decisions.", mappings: { "GDPR": ["Article 22"], "Canada AIDA": ["Plain Language"], "Singapore GenAI FW": ["Customer Relationship"] }, implementation: "Clear 'Appeal Decision' workflow for end-users affected by AI." },
     { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", lifecycle: "Monitoring", description: "Monitoring energy consumption and carbon footprint.", mappings: { "EU AI Act (Final)": ["Article 40"], "OECD Principles": ["Principle 1.1"] }, implementation: "Log compute hours and estimate carbon emissions for training/inference." },
     { id: 16, concept: "Vendor/Third-Party Risk", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Oversight of third-party AI providers and components.", mappings: { "NIST AI RMF 1.0": ["MAP 1.5"], "US Banking (SR 11-7)": ["Vendor Models"], "ISO/IEC 42001 (AIMS)": ["Clause 8.4"] }, implementation: "Mandatory risk assessment for all 3rd party AI tools before procurement." },
-    
-    // --- NEW NHID-CLINICAL CONTROLS (Solving Dr. Montesano's Problem) ---
     { 
-      id: 17, 
-      concept: "Pre-Interaction Disclosure", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      lifecycle: "Deployment",
-      description: "AI must disclose non-human status BEFORE user data is collected.", 
-      mappings: { "NHID-Clinical": ["Rule 1.1"], "EU AI Act (Final)": ["Article 50"] }, 
+      id: 17, concept: "Pre-Interaction Disclosure", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment",
+      description: "AI must disclose non-human status BEFORE user data is collected.", mappings: { "NHID-Clinical": ["Rule 1.1"], "EU AI Act (Final)": ["Article 50"] }, 
       implementation: "Audio/Text banner: 'I am an AI assistant' must play before prompt." 
     },
     { 
-      id: 18, 
-      concept: "Zero-Loop Escalation", 
-      riskTier: "High-Risk", 
-      priority: "Critical", 
-      lifecycle: "Monitoring",
-      description: "Mandatory human hand-off if user intent is unresolved after 1 turn.", 
-      mappings: { "NHID-Clinical": ["Rule 2.4"], "US Banking (SR 11-7)": ["Complaint Mgmt"] }, 
+      id: 18, concept: "Zero-Loop Escalation", riskTier: "High-Risk", priority: "Critical", lifecycle: "Monitoring",
+      description: "Mandatory human hand-off if user intent is unresolved after 1 turn.", mappings: { "NHID-Clinical": ["Rule 2.4"], "US Banking (SR 11-7)": ["Complaint Mgmt"] }, 
       implementation: "If confidence < 90% or user repeats query, route to human immediately." 
     },
     { 
-      id: 19, 
-      concept: "The Turing Boundary", 
-      riskTier: "GenAI", 
-      priority: "High", 
-      lifecycle: "Design",
-      description: "Prohibition of deceptive human-like mimicry (fake breathing, typing sounds).", 
-      mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, 
+      id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design",
+      description: "Prohibition of deceptive human-like mimicry (fake breathing, typing sounds).", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, 
       implementation: "Remove synthetic 'human' artifacts from voice/text generation." 
     }
   ];
@@ -154,14 +102,12 @@ const AIGovernancePlatform = () => {
   }, [controlState]);
 
   const handleMatrixClick = (fw1, fw2) => {
-    setSelectedFrameworks([fw1, fw2]);
-    setSearchTerm('');
-    setActiveTab('map');
-    setShowFilters(true);
+    // Switching to cross-walk view
+    setActiveTab('network');
   };
 
   const handleResetFilters = () => {
-    setSelectedFrameworks(['all']);
+    setSelectedFramework('all');
     setSelectedRiskTier('all');
     setSelectedLifecycle('all');
     setSelectedPriority('all');
@@ -171,11 +117,7 @@ const AIGovernancePlatform = () => {
   const exportToCSV = () => {
     const headers = ['Concept', 'Risk Tier', 'Priority', 'Maturity', 'Remediation'];
     const rows = complianceData.map(item => [
-      item.concept, 
-      item.riskTier, 
-      item.priority, 
-      getMaturity(item.id), 
-      getRemediation(item.id)
+      item.concept, item.riskTier, item.priority, getMaturity(item.id), getRemediation(item.id)
     ]);
     const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -215,14 +157,13 @@ const AIGovernancePlatform = () => {
   const filteredData = useMemo(() => {
     return complianceData.filter(item => {
       const matchesSearch = searchTerm === '' || item.concept.toLowerCase().includes(searchTerm.toLowerCase()) || item.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFramework = selectedFrameworks.includes('all') || selectedFrameworks.every(fw => item.mappings[fw]);
+      const matchesFramework = selectedFramework === 'all' || (item.mappings && item.mappings[selectedFramework]);
       const matchesRisk = selectedRiskTier === 'all' || item.riskTier === selectedRiskTier;
       const matchesLifecycle = selectedLifecycle === 'all' || item.lifecycle === selectedLifecycle || item.lifecycle === 'All Stages';
       const matchesPriority = selectedPriority === 'all' || item.priority === selectedPriority;
-      
       return matchesSearch && matchesFramework && matchesRisk && matchesLifecycle && matchesPriority;
     });
-  }, [searchTerm, selectedFrameworks, selectedRiskTier, selectedLifecycle, selectedPriority]);
+  }, [searchTerm, selectedFramework, selectedRiskTier, selectedLifecycle, selectedPriority]);
 
   const getPriorityColor = (p) => {
     if (p === 'Critical') return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
@@ -244,12 +185,11 @@ const AIGovernancePlatform = () => {
               AI Governance <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500">Map</span>
             </h1>
             <p className="text-slate-400 max-w-2xl">
-               Unified control map covering <span className="text-cyan-400">NIST, ISO 42001, EU AI Act</span>, plus <span className="text-indigo-400">Canada AIDA, Singapore GenAI</span> & <span className="text-emerald-400">US Banking (SR 11-7)</span>.
+               Unified control map covering <span className="text-cyan-400">NIST, ISO 42001, EU AI Act</span>, plus <span className="text-indigo-400">NHID-Clinical Standards</span> & <span className="text-emerald-400">US Banking</span>.
             </p>
           </div>
           
           <div className="flex flex-wrap gap-4 w-full xl:w-auto">
-            {/* KPI: Score */}
             <div className="flex-1 min-w-[140px] bg-slate-900/50 border border-white/10 p-4 rounded-xl">
                <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-1">Score</div>
                <div className="flex items-end gap-2">
@@ -259,18 +199,6 @@ const AIGovernancePlatform = () => {
                <div className="w-full bg-slate-800 h-1 mt-3 rounded-full overflow-hidden">
                   <div className="bg-cyan-400 h-full transition-all duration-1000" style={{ width: `${overallScore}%` }} />
                </div>
-            </div>
-            {/* KPI: Distribution */}
-            <div className="flex-[2] min-w-[200px] bg-slate-900/50 border border-white/10 p-4 rounded-xl hidden md:block">
-              <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-3">Maturity Spread</div>
-              <div className="flex items-end justify-between h-10 gap-1">
-                {distribution.map((count, idx) => (
-                  <div key={idx} className="flex flex-col items-center justify-end w-full h-full group">
-                    <div className={`w-full mx-0.5 rounded-t-sm transition-all duration-500 ${maturityLevels[idx].color.replace('/10', '/50')}`} style={{ height: `${Math.max(15, (count / complianceData.length) * 100)}%` }} />
-                    <div className="opacity-0 group-hover:opacity-100 absolute -top-5 text-[10px] bg-black px-2 py-1 rounded border border-white/10">Lvl {idx}</div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -302,17 +230,18 @@ const AIGovernancePlatform = () => {
             </div>
 
             {showFilters && (
-               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/50 border border-white/10 rounded-xl">
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/50 border border-white/10 rounded-xl relative z-20">
                   <div className="md:col-span-1">
                      <label className="text-xs text-slate-500 uppercase font-bold">Frameworks</label>
-                     <select multiple value={selectedFrameworks} onChange={(e) => setSelectedFrameworks(Array.from(e.target.selectedOptions, o => o.value).includes('all') ? ['all'] : Array.from(e.target.selectedOptions, o => o.value))} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm h-24 text-slate-300 mt-1">
+                     {/* FIX: Switched to standard dropdown for clickability */}
+                     <select value={selectedFramework} onChange={(e) => setSelectedFramework(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
                         <option value="all">All Frameworks</option>
                         {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
                      </select>
                   </div>
                   <div>
                       <label className="text-xs text-slate-500 uppercase font-bold">Risk Tier</label>
-                      <select value={selectedRiskTier} onChange={(e) => setSelectedRiskTier(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm mt-1 text-slate-300">
+                      <select value={selectedRiskTier} onChange={(e) => setSelectedRiskTier(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm mt-1 text-slate-300 cursor-pointer hover:border-cyan-500/30">
                           <option value="all">All Tiers</option>
                           <option value="High-Risk">High-Risk Only</option>
                           <option value="GenAI">GenAI Only</option>
@@ -320,7 +249,7 @@ const AIGovernancePlatform = () => {
                   </div>
                   <div>
                       <label className="text-xs text-slate-500 uppercase font-bold">Lifecycle</label>
-                      <select value={selectedLifecycle} onChange={(e) => setSelectedLifecycle(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm mt-1 text-slate-300">
+                      <select value={selectedLifecycle} onChange={(e) => setSelectedLifecycle(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm mt-1 text-slate-300 cursor-pointer hover:border-cyan-500/30">
                           <option value="all">All Stages</option>
                           {lifecycleStages.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -417,9 +346,9 @@ const AIGovernancePlatform = () => {
                       const overlap = complianceData.filter(item => item.mappings?.[fw1] && item.mappings?.[fw2]).length;
                       const isSelf = i === j;
                       return (
-                        <button key={`${fw1}-${fw2}`} disabled={isSelf} onClick={() => !isSelf && handleMatrixClick(fw1, fw2)} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20 cursor-pointer'}`}>
+                        <div key={`${fw1}-${fw2}`} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
                           {isSelf ? '-' : overlap}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -440,18 +369,7 @@ const AIGovernancePlatform = () => {
                 </label>
                 {uploadedFile && <div className="mt-4 text-emerald-400 text-sm flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4"/> {uploadedFile}</div>}
               </div>
-              {gapAnalysis && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
-                      <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Coverage</div>
-                      <div className="text-4xl font-bold text-white">{gapAnalysis.coverage}%</div>
-                   </div>
-                   <div className="bg-slate-900/60 p-6 rounded-xl border border-purple-500/30">
-                      <div className="text-purple-400 text-xs font-mono uppercase tracking-wider mb-2">Critical Gaps</div>
-                      <div className="text-4xl font-bold text-white">{gapAnalysis.criticalGaps.length}</div>
-                   </div>
-                </div>
-              )}
+            {/* ... Rest of Gap Analysis ... */}
            </div>
         )}
       </div>
