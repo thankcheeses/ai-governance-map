@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
- 
+import { 
   Map, Search, Filter, ChevronDown, CheckCircle, Shield, Activity, Zap, 
   TrendingUp, Clock, FileText, Printer, Lock, AlertTriangle, Globe, 
   Network, BarChart3, Upload, Save, ArrowRight, Download, X, AlertCircle 
@@ -8,7 +8,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [searchTerm, setSearchTerm] = useState('');
-  // CHANGED: Using a single string for framework selection to make the dropdown work normally
   const [selectedFramework, setSelectedFramework] = useState('all');
   const [selectedRiskTier, setSelectedRiskTier] = useState('all');
   const [selectedLifecycle, setSelectedLifecycle] = useState('all');
@@ -19,7 +18,7 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
-  // 1. Load data from browser memory when the app starts
+  // 1. Load data from browser memory
   useEffect(() => {
     const savedData = localStorage.getItem('ai-gov-save');
     if (savedData) {
@@ -27,14 +26,14 @@ const AIGovernancePlatform = () => {
     }
   }, []);
 
-  // 2. Auto-save data to browser memory whenever you type or click
+  // 2. Auto-save data
   useEffect(() => {
     if (Object.keys(controlState).length > 0) {
       localStorage.setItem('ai-gov-save', JSON.stringify(controlState));
     }
   }, [controlState]);
 
-  // --- THE MASTER LIST ---
+  // --- MASTER FRAMEWORK LIST ---
   const frameworks = [
     'NIST AI RMF 1.0', 'ISO/IEC 42001 (AIMS)', 'EU AI Act (Final)', 'OECD AI Principles', 'Singapore GenAI FW', 
     'OWASP Top 10 LLM', 'MITRE ATLAS', 'NIST CSF 2.0', 'Google SAIF', 'CSA AI Safety',
@@ -55,7 +54,6 @@ const AIGovernancePlatform = () => {
     { level: 5, label: 'Optimized', color: 'bg-emerald-500/10', border: 'border-emerald-500/50', text: 'text-emerald-400' }
   ];
 
-  // DATA
   const complianceData = [
     { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", lifecycle: "All Stages", description: "Systematic approach to identify, assess, and mitigate AI-related risks.", mappings: { "NIST AI RMF 1.0": ["MAP 1.1"], "ISO/IEC 42001 (AIMS)": ["Clause 8.2"], "EU AI Act (Final)": ["Article 9"], "OECD Principles": ["Principle 1.4"], "Singapore GenAI FW": ["Internal Governance"] }, implementation: "Maintain a living AI Risk Register with quarterly reviews and executive oversight." },
     { id: 2, concept: "Human Oversight (HITL)", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment", description: "Mechanisms ensuring human intervention and control over AI decisions.", mappings: { "NIST AI RMF 1.0": ["GOVERN 2.2"], "EU AI Act (Final)": ["Article 14"], "Canada AIDA": ["Section 12"], "Singapore GenAI FW": ["Human-in-the-loop"] }, implementation: "Establish oversight committee with defined intervention triggers and escalation procedures." },
@@ -73,21 +71,9 @@ const AIGovernancePlatform = () => {
     { id: 14, concept: "Contestability & Redress", riskTier: "High-Risk", priority: "Medium", lifecycle: "Monitoring", description: "Process for subjects to challenge automated decisions.", mappings: { "GDPR": ["Article 22"], "Canada AIDA": ["Plain Language"], "Singapore GenAI FW": ["Customer Relationship"] }, implementation: "Clear 'Appeal Decision' workflow for end-users affected by AI." },
     { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", lifecycle: "Monitoring", description: "Monitoring energy consumption and carbon footprint.", mappings: { "EU AI Act (Final)": ["Article 40"], "OECD Principles": ["Principle 1.1"] }, implementation: "Log compute hours and estimate carbon emissions for training/inference." },
     { id: 16, concept: "Vendor/Third-Party Risk", riskTier: "All Systems", priority: "High", lifecycle: "Design", description: "Oversight of third-party AI providers and components.", mappings: { "NIST AI RMF 1.0": ["MAP 1.5"], "US Banking (SR 11-7)": ["Vendor Models"], "ISO/IEC 42001 (AIMS)": ["Clause 8.4"] }, implementation: "Mandatory risk assessment for all 3rd party AI tools before procurement." },
-    { 
-      id: 17, concept: "Pre-Interaction Disclosure", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment",
-      description: "AI must disclose non-human status BEFORE user data is collected.", mappings: { "NHID-Clinical": ["Rule 1.1"], "EU AI Act (Final)": ["Article 50"] }, 
-      implementation: "Audio/Text banner: 'I am an AI assistant' must play before prompt." 
-    },
-    { 
-      id: 18, concept: "Zero-Loop Escalation", riskTier: "High-Risk", priority: "Critical", lifecycle: "Monitoring",
-      description: "Mandatory human hand-off if user intent is unresolved after 1 turn.", mappings: { "NHID-Clinical": ["Rule 2.4"], "US Banking (SR 11-7)": ["Complaint Mgmt"] }, 
-      implementation: "If confidence < 90% or user repeats query, route to human immediately." 
-    },
-    { 
-      id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design",
-      description: "Prohibition of deceptive human-like mimicry (fake breathing, typing sounds).", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, 
-      implementation: "Remove synthetic 'human' artifacts from voice/text generation." 
-    }
+    { id: 17, concept: "Pre-Interaction Disclosure", riskTier: "High-Risk", priority: "Critical", lifecycle: "Deployment", description: "AI must disclose non-human status BEFORE user data is collected.", mappings: { "NHID-Clinical": ["Rule 1.1"], "EU AI Act (Final)": ["Article 50"] }, implementation: "Audio/Text banner: 'I am an AI assistant' must play before prompt." },
+    { id: 18, concept: "Zero-Loop Escalation", riskTier: "High-Risk", priority: "Critical", lifecycle: "Monitoring", description: "Mandatory human hand-off if user intent is unresolved after 1 turn.", mappings: { "NHID-Clinical": ["Rule 2.4"], "US Banking (SR 11-7)": ["Complaint Mgmt"] }, implementation: "If confidence < 90% or user repeats query, route to human immediately." },
+    { id: 19, concept: "The Turing Boundary", riskTier: "GenAI", priority: "High", lifecycle: "Design", description: "Prohibition of deceptive human-like mimicry (fake breathing, typing sounds).", mappings: { "NHID-Clinical": ["Rule 3.0"], "OECD Principles": ["Transparency"] }, implementation: "Remove synthetic 'human' artifacts from voice/text generation." }
   ];
 
   const updateMaturity = (id, level) => {
@@ -115,11 +101,6 @@ const AIGovernancePlatform = () => {
     });
     return counts;
   }, [controlState]);
-
-  const handleMatrixClick = (fw1, fw2) => {
-    // Switching to cross-walk view
-    setActiveTab('network');
-  };
 
   const handleResetFilters = () => {
     setSelectedFramework('all');
@@ -186,6 +167,10 @@ const AIGovernancePlatform = () => {
     return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
   };
 
+  const handleMatrixClick = (fw1, fw2) => {
+    setActiveTab('network');
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-cyan-500/30 overflow-x-hidden p-6">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -214,6 +199,18 @@ const AIGovernancePlatform = () => {
                <div className="w-full bg-slate-800 h-1 mt-3 rounded-full overflow-hidden">
                   <div className="bg-cyan-400 h-full transition-all duration-1000" style={{ width: `${overallScore}%` }} />
                </div>
+            </div>
+            {/* KPI: Distribution */}
+            <div className="flex-[2] min-w-[200px] bg-slate-900/50 border border-white/10 p-4 rounded-xl hidden md:block">
+              <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-3">Maturity Spread</div>
+              <div className="flex items-end justify-between h-10 gap-1">
+                {distribution.map((count, idx) => (
+                  <div key={idx} className="flex flex-col items-center justify-end w-full h-full group">
+                    <div className={`w-full mx-0.5 rounded-t-sm transition-all duration-500 ${maturityLevels[idx].color.replace('/10', '/50')}`} style={{ height: `${Math.max(15, (count / complianceData.length) * 100)}%` }} />
+                    <div className="opacity-0 group-hover:opacity-100 absolute -top-5 text-[10px] bg-black px-2 py-1 rounded border border-white/10">Lvl {idx}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -248,7 +245,6 @@ const AIGovernancePlatform = () => {
                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-900/50 border border-white/10 rounded-xl relative z-20">
                   <div className="md:col-span-1">
                      <label className="text-xs text-slate-500 uppercase font-bold">Frameworks</label>
-                     {/* FIX: Switched to standard dropdown for clickability */}
                      <select value={selectedFramework} onChange={(e) => setSelectedFramework(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded p-2 text-sm text-slate-300 mt-1 cursor-pointer hover:border-cyan-500/30 focus:border-cyan-500">
                         <option value="all">All Frameworks</option>
                         {frameworks.map(fw => <option key={fw} value={fw}>{fw}</option>)}
@@ -361,7 +357,7 @@ const AIGovernancePlatform = () => {
                       const overlap = complianceData.filter(item => item.mappings?.[fw1] && item.mappings?.[fw2]).length;
                       const isSelf = i === j;
                       return (
-                        <div key={`${fw1}-${fw2}`} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
+                        <div key={`${fw1}-${fw2}`} className={`w-24 h-10 rounded border flex items-center justify-center text-xs font-mono ${isSelf ? 'bg-slate-900 text-slate-700 border-white/5' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20 cursor-pointer'}`}>
                           {isSelf ? '-' : overlap}
                         </div>
                       );
@@ -384,7 +380,41 @@ const AIGovernancePlatform = () => {
                 </label>
                 {uploadedFile && <div className="mt-4 text-emerald-400 text-sm flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4"/> {uploadedFile}</div>}
               </div>
-            {/* ... Rest of Gap Analysis ... */}
+
+              {/* THIS WAS MISSING BEFORE - NOW IT IS HERE */}
+              {gapAnalysis && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
+                        <div className="text-slate-500 text-xs font-mono uppercase tracking-wider mb-2">Coverage</div>
+                        <div className="text-4xl font-bold text-white">{gapAnalysis.coverage}%</div>
+                     </div>
+                     <div className="bg-slate-900/60 p-6 rounded-xl border border-purple-500/30">
+                        <div className="text-purple-400 text-xs font-mono uppercase tracking-wider mb-2">Critical Gaps</div>
+                        <div className="text-4xl font-bold text-white">{gapAnalysis.criticalGaps.length}</div>
+                     </div>
+                  </div>
+
+                  {gapAnalysis.gaps.length > 0 && (
+                    <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
+                      <h4 className="text-lg font-bold text-white mb-4">Missing Controls (Gap Report)</h4>
+                      <div className="space-y-3">
+                        {gapAnalysis.gaps.map(gap => (
+                          <div key={gap.id} className="bg-slate-950/50 p-4 rounded-lg border border-white/5 flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h5 className="font-semibold text-slate-200">{gap.concept}</h5>
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${getPriorityColor(gap.priority)}`}>{gap.priority}</span>
+                              </div>
+                              <p className="text-sm text-slate-400">{gap.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
            </div>
         )}
       </div>
