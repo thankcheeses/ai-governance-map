@@ -10,7 +10,7 @@ const AIGovernancePlatform = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const frameworks = ['NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'OECD', 'Canada AIDA', 'Singapore', 'US Banking', 'OWASP', 'GDPR'];
-
+  
   const maturityLevels = [
     { level: 0, label: 'Non-Existent', color: 'bg-slate-800', text: 'text-slate-500' },
     { level: 1, label: 'Initial', color: 'bg-red-500/20', text: 'text-red-400' },
@@ -47,29 +47,19 @@ const AIGovernancePlatform = () => {
     setControlState(prev => ({ ...prev, [id]: { ...prev[id], remediation: text } }));
   };
 
-  const getMaturity = (id) => controlState[id]?.maturity ?? 0;
-  const getRemediation = (id) => controlState[id]?.remediation ?? '';
+  const getMaturity = (id) => controlState[id]?.maturity || 0;
+  const getRemediation = (id) => controlState[id]?.remediation || '';
 
   const overallScore = useMemo(() => {
-    const total = Object.values(controlState).reduce((acc, curr) => acc + (curr.maturity ?? 0), 0);
+    const total = Object.values(controlState).reduce((acc, curr) => acc + (curr.maturity || 0), 0);
     return Math.round((total / (complianceData.length * 5)) * 100);
-  }, [controlState, complianceData.length]);
+  }, [controlState]);
 
   const distribution = useMemo(() => {
     const counts = [0, 0, 0, 0, 0, 0];
     complianceData.forEach(item => counts[getMaturity(item.id)]++);
     return counts;
-  }, [controlState, complianceData]);
-
-  // Properly clone the Set when toggling expanded rows to avoid mutating state directly
-  const toggleRow = (id) => {
-    setExpandedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
-      return newSet;
-    });
-  };
+  }, [controlState]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -77,13 +67,8 @@ const AIGovernancePlatform = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
-          const parsed = JSON.parse(event.target.result);
-          if (Array.isArray(parsed)) {
-            setUserControls(parsed);
-            setUploadedFile(file.name);
-          } else {
-            alert('JSON must be an array of controls');
-          }
+          setUserControls(JSON.parse(event.target.result));
+          setUploadedFile(file.name);
         } catch (err) {
           alert('Invalid JSON');
         }
@@ -93,21 +78,20 @@ const AIGovernancePlatform = () => {
   };
 
   const gapAnalysis = useMemo(() => {
-    if (!userControls.length) return null;
+    if (userControls.length === 0) return null;
     const implemented = userControls.map(c => (c.concept || '').toLowerCase());
     const gaps = complianceData.filter(item => !implemented.includes(item.concept.toLowerCase()));
     return {
       coverage: ((complianceData.length - gaps.length) / complianceData.length * 100).toFixed(0),
       implemented: complianceData.length - gaps.length,
-      gaps,
+      gaps: gaps,
       criticalGaps: gaps.filter(g => g.priority === 'Critical')
     };
-  }, [userControls, complianceData]);
+  }, [userControls]);
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return complianceData;
-    return complianceData.filter(item => item.concept.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [searchTerm, complianceData]);
+    return complianceData.filter(item => searchTerm === '' || item.concept.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [searchTerm]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 p-6">
@@ -153,7 +137,7 @@ const AIGovernancePlatform = () => {
             { id: 'map', icon: Map, label: 'Control Map' },
             { id: 'network', icon: Network, label: 'Cross-Walk' },
             { id: 'gap', icon: BarChart3, label: 'Gap Analysis' }
-          ].map(tab => (
+          ].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all ${activeTab === tab.id ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-500 hover:text-slate-300'}`}>
               <tab.icon className="w-4 h-4" />
               <span className="hidden sm:inline">{tab.label}</span>
@@ -165,28 +149,20 @@ const AIGovernancePlatform = () => {
           <div className="space-y-6">
             <div className="flex items-center bg-slate-900 border border-white/10 rounded-lg p-1">
               <Search className="ml-3 text-slate-500 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search controls..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full bg-transparent border-none text-slate-200 px-4 py-3 outline-none"
-              />
+              <input type="text" placeholder="Search controls..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-transparent border-none text-slate-200 px-4 py-3 outline-none" />
             </div>
 
             <div className="grid gap-3">
-              {filteredData.map(item => {
+              {filteredData.map((item) => {
                 const mat = getMaturity(item.id);
                 const style = maturityLevels[mat];
                 return (
                   <div key={item.id} className={`bg-slate-900/40 border ${expandedRows.has(item.id) ? 'border-cyan-500/30' : 'border-white/5'} rounded-xl overflow-hidden`}>
-                    <div
-                      onClick={() => toggleRow(item.id)}
-                      className="p-5 cursor-pointer flex gap-5 items-center"
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') toggleRow(item.id); }}
-                    >
+                    <div onClick={() => {
+                      const newSet = new Set(expandedRows);
+                      newSet.has(item.id) ? newSet.delete(item.id) : newSet.add(item.id);
+                      setExpandedRows(newSet);
+                    }} className="p-5 cursor-pointer flex gap-5 items-center">
                       <div className={`w-1 h-12 rounded-full ${style.color}`} />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -206,12 +182,8 @@ const AIGovernancePlatform = () => {
                               <TrendingUp className="w-4 h-4" /> {style.label}
                             </div>
                             <div className="grid grid-cols-6 gap-2 mb-6">
-                              {maturityLevels.map(lvl => (
-                                <button
-                                  key={lvl.level}
-                                  onClick={() => updateMaturity(item.id, lvl.level)}
-                                  className={`h-10 rounded border text-sm font-bold ${mat === lvl.level ? `${lvl.color} ${lvl.text} border-white/20` : 'bg-slate-900 border-white/5 text-slate-600'}`}
-                                >
+                              {maturityLevels.map((lvl) => (
+                                <button key={lvl.level} onClick={() => updateMaturity(item.id, lvl.level)} className={`h-10 rounded border text-sm font-bold ${mat === lvl.level ? `${lvl.color} ${lvl.text} border-white/20` : 'bg-slate-900 border-white/5 text-slate-600'}`}>
                                   {lvl.level}
                                 </button>
                               ))}
@@ -220,12 +192,7 @@ const AIGovernancePlatform = () => {
                               <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
                                 <FileText className="w-4 h-4" /> Remediation
                               </label>
-                              <textarea
-                                value={getRemediation(item.id)}
-                                onChange={e => updateRemediation(item.id, e.target.value)}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg p-3 text-sm text-slate-200 outline-none h-24"
-                                placeholder="Notes..."
-                              />
+                              <textarea value={getRemediation(item.id)} onChange={(e) => updateRemediation(item.id, e.target.value)} className="w-full bg-slate-900 border border-white/10 rounded-lg p-3 text-sm text-slate-200 outline-none h-24" placeholder="Notes..." />
                             </div>
                           </div>
                           <div className="space-y-4">
@@ -237,4 +204,103 @@ const AIGovernancePlatform = () => {
                                     {fw}: {codes.join(', ')}
                                   </div>
                                 ))}
-                              </
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs font-bold text-slate-500 uppercase mb-2">Implementation</div>
+                              <p className="text-sm text-slate-400 border-l-2 border-cyan-500/20 pl-3">{item.implementation}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'network' && (
+          <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10 overflow-x-auto">
+            <h3 className="text-lg font-bold text-white mb-6">Framework Overlap Matrix</h3>
+            <div className="grid gap-2 min-w-[600px]">
+              <div className="flex gap-2 mb-2">
+                <div className="w-32"></div>
+                {frameworks.slice(0, 5).map(fw => (
+                  <div key={fw} className="w-24 text-xs text-slate-500 text-center">{fw.split(' ')[0]}</div>
+                ))}
+              </div>
+              {frameworks.slice(0, 5).map((fw1, i) => (
+                <div key={fw1} className="flex items-center gap-2">
+                  <div className="w-32 text-xs text-slate-400 text-right pr-4">{fw1}</div>
+                  {frameworks.slice(0, 5).map((fw2, j) => {
+                    const overlap = complianceData.filter(item => item.mappings[fw1] && item.mappings[fw2]).length;
+                    return (
+                      <div key={j} className={`w-24 h-10 rounded border flex items-center justify-center text-xs ${i === j ? 'bg-slate-900 text-slate-700' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'}`}>
+                        {i === j ? '-' : overlap}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'gap' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/40 border border-dashed border-white/20 rounded-xl p-12 text-center">
+              <Upload className="w-10 h-10 text-slate-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Gap Analysis</h3>
+              <label className="inline-block cursor-pointer">
+                <span className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold">Select JSON</span>
+                <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
+              </label>
+              {uploadedFile && <div className="mt-4 text-emerald-400 flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4"/> {uploadedFile}</div>}
+            </div>
+
+            {gapAnalysis && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
+                    <div className="text-slate-500 text-xs uppercase mb-2">Coverage</div>
+                    <div className="text-4xl font-bold text-white">{gapAnalysis.coverage}%</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-6 rounded-xl border border-purple-500/30">
+                    <div className="text-purple-400 text-xs uppercase mb-2">Critical Gaps</div>
+                    <div className="text-4xl font-bold text-white">{gapAnalysis.criticalGaps.length}</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-6 rounded-xl border border-orange-500/30">
+                    <div className="text-orange-400 text-xs uppercase mb-2">Total Gaps</div>
+                    <div className="text-4xl font-bold text-white">{gapAnalysis.gaps.length}</div>
+                  </div>
+                </div>
+
+                {gapAnalysis.gaps.length > 0 && (
+                  <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
+                    <h4 className="text-lg font-bold text-white mb-4">Missing Controls</h4>
+                    <div className="space-y-3">
+                      {gapAnalysis.gaps.map(gap => (
+                        <div key={gap.id} className="bg-slate-950/50 p-4 rounded-lg border border-white/5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h5 className="font-semibold text-slate-200">{gap.concept}</h5>
+                            <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-400">{gap.priority}</span>
+                          </div>
+                          <p className="text-sm text-slate-400">{gap.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+export default AIGovernancePlatform;
