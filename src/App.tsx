@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText, Globe, Network, BarChart3, Upload, Map } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText, Globe, Network, BarChart3, Upload, Map, X, Save, RotateCcw } from 'lucide-react';
 
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
@@ -14,11 +14,11 @@ const AIGovernancePlatform = () => {
   
   const maturityLevels = [
     { level: 0, label: 'Non-Existent', color: 'bg-slate-800', text: 'text-slate-500' },
-    { level: 1, label: 'Initial', color: 'bg-red-500/20', text: 'text-red-400' },
-    { level: 2, label: 'Managed', color: 'bg-orange-500/20', text: 'text-orange-400' },
-    { level: 3, label: 'Defined', color: 'bg-yellow-500/20', text: 'text-yellow-400' },
-    { level: 4, label: 'Measured', color: 'bg-cyan-500/20', text: 'text-cyan-400' },
-    { level: 5, label: 'Optimized', color: 'bg-emerald-500/20', text: 'text-emerald-400' }
+    { level: 1, label: 'Initial', color: 'bg-red-500/30', text: 'text-red-400' },
+    { level: 2, label: 'Managed', color: 'bg-orange-500/30', text: 'text-orange-400' },
+    { level: 3, label: 'Defined', color: 'bg-yellow-500/30', text: 'text-yellow-400' },
+    { level: 4, label: 'Measured', color: 'bg-cyan-500/30', text: 'text-cyan-400' },
+    { level: 5, label: 'Optimized', color: 'bg-emerald-500/30', text: 'text-emerald-400' }
   ];
 
   const complianceData = [
@@ -56,6 +56,25 @@ const AIGovernancePlatform = () => {
   const getMaturity = (id) => controlState[id]?.maturity || 0;
   const getRemediation = (id) => controlState[id]?.remediation || '';
 
+  const saveProgress = () => {
+    const data = JSON.stringify(controlState, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ai-governance-progress.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const clearAll = () => {
+    if (confirm('Clear all maturity scores and notes? This cannot be undone.')) {
+      setControlState({});
+      setUserControls([]);
+      setUploadedFile(null);
+    }
+  };
+
   const overallScore = useMemo(() => {
     const total = Object.values(controlState).reduce((acc, curr) => acc + (curr.maturity || 0), 0);
     return Math.round((total / (complianceData.length * 5)) * 100);
@@ -63,7 +82,10 @@ const AIGovernancePlatform = () => {
 
   const distribution = useMemo(() => {
     const counts = [0, 0, 0, 0, 0, 0];
-    complianceData.forEach(item => counts[getMaturity(item.id)]++);
+    complianceData.forEach(item => {
+      const level = getMaturity(item.id);
+      counts[level]++;
+    });
     return counts;
   }, [controlState]);
 
@@ -73,10 +95,11 @@ const AIGovernancePlatform = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
-          setUserControls(JSON.parse(event.target.result));
+          const data = JSON.parse(event.target.result);
+          setUserControls(data);
           setUploadedFile(file.name);
         } catch (err) {
-          alert('Invalid JSON');
+          alert('Invalid JSON file');
         }
       };
       reader.readAsText(file);
@@ -116,7 +139,14 @@ const AIGovernancePlatform = () => {
             <p className="text-slate-400">20 frameworks • 16 controls • CMMI maturity model</p>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <button onClick={saveProgress} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition-all">
+              <Save className="w-4 h-4" /> Save
+            </button>
+            <button onClick={clearAll} className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold transition-all">
+              <RotateCcw className="w-4 h-4" /> Clear
+            </button>
+            
             <div className="bg-slate-900/50 border border-white/10 p-4 rounded-xl min-w-[140px]">
               <div className="text-slate-500 text-xs uppercase mb-1">Score</div>
               <div className="flex items-end gap-2">
@@ -164,7 +194,7 @@ const AIGovernancePlatform = () => {
 
             {!selectedFrameworks.includes('all') && (
               <div className="flex items-center gap-2 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-                <span className="text-sm text-cyan-300">Filtered by: {selectedFrameworks.join(' + ')}</span>
+                <span className="text-sm text-cyan-300">Filtered: {selectedFrameworks.join(' + ')}</span>
                 <button onClick={() => setSelectedFrameworks(['all'])} className="ml-auto text-xs text-cyan-400 hover:text-cyan-300 underline">Clear</button>
               </div>
             )}
@@ -185,6 +215,7 @@ const AIGovernancePlatform = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="text-lg font-bold text-slate-100">{item.concept}</h3>
                           <span className="px-2 py-0.5 rounded text-xs bg-slate-800 text-slate-400">{item.riskTier}</span>
+                          {mat > 0 && <span className={`px-2 py-0.5 rounded text-xs ${style.color} ${style.text} border border-white/20`}>L{mat}</span>}
                         </div>
                         <p className="text-sm text-slate-400">{item.description}</p>
                       </div>
@@ -200,7 +231,7 @@ const AIGovernancePlatform = () => {
                             </div>
                             <div className="grid grid-cols-6 gap-2 mb-6">
                               {maturityLevels.map((lvl) => (
-                                <button key={lvl.level} onClick={() => updateMaturity(item.id, lvl.level)} className={`h-10 rounded border text-sm font-bold transition-all ${mat === lvl.level ? `${lvl.color} ${lvl.text} border-white/20` : 'bg-slate-900 border-white/5 text-slate-600'}`}>
+                                <button key={lvl.level} onClick={() => updateMaturity(item.id, lvl.level)} className={`h-10 rounded border text-sm font-bold transition-all hover:scale-105 ${mat === lvl.level ? `${lvl.color} ${lvl.text} border-white/20 scale-110` : 'bg-slate-900 border-white/5 text-slate-600 hover:bg-slate-800'}`}>
                                   {lvl.level}
                                 </button>
                               ))}
@@ -276,6 +307,7 @@ const AIGovernancePlatform = () => {
             <div className="bg-slate-900/40 border border-dashed border-white/20 rounded-xl p-12 text-center">
               <Upload className="w-10 h-10 text-slate-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">Gap Analysis</h3>
+              <p className="text-sm text-slate-400 mb-4">Upload JSON with format: [{"{"}"concept": "Control Name"{"}"}]</p>
               <label className="inline-block cursor-pointer">
                 <span className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold">Upload JSON</span>
                 <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
@@ -289,14 +321,17 @@ const AIGovernancePlatform = () => {
                   <div className="bg-slate-900/60 p-6 rounded-xl border border-white/10">
                     <div className="text-slate-500 text-xs uppercase mb-2">Coverage</div>
                     <div className="text-4xl font-bold text-white">{gapAnalysis.coverage}%</div>
+                    <div className="text-sm text-slate-400 mt-1">{gapAnalysis.implemented} of {complianceData.length}</div>
                   </div>
                   <div className="bg-slate-900/60 p-6 rounded-xl border border-purple-500/30">
                     <div className="text-purple-400 text-xs uppercase mb-2">Critical Gaps</div>
                     <div className="text-4xl font-bold text-white">{gapAnalysis.criticalGaps.length}</div>
+                    <div className="text-sm text-slate-400 mt-1">High priority</div>
                   </div>
                   <div className="bg-slate-900/60 p-6 rounded-xl border border-orange-500/30">
                     <div className="text-orange-400 text-xs uppercase mb-2">Total Gaps</div>
                     <div className="text-4xl font-bold text-white">{gapAnalysis.gaps.length}</div>
+                    <div className="text-sm text-slate-400 mt-1">To implement</div>
                   </div>
                 </div>
 
@@ -305,10 +340,10 @@ const AIGovernancePlatform = () => {
                     <h4 className="text-lg font-bold text-white mb-4">Missing Controls</h4>
                     <div className="space-y-3">
                       {gapAnalysis.gaps.map(gap => (
-                        <div key={gap.id} className="bg-slate-950/50 p-4 rounded-lg border border-white/5">
+                        <div key={gap.id} className="bg-slate-950/50 p-4 rounded-lg border border-white/5 hover:border-orange-500/30 transition-colors">
                           <div className="flex items-center gap-2 mb-1">
                             <h5 className="font-semibold text-slate-200">{gap.concept}</h5>
-                            <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-400">{gap.priority}</span>
+                            <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-400 border border-purple-500/30">{gap.priority}</span>
                           </div>
                           <p className="text-sm text-slate-400">{gap.description}</p>
                         </div>
