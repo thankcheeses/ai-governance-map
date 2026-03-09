@@ -331,6 +331,18 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
   color: var(--ink-2);
   border: 1px solid var(--border);
 }
+.badge-agentic {
+  background: #EEF2FF;
+  color: #3730A3;
+  border: 1px solid #A5B4FC;
+}
+
+.badge-gpai {
+  background: #F5F3FF;
+  color: #6D28D9;
+  border: 1px solid #C4B5FD;
+}
+
 .badge-maturity {
   background: var(--accent-light);
   color: var(--accent);
@@ -672,8 +684,15 @@ const complianceData = [
   { id: 17, concept: "Hallucination Management", riskTier: "GenAI", priority: "Critical", description: "Controls to detect, mitigate, and disclose AI-generated factual inaccuracies.", mappings: { "NIST AI 600-1": ["MS-2.5", "GV-1.1"], "EU AI Act": ["Art 52"], "OWASP LLM": ["LLM09"], "ISO/IEC 42001": ["A.9.1"], "G7 Hiroshima": ["§4"] }, implementation: "Implement RAG grounding and confidence scoring. Display uncertainty indicators in user-facing outputs. Log hallucination incidents for ongoing calibration." },
   { id: 18, concept: "Synthetic Content Detection", riskTier: "GenAI", priority: "High", description: "Watermarking and provenance controls for AI-generated content.", mappings: { "NIST AI 600-1": ["GV-6.2"], "EU AI Act": ["Art 50"], "EO 14110": ["§4.5"], "G7 Hiroshima": ["§6"], "OECD AI": ["1.3"] }, implementation: "Apply cryptographic watermarking to all generated media. Maintain content provenance chain-of-custody aligned to C2PA standard." },
   { id: 19, concept: "Dual-Use Foundation Model Reporting", riskTier: "GPAI", priority: "High", description: "Safety test result reporting obligations for large-scale foundation model developers.", mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"] }, implementation: "Report red-team and safety evaluation results to relevant government bodies prior to public release. Maintain audit trail of submissions." },
-  { id: 20, concept: "Shutdown / Decommissioning Plan", riskTier: "GPAI", priority: "High", description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.", mappings: { "California AI": ["SB-1047 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] }, implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California's defined compute thresholds. Test annually." }
+  { id: 20, concept: "Shutdown / Decommissioning Plan", riskTier: "GPAI", priority: "High", description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.", mappings: { "California AI": ["SB-1047 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] }, implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California's defined compute thresholds. Test annually." },
+  { id: 21, concept: "Agentic Action Boundaries", riskTier: "Autonomous Agents", priority: "Critical", description: "Granular permissioning and safety guardrails for AI agents capable of executing autonomous API calls, transactions, or system modifications.", mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"] }, implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Maintain a real-time tamper-proof execution log for auditability. For healthcare agentic deployments (e.g., AI voice agents interacting with payers), apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators. See github.com/nhid-clinical." }
 ];
+
+const tierBadge = (tier: string) => {
+  if (tier === 'Autonomous Agents') return 'badge badge-agentic';
+  if (tier === 'GPAI') return 'badge badge-gpai';
+  return 'badge badge-tier';
+};
 
 const priorityStripe = (p: string) => {
   if (p === 'Critical') return 'stripe-critical';
@@ -767,7 +786,7 @@ const AIGovernancePlatform = () => {
           <div className="header-inner">
             <div className="header-brand">
               <span className="header-title">AI Governance Map</span>
-              <span className="header-version">v2.2</span>
+              <span className="header-version">v2.3</span>
             </div>
 
             <nav className="header-nav">
@@ -807,7 +826,7 @@ const AIGovernancePlatform = () => {
             </div>
             <div className="stat-card">
               <div className="stat-label">Controls</div>
-              <div className="stat-value">20</div>
+              <div className="stat-value">21</div>
               <div className="stat-sub">CMMI maturity model</div>
             </div>
             <div className="stat-card">
@@ -855,7 +874,7 @@ const AIGovernancePlatform = () => {
                         <div className="control-meta">
                           <div className="control-name">
                             {item.concept}
-                            <span className="badge badge-tier">{item.riskTier}</span>
+                            <span className={tierBadge(item.riskTier)}>{item.riskTier}</span>
                             <span className={priorityBadge(item.priority)}>{item.priority}</span>
                             {mat > 0 && <span className="badge badge-maturity">L{mat} · {maturityLevels[mat].label}</span>}
                           </div>
