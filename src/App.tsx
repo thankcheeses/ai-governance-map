@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText, Globe, Network, BarChart3, Upload, Save, RotateCcw, ArrowRight, Download, ExternalLink, Filter } from 'lucide-react';
 
 const FONTS = `
@@ -255,9 +255,19 @@ const AIGovernancePlatform = () => {
   const [selectedFrameworks, setSelectedFrameworks] = useState(['all']);
   const [selectedTier, setSelectedTier] = useState('All');
   const [expandedRows, setExpandedRows] = useState(new Set<number>());
-  const [controlState, setControlState] = useState<Record<number, { maturity?: number; remediation?: string }>>({});
+  const [controlState, setControlState] = useState<Record<number, { maturity?: number; remediation?: string }>>(() => {
+    try {
+      const saved = localStorage.getItem('ai-gov-progress');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
   const [userControls, setUserControls] = useState<any[]>([]);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+
+  // Auto-save to localStorage on every change
+  useEffect(() => {
+    try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch {}
+  }, [controlState]);
 
   const getMaturity = (id: number) => controlState[id]?.maturity || 0;
   const getRemediation = (id: number) => controlState[id]?.remediation || '';
@@ -297,7 +307,7 @@ const AIGovernancePlatform = () => {
     a.download = 'nhid-clinical-controls.json'; a.click();
   };
 
-  const clearAll = () => { if (confirm('Clear all scores and notes?')) { setControlState({}); setUserControls([]); setUploadedFile(null); } };
+  const clearAll = () => { if (confirm('Clear all scores and notes?')) { setControlState({}); setUserControls([]); setUploadedFile(null); try { localStorage.removeItem('ai-gov-progress'); } catch {} } };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
