@@ -3,7 +3,7 @@
 
 ![Version](https://img.shields.io/badge/Release-v2.4_Enterprise-1B3D2E?style=for-the-badge)
 ![Standards](https://img.shields.io/badge/Grounded_In-CSA_CCM_v4.1.0-blue?style=for-the-badge)
-![Status](https://img.shields.io/badge/Verified-Jan_2026-gold?style=for-the-badge)
+![Status](https://img.shields.io/badge/Verified-March_2026-gold?style=for-the-badge)
 
 **Stop governing the chat. Start governing the agent.** AI Governance Map v2.4 is a high-fidelity React-based GRC platform that bridges the gap between high-level AI ethics and the technical reality of cloud infrastructure.
 
@@ -87,7 +87,7 @@ npm run dev
 
 **Author**: Brianna Baynard  
 **Framework Baseline**: [Cloud Controls Matrix (CCM) v4.1.0](https://cloudsecurityalliance.org/) by Cloud Security Alliance.  
-**Sector Reference**: [NHID-Clinical](https://github.com/nhid-clinical) (Non-Human Identity Disclosure).
+**Sector Reference**: [NHID-Clinical](https://thankcheeses.github.io/NHID-Clinical/) (Non-Human Identity Disclosure).
 
 ### MIT License
 
