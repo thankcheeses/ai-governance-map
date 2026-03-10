@@ -75,12 +75,12 @@ npm run dev
 ---
 
 ## 💻 Tech Stack
-
-* **Framework**: React (Vercel-ready)
-* **Visualizations**: Recharts (High-performance SVG charts)
-* **Animations**: Framer Motion (Fluid UI transitions)
-* **Persistence**: LocalStorage (Privacy-first, no login or database required)
-
+<p align="left">
+* <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" />**Framework**: React (Vercel-ready)
+* <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" />**Visualizations**: Recharts (High-performance SVG charts)
+* <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" />**Animations**: Framer Motion (Fluid UI transitions)
+* <img src="https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=blue" />**Persistence**: LocalStorage (Privacy-first, no login or database required)
+</p>
 ---
 
 ## ⚖️ License & Attribution
