@@ -1,5 +1,15 @@
+// AI Governance Map v2.4 — Enterprise Cloud-AI Edition
+// New dep: npm install recharts
+// CCM v4.1.0 — verified against CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official release, Jan 2026)
+// AIS-08 (API Security) confirmed new in v4.1 (Nov 2025 upgrade). CAIQ questions AIS-08.1 + AIS-08.2 confirmed.
+
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText, Globe, Network, BarChart3, Upload, Save, RotateCcw, ArrowRight, Download, ExternalLink, Filter } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText,
+  Globe, Network, BarChart3, Upload, Save, RotateCcw, ArrowRight, Download,
+  ExternalLink, Filter, AlertCircle, Zap, Radio
+} from 'lucide-react';
 
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -27,7 +37,7 @@ const FONTS = `
   --font-body: 'DM Sans', sans-serif;
 }
 
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
 .app-wrapper { min-height: 100vh; background: var(--bg); }
 
 .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 100; }
@@ -98,6 +108,11 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 .badge-gpai { background: #F5F3FF; color: #6D28D9; border: 1px solid #C4B5FD; }
 .badge-genai { background: #FDF4FF; color: #7E22CE; border: 1px solid #E9D5FF; }
 .badge-maturity { background: var(--accent-light); color: var(--accent); border: 1px solid #C2DCCA; }
+.badge-shared { background: #FFFBEB; color: #92400E; border: 1px solid #FEF3C7; }
+.badge-csp { background: #EFF6FF; color: #1E40AF; border: 1px solid #DBEAFE; }
+.badge-csc { background: #ECFDF5; color: #065F46; border: 1px solid #D1FAE5; }
+.indicator-field-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); font-weight: 700; margin-top: 0.625rem; margin-bottom: 0.2rem; }
+.indicator-slo { display: inline-block; margin-top: 0.375rem; font-family: var(--font-mono); font-size: 0.7rem; background: var(--accent-light); color: var(--accent); border: 1px solid #b8d9c8; padding: 2px 7px; border-radius: 3px; }
 .chevron { color: var(--ink-3); transition: transform 0.2s; flex-shrink: 0; }
 .chevron.open { transform: rotate(180deg); }
 
@@ -117,10 +132,20 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 .remediation-area:focus { border-color: var(--accent-mid); }
 .remediation-area::placeholder { color: var(--ink-3); }
 
+.indicator-card { background: rgba(27, 61, 46, 0.03); border: 1px dashed var(--accent-mid); border-radius: 8px; padding: 0.875rem 1rem; margin-bottom: 1rem; }
+.indicator-name { font-size: 0.8125rem; font-weight: 600; color: var(--accent); margin-bottom: 0.375rem; }
+.indicator-method { font-size: 0.75rem; color: var(--ink-2); line-height: 1.5; margin-top: 0.5rem; }
+
+.change-flag { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.875rem; background: #FFFBEB; border: 1px solid #FEF3C7; border-radius: 7px; margin-top: 0.75rem; cursor: pointer; }
+.change-flag input { accent-color: var(--gold); cursor: pointer; }
+.change-flag label { font-size: 0.75rem; color: #92400E; cursor: pointer; font-weight: 500; }
+.change-flag-active { background: #FEF3C7; border-color: #F59E0B; }
+
 .mappings-grid { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1rem; }
 .mapping-tag { font-family: var(--font-mono); font-size: 0.6rem; padding: 3px 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--ink-2); cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
 .mapping-tag:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
 .mapping-tag .ext-icon { width: 9px; height: 9px; opacity: 0.5; flex-shrink: 0; }
+.ccm-tag { font-family: var(--font-mono); font-size: 0.6rem; padding: 3px 8px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 4px; color: #1E40AF; display: inline-flex; align-items: center; }
 .implementation-block { padding: 0.75rem 1rem; background: var(--surface); border-left: 3px solid var(--accent-mid); border-radius: 0 6px 6px 0; font-size: 0.8125rem; color: var(--ink-2); line-height: 1.6; }
 
 .matrix-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
@@ -137,6 +162,18 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 .matrix-cell-value { background: var(--accent-light); color: var(--accent); border-color: #C2DCCA; }
 .matrix-cell-value:hover { background: var(--accent); color: #fff; border-color: var(--accent); transform: scale(1.05); }
 .matrix-cell-zero { background: var(--surface-2); color: var(--ink-3); border-color: transparent; }
+
+/* Radar tab */
+.radar-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.radar-header { padding: 1.5rem; border-bottom: 1px solid var(--border-light); }
+.radar-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); margin-bottom: 0.25rem; }
+.radar-subtitle { font-size: 0.8125rem; color: var(--ink-3); }
+.radar-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start; }
+.radar-legend { display: flex; flex-direction: column; gap: 0.625rem; }
+.radar-legend-item { display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 0.875rem; background: var(--bg); border: 1px solid var(--border-light); border-radius: 7px; }
+.radar-legend-domain { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 500; color: var(--ink-2); }
+.radar-legend-val { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); font-weight: 600; }
+.radar-ccm-note { padding: 0.75rem 1rem; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 7px; font-size: 0.75rem; color: #1E40AF; line-height: 1.5; margin-top: 1rem; }
 
 .upload-zone { background: var(--surface); border: 2px dashed var(--border); border-radius: 12px; padding: 2.5rem 2rem; text-align: center; margin-bottom: 1.5rem; transition: border-color 0.15s; }
 .upload-zone:hover { border-color: var(--accent-mid); }
@@ -162,7 +199,6 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 .gap-arrow { color: var(--ink-3); flex-shrink: 0; margin-top: 2px; }
 .gap-item-name { font-weight: 600; font-size: 0.875rem; color: var(--ink); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; }
 .gap-item-desc { font-size: 0.8rem; color: var(--ink-2); }
-
 .empty-state { text-align: center; padding: 3rem; color: var(--ink-3); font-size: 0.875rem; }
 
 @media (max-width: 768px) {
@@ -170,10 +206,12 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
   .stats-bar { grid-template-columns: repeat(2, 1fr); }
   .header-nav { display: none; }
   .gap-stats { grid-template-columns: 1fr; }
+  .radar-body { grid-template-columns: 1fr; }
   .header-actions .btn-ghost span { display: none; }
 }
 `;
 
+// ─── Citations ────────────────────────────────────────────────────────────────
 const CITATIONS: Record<string, string> = {
   'NIST AI RMF':   'https://airc.nist.gov/RMF/1',
   'NIST AI 600-1': 'https://airc.nist.gov/Docs/1',
@@ -200,8 +238,15 @@ const CITATIONS: Record<string, string> = {
   'California AI': 'https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202320240SB1047',
   'G7 Hiroshima':  'https://www.g7hiroshima.go.jp/documents/pdf/G7AI_code_of_conduct_en.pdf',
   'EO 14110':      'https://www.whitehouse.gov/briefing-room/presidential-actions/2023/10/30/executive-order-on-the-safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence/',
+  // CCM v4.1.0 — Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official, Jan 2026)
+  'CSA CCM v4':    'https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4/',
 };
 
+// ─── CCM v4.1.0 Domain Labels (17 domains, verified from CCMv4_1_0-generated_at_2026_01_13.xlsx) ──────────────
+// Note: Infrastructure & Virtualization Security domain code is 'I&S' in v4.1 (not 'IVS')
+const CCM_DOMAINS = ['A&A','AIS','BCR','CCC','CEK','DCS','DSP','GRC','HRS','IAM','IPY','I&S','LOG','SEF','STA','TVM','UEM'];
+
+// ─── NHID Manifest ────────────────────────────────────────────────────────────
 const NHID_MANIFEST = [
   { concept: "Human Oversight", notes: "NHID-Clinical: Turing Boundary — AI must yield to human operator on request" },
   { concept: "Agentic Action Boundaries", notes: "NHID-Clinical: Pre-Data Gate — non-human identity must be disclosed before PHI exchange" },
@@ -218,61 +263,254 @@ const maturityLevels = [
 ];
 
 const ALL_TIERS = ['All', 'High-Risk', 'All Systems', 'GenAI', 'GPAI', 'Autonomous Agents', 'Critical'];
-
 const frameworks = ['NIST AI RMF','NIST AI 600-1','ISO/IEC 42001','EU AI Act','OECD AI','Canada AIDA','Singapore','US Banking','OCC/Fed/FDIC','OWASP LLM','GDPR','NIST CSF','SOC 2','FedRAMP','UK AI','IEEE 7000','Brazil LGPD','China PIPL','Japan AI','Australia AI','NYC Law 144','Colorado AI','California AI','G7 Hiroshima','EO 14110'];
 
+// ─── Control Data ─────────────────────────────────────────────────────────────
+// ccmMappings: verified CCM v4.1.0 control IDs from CCMv4_1_0-generated_at_2026_01_13.xlsx
+// ownership: SSRM model per STA domain (Shared/CSP/CSC)
+// indicator: Indicator Identity Card per CSA Code of Practice for Implementing and Maintaining Key Metrics (Jan 2026)
+// Fields: name (Metric ID/name), method (Expression — formula or measurement rules), slo (SLO Recommendation)
+// Note: "Tamper-proof" and "Repeatable & Reliable" are criteria ALL metrics must satisfy (criteria 7 & 8),
+// not mutually exclusive type labels. Removed type badge per source document.
+// ccmDomain: primary CCM domain for Posture Radar aggregation
 const complianceData = [
-  { id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical", description: "Systematic approach to identify, assess, and mitigate AI-related risks throughout the lifecycle.", mappings: { "NIST AI RMF": ["MAP 1.1"], "ISO/IEC 42001": ["8.2"], "EU AI Act": ["Art 9"], "OECD AI": ["1.4"], "Singapore": ["Gov"], "NIST CSF": ["GOV-04"], "SOC 2": ["CC3.1"], "UK AI": ["RA"], "FedRAMP": ["RA-3"], "G7 Hiroshima": ["§3"], "EO 14110": ["§4.1"] }, implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness." },
-  { id: 2, concept: "Human Oversight", riskTier: "High-Risk", priority: "Critical", description: "Mechanisms ensuring human intervention and control over consequential AI decisions.", mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["Human"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] }, implementation: "Establish oversight committee with documented intervention triggers and escalation paths." },
-  { id: 3, concept: "Model Inventory", riskTier: "All Systems", priority: "High", description: "Centralized registry of all AI models in production and development.", mappings: { "US Banking": ["Inventory"], "OCC/Fed/FDIC": ["§III.B"], "ISO/IEC 42001": ["6.1.3"], "EU AI Act": ["Art 49"], "FedRAMP": ["CM-8"], "SOC 2": ["CC8.1"], "EO 14110": ["§4.6"] }, implementation: "Maintain centralized GRC registry of models including version, owner, risk tier, and deployment status." },
-  { id: 4, concept: "Data Governance", riskTier: "All Systems", priority: "High", description: "Controls for data quality, lineage, consent, and lifecycle management.", mappings: { "ISO/IEC 42001": ["A.7"], "EU AI Act": ["Art 10"], "OECD AI": ["1.2"], "NIST AI RMF": ["MAP 2.2"], "NIST AI 600-1": ["GV-6.1"], "Brazil LGPD": ["Art 6"], "China PIPL": ["Art 19"], "GDPR": ["Art 5"] }, implementation: "Encrypt data at rest and in transit. Maintain data lineage logs and consent records for all training datasets." },
-  { id: 5, concept: "Model Validation", riskTier: "High-Risk", priority: "Critical", description: "Independent validation by a separate team prior to production deployment.", mappings: { "US Banking": ["Validation"], "OCC/Fed/FDIC": ["§IV.A"], "NIST AI RMF": ["MEAS 2.6"], "SOC 2": ["CC5.2"], "ISO/IEC 42001": ["9.1"] }, implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off." },
-  { id: 6, concept: "Privacy Assessment", riskTier: "All Systems", priority: "Critical", description: "Data Protection Impact Assessments for AI systems processing personal data.", mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California AI": ["§1798.91.05"] }, implementation: "Conduct DPIA before processing personal data. Re-assess annually and after material model changes." },
-  { id: 7, concept: "Explainability", riskTier: "High-Risk", priority: "High", description: "Mechanisms to explain AI decisions to affected stakeholders in accessible terms.", mappings: { "EU AI Act": ["Art 13"], "NIST AI RMF": ["GOV 3.1"], "NIST AI 600-1": ["MS-2.5"], "OECD AI": ["1.3"], "Singapore": ["Ops"], "NYC Law 144": ["Notice"], "IEEE 7000": ["Trans"], "Japan AI": ["Trans"] }, implementation: "Provide SHAP/LIME explanations for high-risk outputs. Store explanation artifacts alongside decision logs." },
-  { id: 8, concept: "Data Drift Detection", riskTier: "High-Risk", priority: "Critical", description: "Continuous monitoring of input distribution shifts in production environments.", mappings: { "NIST AI RMF": ["MEAS 2.7"], "NIST AI 600-1": ["MS-2.6"], "ISO/IEC 42001": ["A.9.2"], "US Banking": ["Monitor"], "OCC/Fed/FDIC": ["§IV.C"], "SOC 2": ["CC7.2"] }, implementation: "Alert when input distribution diverges >5% from training baseline. Trigger revalidation workflow automatically." },
-  { id: 9, concept: "Model Versioning", riskTier: "High-Risk", priority: "High", description: "Immutable version history enabling rollback to prior production states.", mappings: { "ISO/IEC 42001": ["A.9.3"], "NIST AI RMF": ["MAN 3.3"], "FedRAMP": ["CM-2"], "SOC 2": ["CC8.1"], "EO 14110": ["§4.6"] }, implementation: "Immutable version history with signed artifacts and linked validation reports." },
-  { id: 10, concept: "Adversarial Testing", riskTier: "High-Risk", priority: "Critical", description: "Structured red-team testing against prompt injection, jailbreaks, and adversarial inputs.", mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"] }, implementation: "Quarterly red-team exercises with documented findings. Pre-release red-teaming required for all GPAI models." },
-  { id: 11, concept: "Bias Testing", riskTier: "High-Risk", priority: "Critical", description: "Systematic testing for algorithmic bias across legally protected characteristics.", mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["Discrim"], "IEEE 7000": ["Fair"], "California AI": ["§1798.91.06"] }, implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems." },
-  { id: 12, concept: "Secure Weights", riskTier: "Critical", priority: "Critical", description: "Prevent model weight theft, unauthorized access, and supply-chain compromise.", mappings: { "OWASP LLM": ["LLM10"], "ISO/IEC 42001": ["A.13"], "NIST CSF": ["PROT-13"], "FedRAMP": ["SC-28"], "EO 14110": ["§4.2a"] }, implementation: "Store weights in HSM with access logging. Implement Confidential Computing / TEE for real-time inference protection against side-channel attacks." },
-  { id: 13, concept: "Copyright Compliance", riskTier: "GenAI", priority: "High", description: "IP rights management for training data ingestion and generated output.", mappings: { "EU AI Act": ["Art 53"], "ISO/IEC 42001": ["A.5"], "UK AI": ["Copyright"], "G7 Hiroshima": ["§8"] }, implementation: "Maintain IP ledger with training data provenance. Implement output filtering for copyrighted material reproduction." },
-  { id: 14, concept: "Contestability", riskTier: "High-Risk", priority: "Medium", description: "Documented process enabling users to challenge and appeal automated decisions.", mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["Appeal"] }, implementation: "Human appeal workflow with <48hr SLA. Log all appeals and outcomes for regulatory reporting." },
-  { id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium", description: "Monitor, measure, and disclose AI compute carbon and energy footprint.", mappings: { "EU AI Act": ["Art 40"], "OECD AI": ["1.1"], "IEEE 7000": ["Sustain"], "ISO/IEC 42001": ["A.6.2"] }, implementation: "Log compute hours per model run. Report Scope 2 equivalent emissions quarterly to sustainability team." },
-  { id: 16, concept: "Vendor Risk", riskTier: "All Systems", priority: "High", description: "Third-party AI provider oversight, due diligence, and ongoing monitoring.", mappings: { "NIST AI RMF": ["MAP 1.5"], "US Banking": ["Vendor"], "OCC/Fed/FDIC": ["§V"], "ISO/IEC 42001": ["8.4"], "SOC 2": ["CC9.2"], "FedRAMP": ["SA-9"], "OWASP LLM": ["LLM05"] }, implementation: "Annual risk assessment for all 3rd-party AI providers. OCC/Fed/FDIC 2025 Joint Guidance requires documented concentration risk analysis for banking-sector deployments." },
-  { id: 17, concept: "Hallucination Management", riskTier: "GenAI", priority: "Critical", description: "Controls to detect, mitigate, and disclose AI-generated factual inaccuracies.", mappings: { "NIST AI 600-1": ["MS-2.5", "GV-1.1"], "EU AI Act": ["Art 52"], "OWASP LLM": ["LLM09"], "ISO/IEC 42001": ["A.9.1"], "G7 Hiroshima": ["§4"] }, implementation: "Implement RAG grounding and confidence scoring. Display uncertainty indicators in user-facing outputs. Log hallucination incidents for ongoing calibration." },
-  { id: 18, concept: "Synthetic Content Detection", riskTier: "GenAI", priority: "High", description: "Watermarking and provenance controls for AI-generated content.", mappings: { "NIST AI 600-1": ["GV-6.2"], "EU AI Act": ["Art 50"], "EO 14110": ["§4.5"], "G7 Hiroshima": ["§6"], "OECD AI": ["1.3"] }, implementation: "Apply cryptographic watermarking to all generated media. Maintain content provenance chain-of-custody aligned to C2PA standard." },
-  { id: 19, concept: "Dual-Use Foundation Model Reporting", riskTier: "GPAI", priority: "High", description: "Safety test result reporting obligations for large-scale foundation model developers.", mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"] }, implementation: "Report red-team and safety evaluation results to relevant government bodies prior to public release. Maintain audit trail of submissions." },
-  { id: 20, concept: "Shutdown / Decommissioning Plan", riskTier: "GPAI", priority: "High", description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.", mappings: { "California AI": ["SB-1047 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] }, implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California's defined compute thresholds. Test annually." },
-  { id: 21, concept: "Agentic Action Boundaries", riskTier: "Autonomous Agents", priority: "Critical", description: "Granular permissioning and safety guardrails for AI agents executing autonomous API calls, transactions, or system modifications.", mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"] }, implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Maintain tamper-proof execution logs. For healthcare agentic deployments, apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators." },
+  {
+    id: 1, concept: "Risk Management System", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "Systematic approach to identify, assess, and mitigate AI-related risks throughout the lifecycle.",
+    ccmMappings: { "GRC-02": "Risk Management Program", "A&A-03": "Risk Based Planning Assessment" },
+    mappings: { "NIST AI RMF": ["MAP 1.1"], "ISO/IEC 42001": ["8.2"], "EU AI Act": ["Art 9"], "OECD AI": ["1.4"], "Singapore": ["Gov"], "NIST CSF": ["GOV-04"], "SOC 2": ["CC3.1"], "UK AI": ["RA"], "FedRAMP": ["RA-3"], "G7 Hiroshima": ["§3"], "EO 14110": ["§4.1"] },
+    indicator: { name: "Open Risk Finding Resolution Rate", method: "Ratio of resolved-to-open risk register items per reporting cycle. Measured via GRC platform export.", slo: "≥90% resolved within SLA" },
+    implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness."
+  },
+  {
+    id: 2, concept: "Human Oversight", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "Mechanisms ensuring human intervention and control over consequential AI decisions.",
+    ccmMappings: { "GRC-06": "Governance Responsibility Model", "IAM-09": "Segregation of Privileged Access Roles" },
+    mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["Human"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] },
+    indicator: { name: "HITL Intervention Rate", method: "Log-derived ratio of human-overridden AI decisions to total automated decisions. Sourced from immutable audit trail.", slo: "Track trend; alert on >20% deviation" },
+    implementation: "Establish oversight committee with documented intervention triggers and escalation paths."
+  },
+  {
+    id: 3, concept: "Model Inventory", riskTier: "All Systems", priority: "High",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "Centralized registry of all AI models in production and development.",
+    ccmMappings: { "GRC-05": "Information Security Program", "DCS-06": "Assets Cataloguing and Tracking" },
+    mappings: { "US Banking": ["Inventory"], "OCC/Fed/FDIC": ["§III.B"], "ISO/IEC 42001": ["6.1.3"], "EU AI Act": ["Art 49"], "FedRAMP": ["CM-8"], "SOC 2": ["CC8.1"], "EO 14110": ["§4.6"] },
+    indicator: { name: "Model Registry Completeness %", method: "Count of documented production models / total deployed models. Assessed via infrastructure scan vs registry.", slo: "100%" },
+    implementation: "Maintain centralized GRC registry of models including version, owner, risk tier, and deployment status."
+  },
+  {
+    id: 4, concept: "Data Governance", riskTier: "All Systems", priority: "High",
+    ccmDomain: "DSP", ownership: "Shared",
+    description: "Controls for data quality, lineage, consent, and lifecycle management.",
+    ccmMappings: { "DSP-03": "Data Inventory", "DSP-04": "Data Classification", "DSP-06": "Data Ownership and Stewardship" },
+    mappings: { "ISO/IEC 42001": ["A.7"], "EU AI Act": ["Art 10"], "OECD AI": ["1.2"], "NIST AI RMF": ["MAP 2.2"], "NIST AI 600-1": ["GV-6.1"], "Brazil LGPD": ["Art 6"], "China PIPL": ["Art 19"], "GDPR": ["Art 5"] },
+    indicator: { name: "Data Inventory Coverage %", method: "Datasets with documented lineage and classification / total datasets in use.", slo: "≥95%" },
+    implementation: "Encrypt data at rest and in transit. Maintain data lineage logs and consent records for all training datasets."
+  },
+  {
+    id: 5, concept: "Model Validation", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "A&A", ownership: "CSC",
+    description: "Independent validation by a separate team prior to production deployment.",
+    ccmMappings: { "A&A-02": "Independent Assessments", "A&A-05": "Audit Management Process" },
+    mappings: { "US Banking": ["Validation"], "OCC/Fed/FDIC": ["§IV.A"], "NIST AI RMF": ["MEAS 2.6"], "SOC 2": ["CC5.2"], "ISO/IEC 42001": ["9.1"] },
+    indicator: { name: "Pre-Production Validation Coverage %", method: "Models with signed validation report / total models promoted to production. Logged in CI/CD audit trail.", slo: "100%" },
+    implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off."
+  },
+  {
+    id: 6, concept: "Privacy Assessment", riskTier: "All Systems", priority: "Critical",
+    ccmDomain: "DSP", ownership: "Shared",
+    description: "Data Protection Impact Assessments for AI systems processing personal data.",
+    ccmMappings: { "DSP-08": "Data Privacy by Design and Default", "DSP-09": "Data Protection Impact Assessment" },
+    mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California AI": ["§1798.91.05"] },
+    indicator: { name: "DPIA Completion Rate", method: "AI systems with completed DPIA / systems processing personal data. Reviewed at least annually.", slo: "100% of in-scope systems" },
+    implementation: "Conduct DPIA before processing personal data. Re-assess annually and after material model changes."
+  },
+  {
+    id: 7, concept: "Explainability", riskTier: "High-Risk", priority: "High",
+    ccmDomain: "GRC", ownership: "Shared",
+    description: "Mechanisms to explain AI decisions to affected stakeholders in accessible terms.",
+    ccmMappings: { "GRC-07": "Information System Regulatory Mapping", "AIS-03": "Application Security Metrics" },
+    mappings: { "EU AI Act": ["Art 13"], "NIST AI RMF": ["GOV 3.1"], "NIST AI 600-1": ["MS-2.5"], "OECD AI": ["1.3"], "Singapore": ["Ops"], "NYC Law 144": ["Notice"], "IEEE 7000": ["Trans"], "Japan AI": ["Trans"] },
+    indicator: { name: "Explanation Availability Rate", method: "High-risk decisions with logged SHAP/LIME artifacts / total high-risk decisions.", slo: "≥95%" },
+    implementation: "Provide SHAP/LIME explanations for high-risk outputs. Store explanation artifacts alongside decision logs."
+  },
+  {
+    id: 8, concept: "Data Drift Detection", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "LOG", ownership: "Shared",
+    description: "Continuous monitoring of input distribution shifts in production environments.",
+    ccmMappings: { "LOG-03": "Security Monitoring and Alerting", "LOG-05": "Audit Logs Monitoring and Response", "TVM-07": "Vulnerability Identification" },
+    mappings: { "NIST AI RMF": ["MEAS 2.7"], "NIST AI 600-1": ["MS-2.6"], "ISO/IEC 42001": ["A.9.2"], "US Banking": ["Monitor"], "OCC/Fed/FDIC": ["§IV.C"], "SOC 2": ["CC7.2"] },
+    indicator: { name: "Drift Alert Mean Time to Response (hrs)", method: "Average time from drift alert trigger to acknowledged remediation action. Logged in monitoring platform.", slo: "≤24 hrs" },
+    implementation: "Alert when input distribution diverges >5% from training baseline. Trigger revalidation workflow automatically."
+  },
+  {
+    id: 9, concept: "Model Versioning", riskTier: "High-Risk", priority: "High",
+    ccmDomain: "CCC", ownership: "Shared",
+    description: "Immutable version history enabling rollback to prior production states.",
+    ccmMappings: { "CCC-06": "Change Management Baseline", "CCC-02": "Quality Testing" },
+    mappings: { "ISO/IEC 42001": ["A.9.3"], "NIST AI RMF": ["MAN 3.3"], "FedRAMP": ["CM-2"], "SOC 2": ["CC8.1"], "EO 14110": ["§4.6"] },
+    indicator: { name: "Version Rollback Success Rate", method: "Successful rollbacks / total rollback attempts. Verified via CI/CD audit log.", slo: "≥99%" },
+    implementation: "Immutable version history with signed artifacts and linked validation reports."
+  },
+  {
+    id: 10, concept: "Adversarial Testing", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "TVM", ownership: "CSC",
+    description: "Structured red-team testing against prompt injection, jailbreaks, and adversarial inputs.",
+    ccmMappings: { "TVM-06": "Penetration Testing", "AIS-05": "Automated Application Security Testing" },
+    mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"] },
+    indicator: { name: "Red Team Finding Resolution Rate", method: "Critical/High findings closed within SLA / total findings per engagement.", slo: "≥90% Critical/High within 30 days" },
+    implementation: "Quarterly red-team exercises with documented findings. Pre-release red-teaming required for all GPAI models."
+  },
+  {
+    id: 11, concept: "Bias Testing", riskTier: "High-Risk", priority: "Critical",
+    ccmDomain: "A&A", ownership: "CSC",
+    description: "Systematic testing for algorithmic bias across legally protected characteristics.",
+    ccmMappings: { "A&A-02": "Independent Assessments", "AIS-03": "Application Security Metrics" },
+    mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["Discrim"], "IEEE 7000": ["Fair"], "California AI": ["§1798.91.06"] },
+    indicator: { name: "Demographic Parity Deviation Score", method: "Max disparity in favorable outcome rates across protected groups. Computed from validation dataset.", slo: "≤5% disparity" },
+    implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems."
+  },
+  {
+    id: 12, concept: "Secure Weights", riskTier: "Critical", priority: "Critical",
+    ccmDomain: "CEK", ownership: "Shared",
+    description: "Prevent model weight theft, unauthorized access, and supply-chain compromise.",
+    ccmMappings: { "CEK-03": "Data Encryption", "CEK-10": "Key Generation", "DCS-08": "Equipment Identification" },
+    mappings: { "OWASP LLM": ["LLM10"], "ISO/IEC 42001": ["A.13"], "NIST CSF": ["PROT-13"], "FedRAMP": ["SC-28"], "EO 14110": ["§4.2a"] },
+    indicator: { name: "Unauthorized Weight Access Attempts", method: "Count of blocked or anomalous access attempts to model artifact storage per month. From HSM/SIEM logs.", slo: "0 unresolved incidents/month" },
+    implementation: "Store weights in HSM with access logging. Implement Confidential Computing / TEE for inference protection."
+  },
+  {
+    id: 13, concept: "Copyright Compliance", riskTier: "GenAI", priority: "High",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "IP rights management for training data ingestion and generated output.",
+    ccmMappings: { "GRC-07": "Information System Regulatory Mapping", "DSP-06": "Data Ownership and Stewardship" },
+    mappings: { "EU AI Act": ["Art 53"], "ISO/IEC 42001": ["A.5"], "UK AI": ["Copyright"], "G7 Hiroshima": ["§8"] },
+    indicator: { name: "Training Data IP Clearance Rate", method: "Datasets with documented licensing / total training datasets ingested.", slo: "100%" },
+    implementation: "Maintain IP ledger with training data provenance. Implement output filtering for copyrighted material reproduction."
+  },
+  {
+    id: 14, concept: "Contestability", riskTier: "High-Risk", priority: "Medium",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "Documented process enabling users to challenge and appeal automated decisions.",
+    ccmMappings: { "GRC-01": "Governance Program Policy and Procedures", "SEF-06": "Event Triage Processes" },
+    mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["Appeal"] },
+    indicator: { name: "Appeal Resolution Time (hrs)", method: "Median hours from appeal submission to final disposition. Tracked in ticketing system.", slo: "≤72 hrs median" },
+    implementation: "Human appeal workflow with <48hr SLA. Log all appeals and outcomes for regulatory reporting."
+  },
+  {
+    id: 15, concept: "Environmental Impact", riskTier: "All Systems", priority: "Medium",
+    ccmDomain: "GRC", ownership: "Shared",
+    description: "Monitor, measure, and disclose AI compute carbon and energy footprint.",
+    ccmMappings: { "GRC-01": "Governance Program Policy and Procedures" },
+    mappings: { "EU AI Act": ["Art 40"], "OECD AI": ["1.1"], "IEEE 7000": ["Sustain"], "ISO/IEC 42001": ["A.6.2"] },
+    indicator: { name: "Compute Carbon Intensity (kgCO₂e/10k inferences)", method: "Scope 2 equivalent emissions per 10,000 inference calls. Derived from cloud provider carbon reporting APIs.", slo: "Track trend; target YoY reduction" },
+    implementation: "Log compute hours per model run. Report Scope 2 equivalent emissions quarterly to sustainability team."
+  },
+  {
+    id: 16, concept: "Vendor Risk", riskTier: "All Systems", priority: "High",
+    ccmDomain: "STA", ownership: "Shared",
+    description: "Third-party AI provider oversight, due diligence, and ongoing monitoring.",
+    ccmMappings: { "STA-08": "Supply Chain Risk Management", "STA-14": "Supply Chain Data Security Assessment" },
+    mappings: { "NIST AI RMF": ["MAP 1.5"], "US Banking": ["Vendor"], "OCC/Fed/FDIC": ["§V"], "ISO/IEC 42001": ["8.4"], "SOC 2": ["CC9.2"], "FedRAMP": ["SA-9"], "OWASP LLM": ["LLM05"] },
+    indicator: { name: "Third-Party Risk Assessment Coverage %", method: "AI vendors with current annual assessment / total active AI vendors.", slo: "100% of active vendors annually" },
+    implementation: "Annual risk assessment for all 3rd-party AI providers. OCC/Fed/FDIC Joint Guidance requires documented concentration risk analysis for banking-sector deployments."
+  },
+  {
+    id: 17, concept: "Hallucination Management", riskTier: "GenAI", priority: "Critical",
+    ccmDomain: "AIS", ownership: "Shared",
+    description: "Controls to detect, mitigate, and disclose AI-generated factual inaccuracies.",
+    ccmMappings: { "AIS-02": "Application Security Baseline Requirements", "LOG-07": "Logging Scope" },
+    mappings: { "NIST AI 600-1": ["MS-2.5", "GV-1.1"], "EU AI Act": ["Art 52"], "OWASP LLM": ["LLM09"], "ISO/IEC 42001": ["A.9.1"], "G7 Hiroshima": ["§4"] },
+    indicator: { name: "Hallucination Incident Rate (per 10k outputs)", method: "User-reported or automated fact-check failures per 10,000 outputs. Logged in incident management system.", slo: "≤1.0 per 10k outputs" },
+    implementation: "Implement RAG grounding and confidence scoring. Display uncertainty indicators in user-facing outputs."
+  },
+  {
+    id: 18, concept: "Synthetic Content Detection", riskTier: "GenAI", priority: "High",
+    ccmDomain: "LOG", ownership: "Shared",
+    description: "Watermarking and provenance controls for AI-generated content.",
+    ccmMappings: { "DSP-17": "Sensitive Data Protection", "LOG-11": "Transaction/Activity Logging" },
+    mappings: { "NIST AI 600-1": ["GV-6.2"], "EU AI Act": ["Art 50"], "EO 14110": ["§4.5"], "G7 Hiroshima": ["§6"], "OECD AI": ["1.3"] },
+    indicator: { name: "Watermark Detection Success Rate", method: "Content samples with recoverable provenance markers / total generated content samples tested.", slo: "≥95%" },
+    implementation: "Apply cryptographic watermarking to all generated media. Maintain provenance chain-of-custody aligned to C2PA standard."
+  },
+  {
+    id: 19, concept: "Dual-Use Foundation Model Reporting", riskTier: "GPAI", priority: "High",
+    ccmDomain: "GRC", ownership: "CSC",
+    description: "Safety test result reporting obligations for large-scale foundation model developers.",
+    ccmMappings: { "GRC-07": "Information System Regulatory Mapping", "SEF-07": "Security Breach Notification" },
+    mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"] },
+    indicator: { name: "Regulatory Submission Timeliness %", method: "Submissions delivered within required regulatory window / total required submissions.", slo: "100%" },
+    implementation: "Report red-team and safety evaluation results to government bodies prior to public release. Maintain audit trail of all submissions."
+  },
+  {
+    id: 20, concept: "Shutdown / Decommissioning Plan", riskTier: "GPAI", priority: "High",
+    ccmDomain: "BCR", ownership: "CSC",
+    description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.",
+    ccmMappings: { "BCR-09": "Disaster Response Plan", "BCR-04": "Business Continuity Planning" },
+    mappings: { "California AI": ["SB-1047 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] },
+    indicator: { name: "Runbook Test Pass Rate", method: "Successful shutdown procedure drills / total drills conducted annually.", slo: "100% annually" },
+    implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California's compute thresholds. Test annually."
+  },
+  {
+    id: 21, concept: "Agentic Action Boundaries", riskTier: "Autonomous Agents", priority: "Critical",
+    ccmDomain: "AIS", ownership: "Shared",
+    description: "Granular permissioning and safety guardrails for AI agents executing autonomous API calls, transactions, or system modifications.",
+    // AIS-08 confirmed new in CCM v4.1.0 (Nov 2025). CAIQ v4.1 questions AIS-08.1 + AIS-08.2 confirmed via change analysis.
+    // AIS-08.1: "Are processes, procedures, and technical measures defined and implemented to secure APIs?"
+    // AIS-08.2: "Are reviews and updates conducted at least annually, or upon significant system changes?"
+    ccmMappings: {
+      "AIS-08": "API Security",
+      "IAM-05": "Least Privilege",
+      "IAM-16": "Authorization Mechanisms",
+      "LOG-11": "Transaction/Activity Logging"
+    },
+    mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"] },
+    indicator: { name: "API Scoped Token Authorization Rate", method: "Agent API calls using least-privilege scoped tokens / total agent API calls. Derived from API gateway logs.", slo: "≥99% scoped; 0 unauthorized" },
+    implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Per CCM v4.1 AIS-08: review and update at least annually or upon significant system changes. For healthcare agentic deployments, apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators."
+  },
 ];
 
-const tierBadge = (t: string) => t === 'Autonomous Agents' ? 'badge badge-agentic' : t === 'GPAI' ? 'badge badge-gpai' : t === 'GenAI' ? 'badge badge-genai' : 'badge badge-tier';
-const priorityStripe = (p: string) => p === 'Critical' ? 'stripe-critical' : p === 'High' ? 'stripe-high' : 'stripe-medium';
-const priorityBadge = (p: string) => p === 'Critical' ? 'badge badge-critical' : p === 'High' ? 'badge badge-high' : 'badge badge-medium';
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const tierBadge = (t: string) =>
+  t === 'Autonomous Agents' ? 'badge badge-agentic' :
+  t === 'GPAI' ? 'badge badge-gpai' :
+  t === 'GenAI' ? 'badge badge-genai' : 'badge badge-tier';
 
+const priorityStripe = (p: string) =>
+  p === 'Critical' ? 'stripe-critical' : p === 'High' ? 'stripe-high' : 'stripe-medium';
+
+const priorityBadge = (p: string) =>
+  p === 'Critical' ? 'badge badge-critical' : p === 'High' ? 'badge badge-high' : 'badge badge-medium';
+
+const ownershipBadge = (o: string) =>
+  o === 'Shared' ? 'badge badge-shared' : o === 'CSP' ? 'badge badge-csp' : 'badge badge-csc';
+
+// ─── Component ────────────────────────────────────────────────────────────────
 const AIGovernancePlatform = () => {
   const [activeTab, setActiveTab] = useState('map');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFrameworks, setSelectedFrameworks] = useState(['all']);
   const [selectedTier, setSelectedTier] = useState('All');
   const [expandedRows, setExpandedRows] = useState(new Set<number>());
-  const [controlState, setControlState] = useState<Record<number, { maturity?: number; remediation?: string }>>(() => {
-    try {
-      const saved = localStorage.getItem('ai-gov-progress');
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
+  const [controlState, setControlState] = useState<Record<number, { maturity?: number; remediation?: string; flagged?: boolean }>>(() => {
+    try { const s = localStorage.getItem('ai-gov-progress'); return s ? JSON.parse(s) : {}; } catch { return {}; }
   });
   const [userControls, setUserControls] = useState<any[]>([]);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
-  // Auto-save to localStorage on every change
   useEffect(() => {
     try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch {}
   }, [controlState]);
 
   const getMaturity = (id: number) => controlState[id]?.maturity || 0;
   const getRemediation = (id: number) => controlState[id]?.remediation || '';
+  const getFlagged = (id: number) => controlState[id]?.flagged || false;
   const updateMaturity = (id: number, lvl: number) => setControlState(p => ({ ...p, [id]: { ...p[id], maturity: lvl } }));
   const updateRemediation = (id: number, txt: string) => setControlState(p => ({ ...p, [id]: { ...p[id], remediation: txt } }));
+  const toggleFlag = (id: number) => setControlState(p => ({ ...p, [id]: { ...p[id], flagged: !p[id]?.flagged } }));
 
   const overallScore = useMemo(() => {
     const total = Object.values(controlState).reduce((a, c) => a + (c.maturity || 0), 0);
@@ -282,17 +520,34 @@ const AIGovernancePlatform = () => {
   const criticalCount = complianceData.filter(d => d.priority === 'Critical').length;
   const assessedCount = Object.values(controlState).filter(c => (c.maturity || 0) > 0).length;
 
+  // Radar: average maturity per CCM domain — uses actual state, no Math.random()
+  const radarData = useMemo(() => {
+    const domainBuckets: Record<string, number[]> = {};
+    CCM_DOMAINS.forEach(d => { domainBuckets[d] = []; });
+    complianceData.forEach(c => {
+      if (domainBuckets[c.ccmDomain] !== undefined) {
+        domainBuckets[c.ccmDomain].push(getMaturity(c.id));
+      }
+    });
+    return CCM_DOMAINS.map(domain => {
+      const vals = domainBuckets[domain];
+      const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      return { domain, maturity: Math.round(avg * 10) / 10, hasControls: vals.length > 0 };
+    });
+  }, [controlState]);
+
   const exportCSV = () => {
     const rows = [
-      ['ID','Control','Risk Tier','Priority','Maturity','Maturity Label','Notes','Frameworks'].join(','),
+      ['ID','Control','Risk Tier','Priority','CCM Domain','SSRM','Maturity','Maturity Label','Flagged for Reassessment','Notes','Frameworks','CCM v4.1.0 Controls'].join(','),
       ...complianceData.map(item => {
         const mat = getMaturity(item.id);
-        return [item.id, `"${item.concept}"`, item.riskTier, item.priority, mat, maturityLevels[mat].label, `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`].join(',');
+        const ccmIds = Object.keys(item.ccmMappings).join('; ');
+        return [item.id, `"${item.concept}"`, item.riskTier, item.priority, item.ccmDomain, item.ownership, mat, maturityLevels[mat].label, getFlagged(item.id) ? 'Yes' : 'No', `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`, `"${ccmIds}"`].join(',');
       })
     ].join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([rows], { type: 'text/csv' }));
-    a.download = 'ai-governance-assessment.csv'; a.click();
+    a.download = 'ai-governance-assessment-v24.csv'; a.click();
   };
 
   const saveProgress = () => {
@@ -307,12 +562,20 @@ const AIGovernancePlatform = () => {
     a.download = 'nhid-clinical-controls.json'; a.click();
   };
 
-  const clearAll = () => { if (confirm('Clear all scores and notes?')) { setControlState({}); setUserControls([]); setUploadedFile(null); try { localStorage.removeItem('ai-gov-progress'); } catch {} } };
+  const clearAll = () => {
+    if (confirm('Clear all scores and notes?')) {
+      setControlState({}); setUserControls([]); setUploadedFile(null);
+      try { localStorage.removeItem('ai-gov-progress'); } catch {}
+    }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => { try { setUserControls(JSON.parse(ev.target?.result as string)); setUploadedFile(file.name); } catch { alert('Invalid JSON'); } };
+    reader.onload = ev => {
+      try { setUserControls(JSON.parse(ev.target?.result as string)); setUploadedFile(file.name); }
+      catch { alert('Invalid JSON'); }
+    };
     reader.readAsText(file);
   };
 
@@ -325,7 +588,7 @@ const AIGovernancePlatform = () => {
 
   const filteredData = useMemo(() => complianceData.filter(item => {
     const s = searchTerm.toLowerCase();
-    const matchSearch = !s || item.concept.toLowerCase().includes(s) || item.description.toLowerCase().includes(s) || Object.keys(item.mappings).some(fw => fw.toLowerCase().includes(s));
+    const matchSearch = !s || item.concept.toLowerCase().includes(s) || item.description.toLowerCase().includes(s) || Object.keys(item.mappings).some(fw => fw.toLowerCase().includes(s)) || Object.keys(item.ccmMappings).some(id => id.toLowerCase().includes(s));
     const matchFw = selectedFrameworks.includes('all') || selectedFrameworks.every(fw => item.mappings[fw as keyof typeof item.mappings]);
     const matchTier = selectedTier === 'All' || item.riskTier === selectedTier;
     return matchSearch && matchFw && matchTier;
@@ -342,10 +605,15 @@ const AIGovernancePlatform = () => {
           <div className="header-inner">
             <div className="header-brand">
               <span className="header-title">AI Governance Map</span>
-              <span className="header-version">v2.3</span>
+              <span className="header-version">v2.4 · CCM v4.1.0</span>
             </div>
             <nav className="header-nav">
-              {[{id:'map',icon:Shield,label:'Controls'},{id:'network',icon:Network,label:'Matrix'},{id:'gap',icon:BarChart3,label:'Gap Analysis'}].map(tab => (
+              {[
+                { id:'map', icon:Shield, label:'Controls' },
+                { id:'radar', icon:Radio, label:'Posture Radar' },
+                { id:'network', icon:Network, label:'Matrix' },
+                { id:'gap', icon:BarChart3, label:'Gap Analysis' }
+              ].map(tab => (
                 <button key={tab.id} className={`nav-btn ${activeTab===tab.id?'active':''}`} onClick={()=>setActiveTab(tab.id)}>
                   <tab.icon />{tab.label}
                 </button>
@@ -366,18 +634,18 @@ const AIGovernancePlatform = () => {
         <main className="main">
           <div className="stats-bar">
             <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">25</div><div className="stat-sub">Global jurisdictions</div></div>
-            <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">21</div><div className="stat-sub">CMMI maturity model</div></div>
+            <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">21</div><div className="stat-sub">CMMI + CCM v4.1.0</div></div>
             <div className="stat-card"><div className="stat-label">Critical</div><div className="stat-value">{criticalCount}</div><div className="stat-sub">High-priority controls</div></div>
             <div className="stat-card"><div className="stat-label">Assessed</div><div className="stat-value">{assessedCount}</div><div className="stat-sub">of {complianceData.length} controls</div></div>
           </div>
 
+          {/* ── Controls Tab ─────────────────────────────────────────────────── */}
           {activeTab === 'map' && (
             <div>
               <div className="search-wrap">
                 <Search />
-                <input type="text" className="search-input" placeholder="Search controls, frameworks, descriptions..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
+                <input type="text" className="search-input" placeholder="Search controls, frameworks, CCM IDs..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
               </div>
-
               <div className="tier-filter-bar">
                 <span className="tier-filter-label"><Filter />Tier</span>
                 {ALL_TIERS.map(tier => (
@@ -387,19 +655,18 @@ const AIGovernancePlatform = () => {
                   </button>
                 ))}
               </div>
-
               {!selectedFrameworks.includes('all') && (
                 <div className="filter-notice">
                   <Globe size={13}/><span>Framework: {selectedFrameworks.join(' + ')}</span>
                   <button onClick={()=>setSelectedFrameworks(['all'])}>Clear</button>
                 </div>
               )}
-
               <div className="controls-list">
                 {filteredData.length === 0 && <div className="empty-state">No controls match your current filters.</div>}
                 {filteredData.map(item => {
                   const mat = getMaturity(item.id);
                   const isOpen = expandedRows.has(item.id);
+                  const isFlagged = getFlagged(item.id);
                   return (
                     <div key={item.id} className={`control-card ${isOpen?'expanded':''}`}>
                       <div className="control-header" onClick={()=>toggleRow(item.id)}>
@@ -409,7 +676,9 @@ const AIGovernancePlatform = () => {
                             {item.concept}
                             <span className={tierBadge(item.riskTier)}>{item.riskTier}</span>
                             <span className={priorityBadge(item.priority)}>{item.priority}</span>
+                            <span className={ownershipBadge(item.ownership)}>{item.ownership} SSRM</span>
                             {mat>0&&<span className="badge badge-maturity">L{mat} · {maturityLevels[mat].label}</span>}
+                            {isFlagged&&<span className="badge" style={{background:'#FFFBEB',color:'#92400E',border:'1px solid #FEF3C7'}}>⚠ Re-assess</span>}
                           </div>
                           <div className="control-desc">{item.description}</div>
                         </div>
@@ -428,9 +697,28 @@ const AIGovernancePlatform = () => {
                                 </button>
                               ))}
                             </div>
-                            <div className="section-label"><FileText/>Evidence / Notes</div>
+
+                            <div className="section-label" style={{marginTop:'0.25rem'}}><Zap/>Indicator Identity Card</div>
+                            <div className="indicator-card">
+                              <div className="indicator-name">{item.indicator.name}</div>
+                              <div className="indicator-field-label">Expression</div>
+                              <div className="indicator-method">{item.indicator.method}</div>
+                              <div className="indicator-field-label">SLO Recommendation</div>
+                              <span className="indicator-slo">{item.indicator.slo}</span>
+                            </div>
+
+                            <div
+                              className={`change-flag ${isFlagged?'change-flag-active':''}`}
+                              onClick={()=>toggleFlag(item.id)}
+                            >
+                              <input type="checkbox" checked={isFlagged} onChange={()=>toggleFlag(item.id)} onClick={e=>e.stopPropagation()} />
+                              <label><AlertCircle size={11} style={{display:'inline',marginRight:4}}/>Flag for re-assessment (Significant System Change)</label>
+                            </div>
+
+                            <div className="section-label" style={{marginTop:'1rem'}}><FileText/>Evidence / Notes</div>
                             <textarea className="remediation-area" placeholder="Log evidence, Jira links, pen test reports..." value={getRemediation(item.id)} onChange={e=>updateRemediation(item.id,e.target.value)}/>
                           </div>
+
                           <div>
                             <div className="section-label"><Globe/>Framework Mappings</div>
                             <div className="mappings-grid">
@@ -438,8 +726,7 @@ const AIGovernancePlatform = () => {
                                 const url = CITATIONS[fw];
                                 return url ? (
                                   <a key={fw} href={url} target="_blank" rel="noopener noreferrer" className="mapping-tag" title={`Open ${fw} source`}>
-                                    {fw}: {(codes as string[]).join(', ')}
-                                    <ExternalLink className="ext-icon"/>
+                                    {fw}: {(codes as string[]).join(', ')}<ExternalLink className="ext-icon"/>
                                   </a>
                                 ) : (
                                   <span key={fw} className="mapping-tag" onClick={()=>setSelectedFrameworks([fw])} title={`Filter by ${fw}`}>
@@ -448,7 +735,15 @@ const AIGovernancePlatform = () => {
                                 );
                               })}
                             </div>
-                            <div className="section-label" style={{marginTop:'1rem'}}><Shield/>Implementation Guidance</div>
+
+                            <div className="section-label" style={{marginTop:'0.75rem'}}><Shield/>CSA CCM v4.1.0 Controls</div>
+                            <div className="mappings-grid" style={{marginBottom:'1rem'}}>
+                              {Object.entries(item.ccmMappings).map(([id, title]) => (
+                                <span key={id} className="ccm-tag" title={title as string}>{id}</span>
+                              ))}
+                            </div>
+
+                            <div className="section-label"><Shield/>Implementation Guidance</div>
                             <div className="implementation-block">{item.implementation}</div>
                           </div>
                         </div>
@@ -460,6 +755,57 @@ const AIGovernancePlatform = () => {
             </div>
           )}
 
+          {/* ── Posture Radar Tab ─────────────────────────────────────────────── */}
+          {activeTab === 'radar' && (
+            <div className="radar-container">
+              <div className="radar-header">
+                <div className="radar-title">Maturity Posture Radar</div>
+                <div className="radar-subtitle">Average CMMI maturity score per CCM v4.1.0 domain · Score controls in the Controls tab to populate</div>
+              </div>
+              <div className="radar-body">
+                <div style={{height: 420}}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData.filter(d => d.hasControls)}>
+                      <PolarGrid strokeDasharray="3 3" stroke="#DDD9D0" />
+                      <PolarAngleAxis
+                        dataKey="domain"
+                        tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: '#5C5751' }}
+                      />
+                      <Radar
+                        name="Maturity"
+                        dataKey="maturity"
+                        stroke="#1B3D2E"
+                        fill="#1B3D2E"
+                        fillOpacity={0.25}
+                        strokeWidth={2}
+                      />
+                      <Tooltip
+                        formatter={(val: number) => [`${val} / 5`, 'Avg Maturity']}
+                        contentStyle={{ fontFamily: 'IBM Plex Mono', fontSize: 11, border: '1px solid #DDD9D0', borderRadius: 6 }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div>
+                  <div className="radar-legend">
+                    {radarData.filter(d => d.hasControls).map(d => (
+                      <div key={d.domain} className="radar-legend-item">
+                        <span className="radar-legend-domain">{d.domain}</span>
+                        <span className="radar-legend-val">{d.maturity > 0 ? `${d.maturity} / 5` : '—'}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="radar-ccm-note">
+                    <strong>CCM v4.1.0 · 17 domains · 207 controls</strong><br/>
+                    Radar plots the 9 domains with mapped AI governance controls. Remaining 8 CCM domains (DCS, HRS, IPY, I&S, SEF, TVM, UEM) are not plotted — no controls currently assigned. Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA, Jan 2026). AIS-08 API Security added in Nov 2025 v4.1 upgrade.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Matrix Tab ────────────────────────────────────────────────────── */}
           {activeTab === 'network' && (
             <div className="matrix-container">
               <div className="matrix-header-section">
@@ -498,6 +844,7 @@ const AIGovernancePlatform = () => {
             </div>
           )}
 
+          {/* ── Gap Analysis Tab ──────────────────────────────────────────────── */}
           {activeTab === 'gap' && (
             <div>
               <div className="upload-zone">
@@ -514,7 +861,7 @@ const AIGovernancePlatform = () => {
                   </button>
                 </div>
                 {uploadedFile && <div className="upload-success"><CheckCircle size={14}/>{uploadedFile}</div>}
-                {!uploadedFile && <div style={{marginTop:'0.75rem',fontSize:'0.7rem',color:'var(--ink-3)',fontFamily:'var(--font-mono)'}}>Format: [{"{ "}"concept": "Control Name"{"}" }]</div>}
+                {!uploadedFile && <div style={{marginTop:'0.75rem',fontSize:'0.7rem',color:'var(--ink-3)',fontFamily:'var(--font-mono)'}}>Format: [{"{ "}{"\"concept\": \"Control Name\""}{"}" }]</div>}
               </div>
 
               {gapAnalysis && (
