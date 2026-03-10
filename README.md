@@ -68,6 +68,7 @@ npm install lucide-react recharts framer-motion
 npm run dev
 
 ---
+---
 
 ## 💻 Tech Stack
 
