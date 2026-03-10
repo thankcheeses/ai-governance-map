@@ -1,6 +1,8 @@
 🗺️ AI Governance Map v2.4
 Enterprise Cloud-AI Edition
-AI Governance Map is a high-fidelity, browser-based GRC (Governance, Risk, and Compliance) platform designed to bridge the gap between high-level AI policy and technical cloud infrastructure. Version 2.4 is strictly grounded in the January 2026 official releases from the Cloud Security Alliance (CSA).
+AI Governance Map is a high-fidelity, browser-based GRC (Governance, Risk, and Compliance) platform designed to bridge the gap between high-level AI policy and technical cloud infrastructure.
+
+Version 2.4 is strictly grounded in the January 2026 official releases from the Cloud Security Alliance (CSA).
 🚀 Launch the Live Map
 💎 What’s New in v2.4
  * Verified CCM v4.1.0 Baseline: Fully updated against the Nov 2025 upgrade and Jan 2026 release.
@@ -36,7 +38,7 @@ Every control now includes structured fields from the Jan 21, 2026 Code of Pract
 This tool runs entirely in the browser. No signup required. Data is persisted via localStorage.
 Local Development
 # 1. Clone the repo
-git clone https://github.com/your-repo/ai-governance-map.git
+git clone https://github.com/thankcheeses/ai-governance-map.git
 
 # 2. Install dependencies
 npm install lucide-react recharts framer-motion
