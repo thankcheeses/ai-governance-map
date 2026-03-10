@@ -1,98 +1,56 @@
-# 🌐 The AI Governance Map: A Unified Control Plane
+🗺️ AI Governance Map v2.4 — Enterprise Cloud-AI Edition
+A high-fidelity, browser-based GRC (Governance, Risk, and Compliance) platform designed to bridge the gap between high-level AI policy and technical cloud infrastructure. v2.4 is grounded in the January 2026 official releases from the Cloud Security Alliance (CSA).
+🚀 Launch the Map
+💎 What’s New in v2.4
+ * Verified CCM v4.1.0 Baseline: Fully updated against the Nov 2025 upgrade/Jan 2026 release.
+ * Agentic-API Bridge (AIS-08): Integrated the brand-new API Security control. This provides the technical "Ground Truth" for securing Autonomous Agents.
+ * Maturity Posture Radar: Live visualization of maturity averages across 17 Cloud-AI domains using recharts.
+ * Indicator Identity Cards: Measurement structures (Expression, Rules, SLO) based on the Jan 2026 CSA Code of Practice for Key Metrics.
+ * Significant Change Triggers: Integrated the new auditing standard requiring re-assessment after material system modifications.
+⚙️ Installation & Tech Stack
+This tool runs entirely in the browser with no login required. Data is persisted via localStorage.
+Local Development
+# 1. Clone the repo
+git clone https://github.com/your-repo/ai-governance-map.git
 
-> **💡 The Core Thesis** > Compliance is not about checking boxes. It is about interoperability.  
-> A single well-designed control (e.g., "Adversarial Red Teaming") should satisfy requirements across NIST, ISO, and the EU AI Act simultaneously.
+# 2. Install dependencies
+npm install lucide-react recharts
 
-### 🚀 [Launch the Interactive Dashboard](https://ai-governance-map.vercel.app/)
+# 3. Start the dev server
+npm run dev
 
----
-
-## 🛑 The Problem: Regulatory Fragmentation
-
-Managing AI governance today is a nightmare of disconnected spreadsheets.
-
-- 🛠️ **The Engineers** are looking at Python code and Model Cards.
-- 📋 **The Auditors** are looking at NIST 800-53 and ISO 42001.
-- ⚖️ **The Lawyers** are looking at the EU AI Act and State Bills.
-
-Nobody is speaking the same language.
-
-## ✅ The Solution: The Rosetta Stone
-
-I built the **AI Governance Map** to translate high-level legal policy into actionable engineering logic gates. It is an open-source "Control Plane" that harmonizes **30+ legislative-grade controls** into a single view.
-
----
-
-## 🏛️ Supported Frameworks (v2.1 Global Edition)
-
-This is not just a US-centric tool. It maps requirements for **Global Enterprise** operations:
-
-| Region | Standard | Why it matters |
-| --- | --- | --- |
-| 🌍 Global | **ISO/IEC 42001** | The first certifiable AIMS standard. |
-| 🇺🇸 USA | **NIST AI RMF 1.0** | The gold standard for risk management. |
-| 🇪🇺 EU | **EU AI Act** | Mandatory requirements for High-Risk AI. |
-| 🏦 Finance | **SR 11-7 (MRM)** | Critical for Banking & Fintech hiring. |
-| 🇨🇦 Canada | **AIDA** | Emerging harm-reduction laws. |
-| 🇸🇬 APAC | **Singapore Model** | Governance leadership in Asia. |
-
----
-
-## ⚡ How to Use the Dashboard
-
-### 1. The Maturity Engine (Assess)
-
-Go to the **"Control Map"** tab. Instead of a binary "Yes/No," we use the **CMMI Maturity Scale (0-5)**:
-
-- **Level 0 (Non-Existent):** No process in place.
-- **Level 3 (Defined):** Documented, standard process exists.
-- **Level 5 (Optimized):** Continuous, automated improvement.
-
-> **🧠 Pro Tip:** Use the Remediation text area to log evidence (e.g., links to Jira tickets or Pen Test reports).
-
-### 2. The Cross-Walk Matrix (Visualize)
-
-Go to the **"Network"** tab. This interactive heatmap shows **Regulatory Convergence**.
-
-- *Example:* If you implement **"Data Drift Detection,"** the matrix shows you are simultaneously satisfying `NIST MEASURE 2.7`, `ISO Annex A.9`, and `SR 11-7`.
-
-### 3. The Gap Analysis (Audit)
-
-Go to the **"Gap Analysis"** tab. This simulates a 3rd-party audit. You can upload a JSON manifest of your current controls, and the system will instantly flag **Critical Gaps**.
-
-- *Example:* "You have Model Monitoring, but you are missing a Decommissioning Plan required by ISO 42001."
-
----
-
-## 🔒 Security & Architecture
-
-- **Client-Side Only:** This tool runs entirely in your browser. No data is sent to the cloud.
-- **Open Source:** The code is transparent and available for audit.
-
----
-
-### 📚 Related Resources
-
-- [View the GitHub Repository](https://github.com/thankcheeses/ai-governance-map)
-
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
-
-## Deploy Your Own
-
-Deploy your own Vite project with Vercel.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/vite-react&template=vite-react)
-
-_Live Example: https://vite-react-example.vercel.app_
-
-### Deploying From Your Terminal
-
-You can deploy your new Vite project with a single command from your terminal using [Vercel CLI](https://vercel.com/download):
-
-```shell
-$ vercel
-```
+Technical Stack:
+ * Framework: React
+ * Visuals: Recharts (Radar/Spider charts)
+ * Icons: Lucide-react
+ * Standards: CSA CCM v4.1.0, NIST AI 600-1, ISO 42001, NHID-Clinical.
+🛠️ How to Use the Map
+1. Assessment (Controls Tab)
+ * Score Maturity: Open any of the 21 controls and assign a CMMI Maturity Level (0–5).
+ * Define Metrics: Use the Indicator Identity Card section to document exactly how you measure this control (e.g., "API Scoped Token Authorization Rate").
+ * Flag for Re-assessment: If your AI agents or underlying APIs change materially, check the "Significant System Change" flag. This reflects the latest 2026 compliance mandates.
+2. Visualization (Posture Radar Tab)
+ * The Radar Chart automatically aggregates your maturity scores by CCM Domain (AIS, GRC, DSP, etc.).
+ * Instantly identify "thin" areas in your governance posture where technical debt may be accumulating.
+3. Cross-Framework Discovery (Matrix Tab)
+ * View the overlap between 25 global frameworks (EU AI Act, NIST, SOC 2, etc.).
+ * How to filter: Click any numeric cell in the matrix to view only the controls that satisfy both frameworks simultaneously. Use this to "Test Once, Comply Many."
+4. Gap Analysis (Gap Analysis Tab)
+ * Upload Manifest: Upload a JSON file of your current implemented controls.
+ * Healthcare Benchmark: Download and import the NHID-Clinical Starter to see how your agentic workflows stack up against the specialized Non-Human Identity Disclosure standards for healthcare.
+🛡️ Key Technical Definitions (v2.4 Update)
+Control #21: Agentic Action Boundaries
+This is the "Enterprise Flex" of v2.4. It maps the Autonomous Agents risk tier directly to CCM v4.1 Control AIS-08 (API Security).
+ * The Logic: You cannot govern an AI agent's actions if you do not govern the APIs it uses to act.
+ * SSRM: This is a Shared (Dependent) control, meaning both the Cloud Provider and the Customer have specific configuration responsibilities.
+Indicator Identity Cards
+Every control now includes structured fields from the Jan 21, 2026 Code of Practice:
+ * Expression: The mathematical formula for the metric.
+ * Logic & Rules: The constraints of the measurement.
+ * SLO Recommendation: The Service Level Objective targets for 2026 audits.
+📄 Open Source & Attribution
+ * Author: Brianna Baynard
+ * Framework Baseline: Cloud Controls Matrix (CCM) v4.1.0 by Cloud Security Alliance.
+ * Healthcare Reference: NHID-Clinical (Non-Human Identity Disclosure).
+ * License: MIT
+Disclaimer: This tool is for informational and internal assessment purposes and does not constitute legal advice or a formal certification of compliance.
