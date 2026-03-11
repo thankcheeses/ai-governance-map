@@ -71,16 +71,24 @@ npm run dev
 
 
 
-
 ---
 
 ## 💻 Tech Stack
+
 <p align="left">
-* <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" />**Framework**: React (Vercel-ready)
-* <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" />**Visualizations**: Recharts (High-performance SVG charts)
-* <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" />**Animations**: Framer Motion (Fluid UI transitions)
-* <img src="https://img.shields.io/badge/Framer-black?style=for-the-badge&logo=framer&logoColor=blue" />**Persistence**: LocalStorage (Privacy-first, no login or database required)
+  <a href="https://reactjs.org/" target="_blank"><img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React" /></a>
+  <a href="https://vercel.com/" target="_blank"><img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" /></a>
+  <a href="https://recharts.org/" target="_blank"><img src="https://img.shields.io/badge/recharts-%2322b5bf.svg?style=for-the-badge&logo=recharts&logoColor=white" alt="Recharts" /></a>
+  <a href="https://www.framer.com/motion/" target="_blank"><img src="https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer&logoColor=blue" alt="Framer Motion" /></a>
+  <a href="https://tailwindcss.com/" target="_blank"><img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
 </p>
+
+* **Framework**: React (Vercel-ready)
+* **Visualizations**: Recharts (High-performance SVG charts)
+* **Animations**: Framer Motion (Fluid UI transitions)
+* **Styling**: Tailwind CSS (Utility-first governance UI)
+* **Persistence**: `localStorage` (Privacy-first; no login or database required)
+
 ---
 
 ## ⚖️ License & Attribution
