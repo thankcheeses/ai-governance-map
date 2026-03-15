@@ -666,6 +666,17 @@ const AIGovernancePlatform = () => {
 
   const printReport = () => window.print();
 
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const exportCSV = () => {
     const rows = [
       ['ID','Control','Risk Tier','Priority','CCM Domain','SSRM','Maturity','Maturity Label','Owner','Due Date','Flagged for Reassessment','Last Modified','Notes','Frameworks','CCM v4.1.0 Controls'].join(','),
@@ -675,21 +686,18 @@ const AIGovernancePlatform = () => {
         return [item.id, `"${item.concept}"`, item.riskTier, item.priority, item.ccmDomain, item.ownership, mat, maturityLevels[mat].label, `"${getOwner(item.id)}"`, getDueDate(item.id), getFlagged(item.id) ? 'Yes' : 'No', getLastModified(item.id), `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`, `"${ccmIds}"`].join(',');
       })
     ].join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([rows], { type: 'text/csv' }));
-    a.download = 'ai-governance-assessment-v24.csv'; a.click();
+    triggerDownload(new Blob([rows], { type: 'text/csv' }), 'ai-governance-assessment-v24.csv');
   };
 
   const saveProgress = () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(controlState, null, 2)], { type: 'application/json' }));
-    a.download = 'ai-governance-progress.json'; a.click();
+    triggerDownload(new Blob([JSON.stringify(controlState, null, 2)], { type: 'application/json' }), 'ai-governance-progress.json');
   };
 
   const downloadNHID = () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(NHID_MANIFEST, null, 2)], { type: 'application/json' }));
-    a.download = 'nhid-clinical-controls.json'; a.click();
+    // Download the template file AND immediately load it into the gap analysis
+    triggerDownload(new Blob([JSON.stringify(NHID_MANIFEST, null, 2)], { type: 'application/json' }), 'nhid-clinical-controls.json');
+    setUserControls(NHID_MANIFEST);
+    setUploadedFile('nhid-clinical-controls.json (template loaded)');
   };
 
   const clearAll = () => {
