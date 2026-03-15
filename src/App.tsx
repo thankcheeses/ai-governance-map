@@ -498,11 +498,11 @@ const AIGovernancePlatform = () => {
   const [controlState, setControlState] = useState<Record<number, { maturity?: number; remediation?: string; flagged?: boolean }>>(() => {
     try { const s = localStorage.getItem('ai-gov-progress'); return s ? JSON.parse(s) : {}; } catch { return {}; }
   });
-  const [userControls, setUserControls] = useState<any[]>([]);
+  const [userControls, setUserControls] = useState<{ concept?: string }[]>([]);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   useEffect(() => {
-    try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch {}
+    try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch { /* storage unavailable */ }
   }, [controlState]);
 
   const getMaturity = (id: number) => controlState[id]?.maturity || 0;
@@ -526,7 +526,7 @@ const AIGovernancePlatform = () => {
     CCM_DOMAINS.forEach(d => { domainBuckets[d] = []; });
     complianceData.forEach(c => {
       if (domainBuckets[c.ccmDomain] !== undefined) {
-        domainBuckets[c.ccmDomain].push(getMaturity(c.id));
+        domainBuckets[c.ccmDomain].push(controlState[c.id]?.maturity || 0);
       }
     });
     return CCM_DOMAINS.map(domain => {
@@ -565,7 +565,7 @@ const AIGovernancePlatform = () => {
   const clearAll = () => {
     if (confirm('Clear all scores and notes?')) {
       setControlState({}); setUserControls([]); setUploadedFile(null);
-      try { localStorage.removeItem('ai-gov-progress'); } catch {}
+      try { localStorage.removeItem('ai-gov-progress'); } catch { /* storage unavailable */ }
     }
   };
 
@@ -581,7 +581,7 @@ const AIGovernancePlatform = () => {
 
   const gapAnalysis = useMemo(() => {
     if (!userControls.length) return null;
-    const implemented = userControls.map((c: any) => (c.concept || '').toLowerCase());
+    const implemented = userControls.map(c => (c.concept || '').toLowerCase());
     const gaps = complianceData.filter(item => !implemented.includes(item.concept.toLowerCase()));
     return { coverage: ((complianceData.length - gaps.length) / complianceData.length * 100).toFixed(0), implemented: complianceData.length - gaps.length, gaps, criticalGaps: gaps.filter(g => g.priority === 'Critical') };
   }, [userControls]);
@@ -594,7 +594,7 @@ const AIGovernancePlatform = () => {
     return matchSearch && matchFw && matchTier;
   }), [searchTerm, selectedFrameworks, selectedTier]);
 
-  const toggleRow = (id: number) => { const s = new Set(expandedRows); s.has(id) ? s.delete(id) : s.add(id); setExpandedRows(s); };
+  const toggleRow = (id: number) => { const s = new Set(expandedRows); if (s.has(id)) { s.delete(id); } else { s.add(id); } setExpandedRows(s); };
 
   return (
     <>
