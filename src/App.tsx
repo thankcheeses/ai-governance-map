@@ -201,6 +201,58 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 .gap-item-desc { font-size: 0.8rem; color: var(--ink-2); }
 .empty-state { text-align: center; padding: 3rem; color: var(--ink-3); font-size: 0.875rem; }
 
+/* ── OWL Listener Plugin ────────────────────────────────────────────────── */
+.owl-header-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.owl-header-title { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink); margin-bottom: 0.25rem; }
+.owl-header-desc { font-size: 0.8125rem; color: var(--ink-3); }
+.owl-stats { display: flex; gap: 0.75rem; flex-shrink: 0; }
+.owl-stat { text-align: center; padding: 0.625rem 1rem; background: var(--bg); border: 1px solid var(--border-light); border-radius: 7px; min-width: 56px; }
+.owl-stat-val { font-family: var(--font-mono); font-size: 1.25rem; color: var(--ink); font-weight: 600; line-height: 1; }
+.owl-stat-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; margin-top: 3px; }
+.owl-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+.owl-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.owl-panel-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.owl-panel-title { font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
+.owl-panel-subtitle { font-size: 0.75rem; color: var(--ink-3); margin-top: 0.125rem; }
+.owl-panel-body { padding: 1.25rem; }
+.owl-status { display: flex; align-items: center; gap: 0.375rem; flex-shrink: 0; }
+.owl-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex-shrink: 0; }
+.owl-status-dot.active { background: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); animation: owlPulse 1.5s ease-in-out infinite; }
+@keyframes owlPulse { 0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.2); } 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.08); } }
+.owl-status-label { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-3); }
+.owl-status-label.active { color: #16A34A; }
+.owl-textarea { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink); resize: vertical; min-height: 180px; outline: none; transition: border 0.15s; line-height: 1.6; }
+.owl-textarea:focus { border-color: var(--accent-mid); }
+.owl-textarea::placeholder { color: var(--ink-3); }
+.owl-actions { display: flex; gap: 0.625rem; margin-top: 0.875rem; flex-wrap: wrap; }
+.owl-entity-list { display: flex; flex-direction: column; gap: 0.375rem; max-height: 240px; overflow-y: auto; }
+.owl-entity-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0.75rem; background: var(--bg); border: 1px solid var(--border-light); border-radius: 6px; }
+.owl-entity-icon { font-family: var(--font-mono); font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.02em; }
+.owl-entity-icon.cls { background: #EEF2FF; color: #3730A3; border: 1px solid #A5B4FC; }
+.owl-entity-icon.prop { background: #FDF4FF; color: #7E22CE; border: 1px solid #E9D5FF; }
+.owl-entity-icon.indiv { background: var(--gold-light); color: var(--gold); border: 1px solid #FCD34D; }
+.owl-entity-name { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.owl-entity-label { font-size: 0.65rem; color: var(--ink-3); white-space: nowrap; }
+.owl-match-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.owl-match-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; }
+.owl-match-header-title { font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
+.owl-match-count { font-family: var(--font-mono); font-size: 0.65rem; padding: 2px 8px; background: var(--accent-light); color: var(--accent); border: 1px solid #C2DCCA; border-radius: 10px; }
+.owl-match-list { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.owl-match-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1rem; background: var(--bg); border: 1px solid var(--border-light); border-radius: 8px; transition: border-color 0.12s, background 0.12s; cursor: pointer; }
+.owl-match-item:hover { border-color: var(--accent-mid); background: var(--accent-light); }
+.owl-match-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--accent-light); border: 1px solid #C2DCCA; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent); margin-top: 1px; }
+.owl-match-icon svg { width: 13px; height: 13px; }
+.owl-match-concept { font-weight: 600; font-size: 0.875rem; color: var(--ink); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; }
+.owl-match-reason { font-size: 0.7rem; color: var(--accent-mid); font-family: var(--font-mono); }
+.owl-empty { text-align: center; padding: 2.5rem 2rem; color: var(--ink-3); font-size: 0.8125rem; }
+.owl-empty-hint { font-size: 0.75rem; color: var(--ink-3); margin-top: 0.375rem; }
+.owl-log { background: var(--bg); border: 1px solid var(--border-light); border-radius: 7px; padding: 0.75rem; font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-2); line-height: 1.7; max-height: 110px; overflow-y: auto; margin-top: 0.875rem; }
+.owl-log-entry { display: flex; gap: 0.625rem; }
+.owl-log-ts { color: var(--ink-3); flex-shrink: 0; }
+.owl-log-msg { color: var(--ink-2); }
+.owl-log-msg.ok { color: #16A34A; }
+.owl-log-msg.warn { color: var(--gold); }
+
 @media (max-width: 768px) {
   .control-body { grid-template-columns: 1fr; }
   .stats-bar { grid-template-columns: repeat(2, 1fr); }
@@ -473,6 +525,104 @@ const complianceData = [
   },
 ];
 
+// ─── OWL Listener Plugin ──────────────────────────────────────────────────────
+interface OWLEntity {
+  type: 'Class' | 'ObjectProperty' | 'DatatypeProperty' | 'Individual';
+  localName: string;
+  label?: string;
+  comment?: string;
+}
+
+interface OWLLogEntry { ts: string; msg: string; kind: 'ok' | 'info' | 'warn'; }
+
+const OWL_SAMPLE = `@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ai: <https://example.org/ai-gov#> .
+
+ai:AISystem a owl:Class ;
+    rdfs:label "AI System" ;
+    rdfs:comment "A computational system that uses machine learning." .
+
+ai:AutonomousAgent a owl:Class ;
+    rdfs:label "Autonomous Agent" ;
+    rdfs:comment "An AI agent that acts without direct human control." .
+
+ai:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" .
+
+ai:TransparencyControl a owl:Class ;
+    rdfs:label "Transparency Control" .
+
+ai:DataGovernance a owl:Class ;
+    rdfs:label "Data Governance" .
+
+ai:hasRiskScore a owl:DatatypeProperty ;
+    rdfs:label "has risk score" .
+
+ai:monitorsAgent a owl:ObjectProperty ;
+    rdfs:label "monitors agent" .`;
+
+function localName(uri: string): string {
+  const part = uri.split(/[#/:]/).filter(Boolean).pop() || uri;
+  // Convert camelCase/PascalCase to spaced words for matching
+  return part.replace(/([A-Z])/g, ' $1').trim();
+}
+
+function parseOWLTurtle(text: string): OWLEntity[] {
+  const entities: OWLEntity[] = [];
+  if (!text.trim()) return entities;
+
+  // Extract all triples of the form: <subject> a <type> [; rdfs:label "..."] [; rdfs:comment "..."]
+  // Also handle multi-line blocks with semicolons
+  const blocks = text.split(/\.\s*(?=\n|$)/);
+  for (const block of blocks) {
+    const subjectMatch = block.match(/^[\s\n]*(\S+)\s+(?:a|rdf:type)\s+(owl:Class|owl:ObjectProperty|owl:DatatypeProperty|owl:NamedIndividual)/m);
+    if (!subjectMatch) continue;
+    const rawUri = subjectMatch[1];
+    const typeStr = subjectMatch[2];
+    const type: OWLEntity['type'] =
+      typeStr === 'owl:ObjectProperty' ? 'ObjectProperty' :
+      typeStr === 'owl:DatatypeProperty' ? 'DatatypeProperty' :
+      typeStr === 'owl:NamedIndividual' ? 'Individual' : 'Class';
+
+    const lbl = block.match(/rdfs:label\s+"([^"]+)"/);
+    const cmt = block.match(/rdfs:comment\s+"([^"]+)"/);
+    entities.push({
+      type,
+      localName: localName(rawUri),
+      label: lbl?.[1],
+      comment: cmt?.[1],
+    });
+  }
+  return entities;
+}
+
+function matchOWLToControls(entities: OWLEntity[]): Array<{ control: typeof complianceData[0]; matchedTerm: string }> {
+  if (!entities.length) return [];
+  const results: Array<{ control: typeof complianceData[0]; matchedTerm: string }> = [];
+  const seen = new Set<number>();
+
+  for (const entity of entities) {
+    const terms = [entity.localName, entity.label, entity.comment].filter(Boolean) as string[];
+    for (const term of terms) {
+      const termLower = term.toLowerCase();
+      for (const ctrl of complianceData) {
+        if (seen.has(ctrl.id)) continue;
+        const conceptLower = ctrl.concept.toLowerCase();
+        const descLower = ctrl.description.toLowerCase();
+        const termWords = termLower.split(/\s+/).filter(w => w.length > 3);
+        const matched = termWords.some(w => conceptLower.includes(w) || descLower.includes(w));
+        if (matched) {
+          results.push({ control: ctrl, matchedTerm: entity.label || entity.localName });
+          seen.add(ctrl.id);
+        }
+      }
+    }
+  }
+  return results;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const tierBadge = (t: string) =>
   t === 'Autonomous Agents' ? 'badge badge-agentic' :
@@ -501,6 +651,14 @@ const AIGovernancePlatform = () => {
   const [userControls, setUserControls] = useState<{ concept?: string }[]>([]);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
+  // OWL Listener state
+  const [owlInput, setOwlInput] = useState('');
+  const [owlEntities, setOwlEntities] = useState<OWLEntity[]>([]);
+  const [owlMatches, setOwlMatches] = useState<Array<{ control: typeof complianceData[0]; matchedTerm: string }>>([]);
+  const [owlListening, setOwlListening] = useState(false);
+  const [owlLog, setOwlLog] = useState<OWLLogEntry[]>([]);
+  const owlTimerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch { /* storage unavailable */ }
   }, [controlState]);
@@ -511,6 +669,48 @@ const AIGovernancePlatform = () => {
   const updateMaturity = (id: number, lvl: number) => setControlState(p => ({ ...p, [id]: { ...p[id], maturity: lvl } }));
   const updateRemediation = (id: number, txt: string) => setControlState(p => ({ ...p, [id]: { ...p[id], remediation: txt } }));
   const toggleFlag = (id: number) => setControlState(p => ({ ...p, [id]: { ...p[id], flagged: !p[id]?.flagged } }));
+
+  const owlNow = () => new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  const owlParse = (text: string) => {
+    const entities = parseOWLTurtle(text);
+    const matches = matchOWLToControls(entities);
+    setOwlEntities(entities);
+    setOwlMatches(matches);
+    setOwlLog(prev => [
+      ...prev,
+      { ts: owlNow(), msg: `Parsed ${entities.length} entit${entities.length === 1 ? 'y' : 'ies'} — ${matches.length} control match${matches.length === 1 ? '' : 'es'} found`, kind: matches.length > 0 ? 'ok' : 'warn' }
+    ].slice(-20));
+  };
+
+  const owlLoadSample = () => { setOwlInput(OWL_SAMPLE); };
+
+  const owlToggleListener = () => {
+    if (owlListening) {
+      if (owlTimerRef.current) clearInterval(owlTimerRef.current);
+      setOwlListening(false);
+      setOwlLog(prev => [...prev, { ts: owlNow(), msg: 'Listener stopped.', kind: 'info' }].slice(-20));
+    } else {
+      setOwlListening(true);
+      setOwlLog(prev => [...prev, { ts: owlNow(), msg: 'Listener started — polling ontology endpoint...', kind: 'ok' }].slice(-20));
+      // Simulate periodic ontology updates
+      owlTimerRef.current = setInterval(() => {
+        setOwlLog(prev => {
+          const msgs = [
+            { msg: 'Heartbeat: ontology endpoint reachable.', kind: 'ok' as const },
+            { msg: 'No schema changes detected since last poll.', kind: 'info' as const },
+            { msg: 'Received 0 new triples.', kind: 'info' as const },
+            { msg: 'Ontology version unchanged (hash match).', kind: 'ok' as const },
+          ];
+          const pick = msgs[Math.floor(Math.random() * msgs.length)];
+          return [...prev, { ts: owlNow(), msg: pick.msg, kind: pick.kind }].slice(-20);
+        });
+      }, 4000);
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => () => { if (owlTimerRef.current) clearInterval(owlTimerRef.current); }, []);
 
   const overallScore = useMemo(() => {
     const total = Object.values(controlState).reduce((a, c) => a + (c.maturity || 0), 0);
@@ -612,7 +812,8 @@ const AIGovernancePlatform = () => {
                 { id:'map', icon:Shield, label:'Controls' },
                 { id:'radar', icon:Radio, label:'Posture Radar' },
                 { id:'network', icon:Network, label:'Matrix' },
-                { id:'gap', icon:BarChart3, label:'Gap Analysis' }
+                { id:'gap', icon:BarChart3, label:'Gap Analysis' },
+                { id:'owl', icon:Activity, label:'OWL Listener' }
               ].map(tab => (
                 <button key={tab.id} className={`nav-btn ${activeTab===tab.id?'active':''}`} onClick={()=>setActiveTab(tab.id)}>
                   <tab.icon />{tab.label}
@@ -891,6 +1092,150 @@ const AIGovernancePlatform = () => {
                   )}
                 </>
               )}
+            </div>
+          )}
+
+          {/* ── OWL Listener Tab ──────────────────────────────────────────────── */}
+          {activeTab === 'owl' && (
+            <div>
+              {/* Header row */}
+              <div className="owl-header-row">
+                <div className="owl-header-info">
+                  <div className="owl-header-title">OWL Listener Plugin</div>
+                  <div className="owl-header-desc">Parse OWL/Turtle ontologies and map discovered classes &amp; properties to AI governance controls</div>
+                </div>
+                <div className="owl-stats">
+                  <div className="owl-stat">
+                    <div className="owl-stat-val">{owlEntities.filter(e => e.type === 'Class').length}</div>
+                    <div className="owl-stat-lbl">Classes</div>
+                  </div>
+                  <div className="owl-stat">
+                    <div className="owl-stat-val">{owlEntities.filter(e => e.type === 'ObjectProperty' || e.type === 'DatatypeProperty').length}</div>
+                    <div className="owl-stat-lbl">Properties</div>
+                  </div>
+                  <div className="owl-stat">
+                    <div className="owl-stat-val">{owlMatches.length}</div>
+                    <div className="owl-stat-lbl">Matches</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Input + Entities row */}
+              <div className="owl-container">
+                {/* Left: input panel */}
+                <div className="owl-panel">
+                  <div className="owl-panel-header">
+                    <div>
+                      <div className="owl-panel-title">Ontology Input</div>
+                      <div className="owl-panel-subtitle">Paste OWL/Turtle (TTL) source</div>
+                    </div>
+                    <div className="owl-status">
+                      <div className={`owl-status-dot ${owlListening ? 'active' : ''}`}/>
+                      <span className={`owl-status-label ${owlListening ? 'active' : ''}`}>
+                        {owlListening ? 'LISTENING' : 'IDLE'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="owl-panel-body">
+                    <textarea
+                      className="owl-textarea"
+                      placeholder={`@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nex:MyAIClass a owl:Class ;\n    rdfs:label "My AI Class" .`}
+                      value={owlInput}
+                      onChange={e => setOwlInput(e.target.value)}
+                      spellCheck={false}
+                    />
+                    <div className="owl-actions">
+                      <button className="btn-primary" style={{fontSize:'0.78rem',padding:'0.5rem 1rem'}} onClick={() => owlParse(owlInput)}>
+                        <Shield size={13}/>Parse Ontology
+                      </button>
+                      <button className="btn-secondary" style={{fontSize:'0.78rem',padding:'0.5rem 1rem'}} onClick={owlLoadSample}>
+                        Load Sample
+                      </button>
+                      <button
+                        className={owlListening ? 'btn-secondary' : 'btn-secondary'}
+                        style={{fontSize:'0.78rem',padding:'0.5rem 1rem', marginLeft:'auto', color: owlListening ? 'var(--red)' : undefined, borderColor: owlListening ? '#FCA5A5' : undefined}}
+                        onClick={owlToggleListener}
+                      >
+                        <Activity size={13}/>{owlListening ? 'Stop Listener' : 'Start Listener'}
+                      </button>
+                    </div>
+                    {owlLog.length > 0 && (
+                      <div className="owl-log">
+                        {owlLog.map((entry, i) => (
+                          <div key={i} className="owl-log-entry">
+                            <span className="owl-log-ts">[{entry.ts}]</span>
+                            <span className={`owl-log-msg ${entry.kind}`}>{entry.msg}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: parsed entities panel */}
+                <div className="owl-panel">
+                  <div className="owl-panel-header">
+                    <div>
+                      <div className="owl-panel-title">Parsed Entities</div>
+                      <div className="owl-panel-subtitle">{owlEntities.length} entit{owlEntities.length === 1 ? 'y' : 'ies'} detected</div>
+                    </div>
+                  </div>
+                  <div className="owl-panel-body">
+                    {owlEntities.length === 0 ? (
+                      <div className="owl-empty">
+                        <div>No entities parsed yet.</div>
+                        <div className="owl-empty-hint">Paste OWL/Turtle text and click Parse Ontology, or load the sample.</div>
+                      </div>
+                    ) : (
+                      <div className="owl-entity-list">
+                        {owlEntities.map((e, i) => (
+                          <div key={i} className="owl-entity-item">
+                            <span className={`owl-entity-icon ${e.type === 'Class' ? 'cls' : e.type === 'Individual' ? 'indiv' : 'prop'}`}>
+                              {e.type === 'Class' ? 'CLS' : e.type === 'Individual' ? 'IND' : e.type === 'ObjectProperty' ? 'OBJ' : 'DAT'}
+                            </span>
+                            <span className="owl-entity-name" title={e.comment}>{e.label || e.localName}</span>
+                            {e.label && e.label !== e.localName && (
+                              <span className="owl-entity-label">{e.localName}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Matched controls */}
+              <div className="owl-match-section">
+                <div className="owl-match-header">
+                  <div className="owl-match-header-title">Matched Governance Controls</div>
+                  {owlMatches.length > 0 && (
+                    <span className="owl-match-count">{owlMatches.length} match{owlMatches.length === 1 ? '' : 'es'}</span>
+                  )}
+                </div>
+                <div className="owl-match-list">
+                  {owlMatches.length === 0 ? (
+                    <div className="owl-empty">
+                      <div>No controls matched yet.</div>
+                      <div className="owl-empty-hint">Parse an OWL ontology above to discover relevant governance controls.</div>
+                    </div>
+                  ) : (
+                    owlMatches.map(({ control, matchedTerm }, i) => (
+                      <div key={i} className="owl-match-item" onClick={() => { setActiveTab('map'); setSearchTerm(control.concept); }}>
+                        <div className="owl-match-icon"><Shield /></div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div className="owl-match-concept">
+                            {control.concept}
+                            <span className={tierBadge(control.riskTier)}>{control.riskTier}</span>
+                            <span className={priorityBadge(control.priority)}>{control.priority}</span>
+                          </div>
+                          <div className="owl-match-reason">matched via "{matchedTerm}"</div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
