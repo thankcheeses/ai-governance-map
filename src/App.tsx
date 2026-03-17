@@ -1081,7 +1081,6 @@ const AIGovernancePlatform = () => {
                   </button>
                 </div>
                 {uploadedFile && <div className="upload-success"><CheckCircle size={14}/>{uploadedFile}</div>}
-                {!uploadedFile && <div style={{marginTop:'0.75rem',fontSize:'0.7rem',color:'var(--ink-3)',fontFamily:'var(--font-mono)'}}>Format: [{"{ "}{"\"concept\": \"Control Name\""}{"}" }]</div>}
               </div>
 
               {gapAnalysis && (
