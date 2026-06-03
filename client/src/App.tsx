@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import GovernanceMap from "./pages/GovernanceMap";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <SpeedInsights />
           <Toaster />
           <Router />
         </TooltipProvider>
