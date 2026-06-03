@@ -1,4 +1,4 @@
-// AI Governance Map v2.4 — Enterprise Cloud-AI Edition
+// AI Governance Map v2.5 — Enterprise Cloud-AI Edition
 // New dep: npm install recharts
 // CCM v4.1.0 — verified against CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official release, Jan 2026)
 // AIS-08 (API Security) confirmed new in v4.1 (Nov 2025 upgrade). CAIQ questions AIS-08.1 + AIS-08.2 confirmed.
@@ -323,13 +323,12 @@ const CITATIONS: Record<string, string> = {
   // Australia AI — Updated to Guidance for AI Adoption (GfAA, Oct 2025). Supersedes 2019 AI Ethics Framework.
   'Australia AI':  'https://www.industry.gov.au/publications/guidance-ai-adoption',
   'NYC Law 144':   'https://legistar.council.nyc.gov/LegislationDetail.aspx?ID=4344524',
-  // Colorado AI — SB 24-205 effective date delayed to Jun 30, 2026 by SB 25B-004 (signed Aug 28, 2025).
-  'Colorado AI':   'https://leg.colorado.gov/bills/sb24-205',
-  // California AI — SB 1047 VETOED Sep 29, 2024. Replaced by SB 53 / TFAIA (signed Sep 29, 2025, effective Jan 1, 2026).
-  'California SB 53': 'https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202520260SB53',
+  'Colorado AI':   'https://leg.colorado.gov/bills/sb26-189',
+  'California AI': 'https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202520260SB1000',
+  'Texas TRAIGA':  'https://www.nortonrosefulbright.com/en/knowledge/publications/c6c60e0c/the-texas-responsible-ai-governance-act',
   'G7 Hiroshima':  'https://www.g7hiroshima.go.jp/documents/pdf/G7AI_code_of_conduct_en.pdf',
-  // EO 14110 — REVOKED Jan 20, 2025 by EO 14148 (Trump admin). Superseded by EO 14179 ("Removing Barriers to American Leadership in AI", Jan 23, 2025). All §4.x citations below are now invalid under federal law.
-  'EO 14110':      'https://www.federalregister.gov/documents/2023/11/01/2023-24283/safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence',
+  'EO 14110':      'https://www.whitehouse.gov/briefing-room/presidential-actions/2023/10/30/executive-order-on-the-safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence/',
+  'US AI EO 2026': 'https://www.whitehouse.gov/presidential-actions/2026/06/promoting-advanced-artificial-intelligence-innovation-and-security/',
   // CCM v4.1.0 — Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official, Jan 2026)
   'CSA CCM v4':    'https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1',
 };
@@ -355,7 +354,7 @@ const maturityLevels = [
 ];
 
 const ALL_TIERS = ['All', 'High-Risk', 'All Systems', 'GenAI', 'GPAI', 'Autonomous Agents', 'Critical'];
-const frameworks = ['NIST AI RMF','NIST AI 600-1','ISO/IEC 42001','EU AI Act','OECD AI','Canada AIDA','Singapore','US Banking','OCC/Fed/FDIC','OWASP LLM','GDPR','NIST CSF','SOC 2','FedRAMP','UK AI','IEEE 7000','Brazil LGPD','China PIPL','Japan AI','Australia AI','NYC Law 144','Colorado AI','California SB 53','G7 Hiroshima','EO 14110'];
+const frameworks = ['NIST AI RMF','NIST AI 600-1','ISO/IEC 42001','EU AI Act','OECD AI','Canada AIDA','Singapore','US Banking','OCC/Fed/FDIC','OWASP LLM','GDPR','NIST CSF','SOC 2','FedRAMP','UK AI','IEEE 7000','Brazil LGPD','China PIPL','Japan AI','Australia AI','NYC Law 144','Colorado AI','California AI','G7 Hiroshima','EO 14110','Texas TRAIGA','US AI EO 2026'];
 
 // ─── Control Data ─────────────────────────────────────────────────────────────
 // ccmMappings: verified CCM v4.1.0 control IDs from CCMv4_1_0-generated_at_2026_01_13.xlsx
@@ -373,14 +372,14 @@ const complianceData = [
     ccmMappings: { "GRC-02": "Risk Management Program", "A&A-03": "Risk Based Planning Assessment" },
     mappings: { "NIST AI RMF": ["MAP 1.1"], "ISO/IEC 42001": ["8.2"], "EU AI Act": ["Art 9"], "OECD AI": ["1.4"], "Singapore": ["Gov"], "NIST CSF": ["GOV-04"], "SOC 2": ["CC3.1"], "UK AI": ["RA"], "FedRAMP": ["RA-3"], "G7 Hiroshima": ["§3"], "EO 14110": ["§4.1"] },
     indicator: { name: "Open Risk Finding Resolution Rate", method: "Ratio of resolved-to-open risk register items per reporting cycle. Measured via GRC platform export.", slo: "≥90% resolved within SLA" },
-    implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness."
+    implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness. EU AI Act Annex III (standalone high-risk) compliance deadline extended to Dec 2, 2027 per Digital Omnibus agreement (May 7, 2026)."
   },
   {
     id: 2, concept: "Human Oversight", riskTier: "High-Risk", priority: "Critical",
     ccmDomain: "GRC", ownership: "CSC",
     description: "Mechanisms ensuring human intervention and control over consequential AI decisions.",
     ccmMappings: { "GRC-06": "Governance Responsibility Model", "IAM-09": "Segregation of Privileged Access Roles" },
-    mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["Human"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] },
+    mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§4"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] },
     indicator: { name: "HITL Intervention Rate", method: "Log-derived ratio of human-overridden AI decisions to total automated decisions. Sourced from immutable audit trail.", slo: "Track trend; alert on >20% deviation" },
     implementation: "Establish oversight committee with documented intervention triggers and escalation paths."
   },
@@ -409,14 +408,14 @@ const complianceData = [
     ccmMappings: { "A&A-02": "Independent Assessments", "A&A-05": "Audit Management Process" },
     mappings: { "US Banking": ["Validation"], "OCC/Fed/FDIC": ["§IV.A"], "NIST AI RMF": ["MEAS 2.6"], "SOC 2": ["CC5.2"], "ISO/IEC 42001": ["9.1"] },
     indicator: { name: "Pre-Production Validation Coverage %", method: "Models with signed validation report / total models promoted to production. Logged in CI/CD audit trail.", slo: "100%" },
-    implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off."
+    implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off. EU AI Act Annex III high-risk deadline extended to Dec 2, 2027 per Digital Omnibus (May 7, 2026); use the extended window to strengthen validation pipelines."
   },
   {
     id: 6, concept: "Privacy Assessment", riskTier: "All Systems", priority: "Critical",
     ccmDomain: "DSP", ownership: "Shared",
     description: "Data Protection Impact Assessments for AI systems processing personal data.",
     ccmMappings: { "DSP-08": "Data Privacy by Design and Default", "DSP-09": "Data Protection Impact Assessment" },
-    mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California SB 53": ["TFAIA §1(b)"] },
+    mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California AI": ["SB-53"], "Texas TRAIGA": ["§6"] },
     indicator: { name: "DPIA Completion Rate", method: "AI systems with completed DPIA / systems processing personal data. Reviewed at least annually.", slo: "100% of in-scope systems" },
     implementation: "Conduct DPIA before processing personal data. Re-assess annually and after material model changes."
   },
@@ -452,7 +451,7 @@ const complianceData = [
     ccmDomain: "TVM", ownership: "CSC",
     description: "Structured red-team testing against prompt injection, jailbreaks, and adversarial inputs.",
     ccmMappings: { "TVM-06": "Penetration Testing", "AIS-05": "Automated Application Security Testing" },
-    mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"] },
+    mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"], "US AI EO 2026": ["§2"] },
     indicator: { name: "Red Team Finding Resolution Rate", method: "Critical/High findings closed within SLA / total findings per engagement.", slo: "≥90% Critical/High within 30 days" },
     implementation: "Quarterly red-team exercises with documented findings. Pre-release red-teaming required for all GPAI models."
   },
@@ -461,9 +460,9 @@ const complianceData = [
     ccmDomain: "A&A", ownership: "CSC",
     description: "Systematic testing for algorithmic bias across legally protected characteristics.",
     ccmMappings: { "A&A-02": "Independent Assessments", "AIS-03": "Application Security Metrics" },
-    mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["Discrim"], "IEEE 7000": ["Fair"], "California SB 53": ["TFAIA §1(c)"] },
+    mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§3"], "IEEE 7000": ["Fair"], "California AI": ["AB-2013"] },
     indicator: { name: "Demographic Parity Deviation Score", method: "Max disparity in favorable outcome rates across protected groups. Computed from validation dataset.", slo: "≤5% disparity" },
-    implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems."
+    implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems. Texas TRAIGA (eff. Jan 1, 2026) explicitly prohibits discriminatory AI. Colorado SB 26-189 (signed May 14, 2026, eff. Jan 1, 2027) replaced SB 24-205 with a narrowed notice-based approach. The Global AI Regulation Summit (New Delhi, May 26, 2026) elevated algorithmic bias as a top international governance priority."
   },
   {
     id: 12, concept: "Secure Weights", riskTier: "Critical", priority: "Critical",
@@ -488,7 +487,7 @@ const complianceData = [
     ccmDomain: "GRC", ownership: "CSC",
     description: "Documented process enabling users to challenge and appeal automated decisions.",
     ccmMappings: { "GRC-01": "Governance Program Policy and Procedures", "SEF-06": "Event Triage Processes" },
-    mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["Appeal"] },
+    mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§5"] },
     indicator: { name: "Appeal Resolution Time (hrs)", method: "Median hours from appeal submission to final disposition. Tracked in ticketing system.", slo: "≤72 hrs median" },
     implementation: "Human appeal workflow with <48hr SLA. Log all appeals and outcomes for regulatory reporting."
   },
@@ -526,14 +525,14 @@ const complianceData = [
     ccmMappings: { "DSP-17": "Sensitive Data Protection", "LOG-11": "Transaction/Activity Logging" },
     mappings: { "NIST AI 600-1": ["GV-6.2"], "EU AI Act": ["Art 50"], "EO 14110": ["§4.5"], "G7 Hiroshima": ["§6"], "OECD AI": ["1.3"] },
     indicator: { name: "Watermark Detection Success Rate", method: "Content samples with recoverable provenance markers / total generated content samples tested.", slo: "≥95%" },
-    implementation: "Apply cryptographic watermarking to all generated media. Maintain provenance chain-of-custody aligned to C2PA standard."
+    implementation: "Apply cryptographic watermarking to all generated media. Maintain provenance chain-of-custody aligned to C2PA standard. Note: EU AI Act Art 50 machine-readable marking obligation postponed to Dec 2, 2026 per the Digital Omnibus agreement (May 7, 2026). New EU prohibition on AI-generated non-consensual intimate imagery (CSAM) takes effect Dec 2, 2026."
   },
   {
     id: 19, concept: "Dual-Use Foundation Model Reporting", riskTier: "GPAI", priority: "High",
     ccmDomain: "GRC", ownership: "CSC",
     description: "Safety test result reporting obligations for large-scale foundation model developers.",
     ccmMappings: { "GRC-07": "Information System Regulatory Mapping", "SEF-07": "Security Breach Notification" },
-    mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"] },
+    mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"], "US AI EO 2026": ["§1 voluntary 30-day"] },
     indicator: { name: "Regulatory Submission Timeliness %", method: "Submissions delivered within required regulatory window / total required submissions.", slo: "100%" },
     implementation: "Report red-team and safety evaluation results to government bodies prior to public release. Maintain audit trail of all submissions."
   },
@@ -542,7 +541,7 @@ const complianceData = [
     ccmDomain: "BCR", ownership: "CSC",
     description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.",
     ccmMappings: { "BCR-09": "Disaster Response Plan", "BCR-04": "Business Continuity Planning" },
-    mappings: { "California SB 53": ["TFAIA compute threshold"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] },
+    mappings: { "California AI": ["SB-53 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] },
     indicator: { name: "Runbook Test Pass Rate", method: "Successful shutdown procedure drills / total drills conducted annually.", slo: "100% annually" },
     implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California SB 53 (TFAIA) compute thresholds (effective Jan 1, 2026). Test annually."
   },
@@ -559,7 +558,7 @@ const complianceData = [
       "IAM-16": "Authorization Mechanisms",
       "LOG-11": "Transaction/Activity Logging"
     },
-    mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"] },
+    mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"], "Texas TRAIGA": ["§7 Behav"] },
     indicator: { name: "API Scoped Token Authorization Rate", method: "Agent API calls using least-privilege scoped tokens / total agent API calls. Derived from API gateway logs.", slo: "≥99% scoped; 0 unauthorized" },
     implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Per CCM v4.1 AIS-08: review and update at least annually or upon significant system changes. For healthcare agentic deployments, apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators."
   },
@@ -743,7 +742,7 @@ const AIGovernancePlatform = () => {
           <div className="header-inner">
             <div className="header-brand">
               <span className="header-title">AI Governance Map</span>
-              <span className="header-version">v2.4 · CCM v4.1.0</span>
+              <span className="header-version">v2.5 · CCM v4.1.0</span>
             </div>
             <nav className="header-nav desktop-nav">
               {[
@@ -775,7 +774,7 @@ const AIGovernancePlatform = () => {
 
         <main className="main">
           <div className="stats-bar">
-            <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">25</div><div className="stat-sub">Global jurisdictions</div></div>
+            <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">27</div><div className="stat-sub">Global jurisdictions</div></div>
             <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">21</div><div className="stat-sub">CMMI + CCM v4.1.0</div></div>
             <div className="stat-card"><div className="stat-label">Critical</div><div className="stat-value">{criticalCount}</div><div className="stat-sub">High-priority controls</div></div>
             <div className="stat-card"><div className="stat-label">Assessed</div><div className="stat-value">{assessedCount}</div><div className="stat-sub">of {complianceData.length} controls</div></div>
