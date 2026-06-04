@@ -1,4 +1,4 @@
-// AI Governance Map v2.4 — Enterprise Cloud-AI Edition
+// AI Governance Map v2.5 — Enterprise Cloud-AI Edition
 // New dep: npm install recharts
 // CCM v4.1.0 — verified against CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official release, Jan 2026)
 // AIS-08 (API Security) confirmed new in v4.1 (Nov 2025 upgrade). CAIQ questions AIS-08.1 + AIS-08.2 confirmed.
@@ -8,7 +8,8 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tool
 import {
   Search, ChevronDown, CheckCircle, Shield, Activity, TrendingUp, FileText,
   Globe, Network, BarChart3, Upload, Save, RotateCcw, ArrowRight, Download,
-  ExternalLink, Filter, AlertCircle, Zap, Radio
+  ExternalLink, Filter, AlertCircle, Zap, Radio, BookOpen, Moon, Sun, Printer,
+  User, Calendar, Clock
 } from 'lucide-react';
 
 const FONTS = `
@@ -204,10 +205,92 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-body); 
 @media (max-width: 768px) {
   .control-body { grid-template-columns: 1fr; }
   .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .header-nav { display: none; }
+  .desktop-nav { display: none !important; }
   .gap-stats { grid-template-columns: 1fr; }
   .radar-body { grid-template-columns: 1fr; }
   .header-actions .btn-ghost span { display: none; }
+  .fw-coverage-grid { grid-template-columns: 1fr; }
+  .guide-body { grid-template-columns: 1fr; }
+  .owner-due-grid { grid-template-columns: 1fr; }
+  .mobile-nav { display: flex !important; }
+  .main { padding-bottom: 5rem; }
+}
+
+/* ── Card depth ─────────────────────────────────────────────────────────── */
+.stat-card { box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); }
+.control-card { box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.control-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important; border-color: var(--border) !important; }
+.control-card.expanded { box-shadow: 0 4px 20px rgba(0,0,0,0.10) !important; }
+
+/* ── Maturity dots ───────────────────────────────────────────────────────── */
+.maturity-dots { display: flex; gap: 3px; align-items: center; margin-right: 0.5rem; flex-shrink: 0; }
+.maturity-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: background 0.15s; }
+.maturity-dot.filled { background: var(--accent-mid); }
+.maturity-dot.filled-critical { background: var(--red); }
+
+/* ── Dark mode toggle ────────────────────────────────────────────────────── */
+.dark-toggle { display: flex; align-items: center; gap: 0.375rem; padding: 0.4rem 0.625rem; font-size: 0.8rem; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+.dark-toggle:hover { background: var(--surface); color: var(--ink); }
+.dark-toggle svg { width: 13px; height: 13px; }
+
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
+.dark { --bg: #0E1117; --surface: #181D2A; --surface-2: #222840; --border: #2C3352; --border-light: #232840; --ink: #E4E2DC; --ink-2: #9BA3B8; --ink-3: #565E78; --accent: #4D9E75; --accent-light: #142A20; --accent-mid: #4D9E75; --gold: #C9972E; --gold-light: #251E0A; --red: #D04040; --red-light: #2A1010; }
+.dark .header { background: var(--surface); }
+.dark .control-card { box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.dark .stat-card { box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+/* ── Guide panel ─────────────────────────────────────────────────────────── */
+.guide-panel { background: var(--accent-light); border: 1px solid #C2DCCA; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; }
+.dark .guide-panel { border-color: #2A4A37; }
+.guide-header { display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1.25rem; cursor: pointer; user-select: none; }
+.guide-title { font-weight: 600; font-size: 0.875rem; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; }
+.guide-title svg { width: 14px; height: 14px; }
+.guide-body { padding: 0 1.25rem 1.25rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.guide-step-num { font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-mid); font-weight: 600; margin-bottom: 0.375rem; letter-spacing: 0.06em; }
+.guide-step-title { font-size: 0.8125rem; font-weight: 600; color: var(--ink); margin-bottom: 0.25rem; }
+.guide-step-desc { font-size: 0.75rem; color: var(--ink-2); line-height: 1.55; }
+
+/* ── Owner / Due date ────────────────────────────────────────────────────── */
+.owner-due-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; margin-bottom: 0.75rem; }
+.field-label { font-size: 0.6375rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.3rem; }
+.field-label svg { width: 11px; height: 11px; }
+.field-input { width: 100%; padding: 0.5rem 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-body); font-size: 0.8125rem; color: var(--ink); outline: none; transition: border 0.15s; }
+.field-input:focus { border-color: var(--accent-mid); }
+.field-input-overdue { border-color: #FCA5A5 !important; background: var(--red-light) !important; }
+.last-modified { font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-3); margin-top: 0.375rem; display: flex; align-items: center; gap: 0.3rem; }
+.last-modified svg { width: 9px; height: 9px; }
+
+/* ── Framework coverage ──────────────────────────────────────────────────── */
+.fw-coverage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 1rem; }
+.fw-coverage-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.5rem 0.75rem; background: var(--bg); border: 1px solid var(--border-light); border-radius: 7px; }
+.fw-coverage-name { font-family: var(--font-mono); font-size: 0.625rem; color: var(--ink-2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fw-coverage-bar-wrap { width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.fw-coverage-bar { height: 100%; border-radius: 2px; }
+.fw-coverage-pct { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; flex-shrink: 0; width: 26px; text-align: right; }
+
+/* ── Overdue control highlight ───────────────────────────────────────────── */
+.card-overdue { border-color: #FCA5A5 !important; }
+.overdue-pill { display: inline-flex; align-items: center; gap: 3px; font-family: var(--font-mono); font-size: 0.58rem; padding: 2px 6px; background: var(--red-light); color: var(--red); border: 1px solid #FCA5A5; border-radius: 4px; white-space: nowrap; }
+
+/* ── Mobile nav ──────────────────────────────────────────────────────────── */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 200; padding: 0.25rem 0; }
+.mobile-nav .nav-btn { flex: 1; flex-direction: column; gap: 0.2rem; padding: 0.5rem 0.25rem; font-size: 0.55rem; border-right: none; border-radius: 0; justify-content: center; }
+.mobile-nav .nav-btn svg { width: 18px; height: 18px; }
+
+/* ── Radar empty state ───────────────────────────────────────────────────── */
+.radar-empty { text-align: center; padding: 3rem 2rem; color: var(--ink-3); }
+.radar-empty-icon { width: 52px; height: 52px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: var(--ink-3); }
+.radar-empty-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); margin-bottom: 0.5rem; }
+.radar-empty-desc { font-size: 0.8125rem; color: var(--ink-3); max-width: 320px; margin: 0 auto; line-height: 1.5; }
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+@media print {
+  .header-actions, .tier-filter-bar, .search-wrap, .guide-panel, .mobile-nav { display: none !important; }
+  .desktop-nav { display: none !important; }
+  .control-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ccc !important; }
+  .control-body { display: block !important; }
+  .app-wrapper { background: white !important; }
+  .main { padding: 1rem !important; }
 }
 `;
 
@@ -218,12 +301,16 @@ const CITATIONS: Record<string, string> = {
   'ISO/IEC 42001': 'https://www.iso.org/standard/81230.html',
   'EU AI Act':     'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689',
   'OECD AI':       'https://oecd.ai/en/ai-principles',
+  // Canada AIDA (Bill C-27) — LAPSED. Died on order paper Jan 6, 2025 when Parliament prorogued. No replacement enacted as of Mar 2026.
   'Canada AIDA':   'https://www.canada.ca/en/government/system/digital-government/digital-government-innovations/responsible-use-ai/bill-c-27.html',
-  'Singapore':     'https://www.pdpc.gov.sg/Help-and-Resources/2020/01/Model-AI-Governance-Framework',
+  // Singapore — Updated to IMDA Model AI Governance Framework for Generative AI (May 2024). Supersedes PDPC 2020 edition.
+  'Singapore':     'https://www.imda.gov.sg/resources/press-releases-factsheets-and-speeches/press-releases/2024/public-consult-model-ai-governance-framework-genai',
   'US Banking':    'https://www.federalreserve.gov/supervisionreg/srletters/sr1107.htm',
   'OCC/Fed/FDIC':  'https://www.occ.gov/news-issuances/news-releases/2023/nr-ia-2023-17.html',
+  // OWASP LLM — 2025 edition. Entry numbers partially renumbered vs 2023. Verify LLM05 (now Supply Chain = LLM03), LLM07 (now System Prompt Leakage), LLM10 (now Unbounded Consumption).
   'OWASP LLM':     'https://owasp.org/www-project-top-10-for-large-language-model-applications/',
   'GDPR':          'https://gdpr-info.eu/',
+  // NIST CSF — v2.0 released Feb 26, 2024. Major revision from v1.1.
   'NIST CSF':      'https://www.nist.gov/cyberframework',
   'SOC 2':         'https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services',
   'FedRAMP':       'https://www.fedramp.gov/',
@@ -231,15 +318,19 @@ const CITATIONS: Record<string, string> = {
   'IEEE 7000':     'https://standards.ieee.org/ieee/7000/6781/',
   'Brazil LGPD':   'https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd',
   'China PIPL':    'https://www.newamerica.org/cybersecurity-initiative/digichina/blog/chinas-personal-information-protection-law/',
-  'Japan AI':      'https://www.meti.go.jp/english/press/2023/0427_002.html',
-  'Australia AI':  'https://www.industry.gov.au/publications/australias-artificial-intelligence-ethics-framework',
+  // Japan AI — Updated to AI Guidelines for Business v1.1 (Mar 2025) + AI Promotion Act (effective Sep 2025).
+  'Japan AI':      'https://www.meti.go.jp/english/policy/mono_info_service/AI/index.html',
+  // Australia AI — Updated to Guidance for AI Adoption (GfAA, Oct 2025). Supersedes 2019 AI Ethics Framework.
+  'Australia AI':  'https://www.industry.gov.au/publications/guidance-ai-adoption',
   'NYC Law 144':   'https://legistar.council.nyc.gov/LegislationDetail.aspx?ID=4344524',
-  'Colorado AI':   'https://leg.colorado.gov/bills/sb24-205',
-  'California AI': 'https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202320240SB1047',
+  'Colorado AI':   'https://leg.colorado.gov/bills/sb26-189',
+  'California AI': 'https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=202520260SB1000',
+  'Texas TRAIGA':  'https://www.nortonrosefulbright.com/en/knowledge/publications/c6c60e0c/the-texas-responsible-ai-governance-act',
   'G7 Hiroshima':  'https://www.g7hiroshima.go.jp/documents/pdf/G7AI_code_of_conduct_en.pdf',
   'EO 14110':      'https://www.whitehouse.gov/briefing-room/presidential-actions/2023/10/30/executive-order-on-the-safe-secure-and-trustworthy-development-and-use-of-artificial-intelligence/',
+  'US AI EO 2026': 'https://www.whitehouse.gov/presidential-actions/2026/06/promoting-advanced-artificial-intelligence-innovation-and-security/',
   // CCM v4.1.0 — Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official, Jan 2026)
-  'CSA CCM v4':    'https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4/',
+  'CSA CCM v4':    'https://cloudsecurityalliance.org/artifacts/cloud-controls-matrix-v4-1',
 };
 
 // ─── CCM v4.1.0 Domain Labels (17 domains, verified from CCMv4_1_0-generated_at_2026_01_13.xlsx) ──────────────
@@ -263,7 +354,7 @@ const maturityLevels = [
 ];
 
 const ALL_TIERS = ['All', 'High-Risk', 'All Systems', 'GenAI', 'GPAI', 'Autonomous Agents', 'Critical'];
-const frameworks = ['NIST AI RMF','NIST AI 600-1','ISO/IEC 42001','EU AI Act','OECD AI','Canada AIDA','Singapore','US Banking','OCC/Fed/FDIC','OWASP LLM','GDPR','NIST CSF','SOC 2','FedRAMP','UK AI','IEEE 7000','Brazil LGPD','China PIPL','Japan AI','Australia AI','NYC Law 144','Colorado AI','California AI','G7 Hiroshima','EO 14110'];
+const frameworks = ['NIST AI RMF','NIST AI 600-1','ISO/IEC 42001','EU AI Act','OECD AI','Canada AIDA','Singapore','US Banking','OCC/Fed/FDIC','OWASP LLM','GDPR','NIST CSF','SOC 2','FedRAMP','UK AI','IEEE 7000','Brazil LGPD','China PIPL','Japan AI','Australia AI','NYC Law 144','Colorado AI','California AI','G7 Hiroshima','EO 14110','Texas TRAIGA','US AI EO 2026'];
 
 // ─── Control Data ─────────────────────────────────────────────────────────────
 // ccmMappings: verified CCM v4.1.0 control IDs from CCMv4_1_0-generated_at_2026_01_13.xlsx
@@ -281,14 +372,14 @@ const complianceData = [
     ccmMappings: { "GRC-02": "Risk Management Program", "A&A-03": "Risk Based Planning Assessment" },
     mappings: { "NIST AI RMF": ["MAP 1.1"], "ISO/IEC 42001": ["8.2"], "EU AI Act": ["Art 9"], "OECD AI": ["1.4"], "Singapore": ["Gov"], "NIST CSF": ["GOV-04"], "SOC 2": ["CC3.1"], "UK AI": ["RA"], "FedRAMP": ["RA-3"], "G7 Hiroshima": ["§3"], "EO 14110": ["§4.1"] },
     indicator: { name: "Open Risk Finding Resolution Rate", method: "Ratio of resolved-to-open risk register items per reporting cycle. Measured via GRC platform export.", slo: "≥90% resolved within SLA" },
-    implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness."
+    implementation: "Maintain living AI Risk Register with quarterly reviews. Align register schema to ISO 42001 Clause 8.2 for audit-readiness. EU AI Act Annex III (standalone high-risk) compliance deadline extended to Dec 2, 2027 per Digital Omnibus agreement (May 7, 2026)."
   },
   {
     id: 2, concept: "Human Oversight", riskTier: "High-Risk", priority: "Critical",
     ccmDomain: "GRC", ownership: "CSC",
     description: "Mechanisms ensuring human intervention and control over consequential AI decisions.",
     ccmMappings: { "GRC-06": "Governance Responsibility Model", "IAM-09": "Segregation of Privileged Access Roles" },
-    mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["Human"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] },
+    mappings: { "NIST AI RMF": ["GOV 2.2"], "EU AI Act": ["Art 14"], "Canada AIDA": ["Sec 12"], "Singapore": ["HITL"], "UK AI": ["Oversight"], "NYC Law 144": ["Review"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§4"], "G7 Hiroshima": ["§7"], "EO 14110": ["§4.2"] },
     indicator: { name: "HITL Intervention Rate", method: "Log-derived ratio of human-overridden AI decisions to total automated decisions. Sourced from immutable audit trail.", slo: "Track trend; alert on >20% deviation" },
     implementation: "Establish oversight committee with documented intervention triggers and escalation paths."
   },
@@ -317,14 +408,14 @@ const complianceData = [
     ccmMappings: { "A&A-02": "Independent Assessments", "A&A-05": "Audit Management Process" },
     mappings: { "US Banking": ["Validation"], "OCC/Fed/FDIC": ["§IV.A"], "NIST AI RMF": ["MEAS 2.6"], "SOC 2": ["CC5.2"], "ISO/IEC 42001": ["9.1"] },
     indicator: { name: "Pre-Production Validation Coverage %", method: "Models with signed validation report / total models promoted to production. Logged in CI/CD audit trail.", slo: "100%" },
-    implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off."
+    implementation: "Second-line team validates models pre-deployment. Document validation methodology and sign-off. EU AI Act Annex III high-risk deadline extended to Dec 2, 2027 per Digital Omnibus (May 7, 2026); use the extended window to strengthen validation pipelines."
   },
   {
     id: 6, concept: "Privacy Assessment", riskTier: "All Systems", priority: "Critical",
     ccmDomain: "DSP", ownership: "Shared",
     description: "Data Protection Impact Assessments for AI systems processing personal data.",
     ccmMappings: { "DSP-08": "Data Privacy by Design and Default", "DSP-09": "Data Protection Impact Assessment" },
-    mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California AI": ["§1798.91.05"] },
+    mappings: { "GDPR": ["Art 35"], "ISO/IEC 42001": ["A.7"], "Canada AIDA": ["Anon"], "Brazil LGPD": ["Art 38"], "China PIPL": ["Art 55"], "FedRAMP": ["AR-2"], "California AI": ["SB-53"], "Texas TRAIGA": ["§6"] },
     indicator: { name: "DPIA Completion Rate", method: "AI systems with completed DPIA / systems processing personal data. Reviewed at least annually.", slo: "100% of in-scope systems" },
     implementation: "Conduct DPIA before processing personal data. Re-assess annually and after material model changes."
   },
@@ -360,7 +451,7 @@ const complianceData = [
     ccmDomain: "TVM", ownership: "CSC",
     description: "Structured red-team testing against prompt injection, jailbreaks, and adversarial inputs.",
     ccmMappings: { "TVM-06": "Penetration Testing", "AIS-05": "Automated Application Security Testing" },
-    mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"] },
+    mappings: { "OWASP LLM": ["LLM01"], "NIST AI RMF": ["MEAS 2.5"], "NIST AI 600-1": ["MS-2.2"], "Canada AIDA": ["Harm"], "NIST CSF": ["DET-01"], "EO 14110": ["§4.2b"], "G7 Hiroshima": ["§5"], "US AI EO 2026": ["§2"] },
     indicator: { name: "Red Team Finding Resolution Rate", method: "Critical/High findings closed within SLA / total findings per engagement.", slo: "≥90% Critical/High within 30 days" },
     implementation: "Quarterly red-team exercises with documented findings. Pre-release red-teaming required for all GPAI models."
   },
@@ -369,9 +460,9 @@ const complianceData = [
     ccmDomain: "A&A", ownership: "CSC",
     description: "Systematic testing for algorithmic bias across legally protected characteristics.",
     ccmMappings: { "A&A-02": "Independent Assessments", "AIS-03": "Application Security Metrics" },
-    mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["Discrim"], "IEEE 7000": ["Fair"], "California AI": ["§1798.91.06"] },
+    mappings: { "NIST AI RMF": ["MEAS 2.3"], "EU AI Act": ["Art 10(2)"], "Canada AIDA": ["Bias"], "OECD AI": ["1.2"], "NYC Law 144": ["Audit"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§3"], "IEEE 7000": ["Fair"], "California AI": ["AB-2013"] },
     indicator: { name: "Demographic Parity Deviation Score", method: "Max disparity in favorable outcome rates across protected groups. Computed from validation dataset.", slo: "≤5% disparity" },
-    implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems."
+    implementation: "Quarterly bias testing with external auditor sign-off. Publish bias audit summaries for high-risk consumer-facing systems. Texas TRAIGA (eff. Jan 1, 2026) explicitly prohibits discriminatory AI. Colorado SB 26-189 (signed May 14, 2026, eff. Jan 1, 2027) replaced SB 24-205 with a narrowed notice-based approach. The Global AI Regulation Summit (New Delhi, May 26, 2026) elevated algorithmic bias as a top international governance priority."
   },
   {
     id: 12, concept: "Secure Weights", riskTier: "Critical", priority: "Critical",
@@ -396,7 +487,7 @@ const complianceData = [
     ccmDomain: "GRC", ownership: "CSC",
     description: "Documented process enabling users to challenge and appeal automated decisions.",
     ccmMappings: { "GRC-01": "Governance Program Policy and Procedures", "SEF-06": "Event Triage Processes" },
-    mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["Appeal"] },
+    mappings: { "GDPR": ["Art 22"], "Canada AIDA": ["Lang"], "Singapore": ["Cust"], "Brazil LGPD": ["Art 20"], "Australia AI": ["Contest"], "Colorado AI": ["SB26-189"], "Texas TRAIGA": ["§5"] },
     indicator: { name: "Appeal Resolution Time (hrs)", method: "Median hours from appeal submission to final disposition. Tracked in ticketing system.", slo: "≤72 hrs median" },
     implementation: "Human appeal workflow with <48hr SLA. Log all appeals and outcomes for regulatory reporting."
   },
@@ -434,14 +525,14 @@ const complianceData = [
     ccmMappings: { "DSP-17": "Sensitive Data Protection", "LOG-11": "Transaction/Activity Logging" },
     mappings: { "NIST AI 600-1": ["GV-6.2"], "EU AI Act": ["Art 50"], "EO 14110": ["§4.5"], "G7 Hiroshima": ["§6"], "OECD AI": ["1.3"] },
     indicator: { name: "Watermark Detection Success Rate", method: "Content samples with recoverable provenance markers / total generated content samples tested.", slo: "≥95%" },
-    implementation: "Apply cryptographic watermarking to all generated media. Maintain provenance chain-of-custody aligned to C2PA standard."
+    implementation: "Apply cryptographic watermarking to all generated media. Maintain provenance chain-of-custody aligned to C2PA standard. Note: EU AI Act Art 50 machine-readable marking obligation postponed to Dec 2, 2026 per the Digital Omnibus agreement (May 7, 2026). New EU prohibition on AI-generated non-consensual intimate imagery (CSAM) takes effect Dec 2, 2026."
   },
   {
     id: 19, concept: "Dual-Use Foundation Model Reporting", riskTier: "GPAI", priority: "High",
     ccmDomain: "GRC", ownership: "CSC",
     description: "Safety test result reporting obligations for large-scale foundation model developers.",
     ccmMappings: { "GRC-07": "Information System Regulatory Mapping", "SEF-07": "Security Breach Notification" },
-    mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"] },
+    mappings: { "EO 14110": ["§4.2c"], "EU AI Act": ["Art 55"], "NIST AI 600-1": ["GV-1.7"], "G7 Hiroshima": ["§2"], "US AI EO 2026": ["§1 voluntary 30-day"] },
     indicator: { name: "Regulatory Submission Timeliness %", method: "Submissions delivered within required regulatory window / total required submissions.", slo: "100%" },
     implementation: "Report red-team and safety evaluation results to government bodies prior to public release. Maintain audit trail of all submissions."
   },
@@ -450,9 +541,9 @@ const complianceData = [
     ccmDomain: "BCR", ownership: "CSC",
     description: "Documented capability to safely halt AI systems exceeding defined risk thresholds.",
     ccmMappings: { "BCR-09": "Disaster Response Plan", "BCR-04": "Business Continuity Planning" },
-    mappings: { "California AI": ["SB-1047 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] },
+    mappings: { "California AI": ["SB-53 lineage"], "ISO/IEC 42001": ["A.9.4"], "EU AI Act": ["Art 9(7)"], "NIST AI RMF": ["MAN 4.1"] },
     indicator: { name: "Runbook Test Pass Rate", method: "Successful shutdown procedure drills / total drills conducted annually.", slo: "100% annually" },
-    implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California's compute thresholds. Test annually."
+    implementation: "Documented kill-switch procedures with tested runbooks. Required for systems exceeding California SB 53 (TFAIA) compute thresholds (effective Jan 1, 2026). Test annually."
   },
   {
     id: 21, concept: "Agentic Action Boundaries", riskTier: "Autonomous Agents", priority: "Critical",
@@ -467,7 +558,7 @@ const complianceData = [
       "IAM-16": "Authorization Mechanisms",
       "LOG-11": "Transaction/Activity Logging"
     },
-    mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"] },
+    mappings: { "NIST AI 600-1": ["GV-2.1", "MS-1.1"], "EU AI Act": ["Art 14"], "ISO/IEC 42001": ["A.10.1"], "OWASP LLM": ["LLM07"], "OCC/Fed/FDIC": ["Auto-Txn"], "NIST CSF": ["PR.AC-04"], "Texas TRAIGA": ["§7 Behav"] },
     indicator: { name: "API Scoped Token Authorization Rate", method: "Agent API calls using least-privilege scoped tokens / total agent API calls. Derived from API gateway logs.", slo: "≥99% scoped; 0 unauthorized" },
     implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Per CCM v4.1 AIS-08: review and update at least annually or upon significant system changes. For healthcare agentic deployments, apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators."
   },
@@ -505,12 +596,29 @@ const AIGovernancePlatform = () => {
     try { localStorage.setItem('ai-gov-progress', JSON.stringify(controlState)); } catch { /* storage unavailable */ }
   }, [controlState]);
 
+  const toggleDarkMode = () => {
+    const next = !darkMode;
+    setDarkMode(next);
+    try { localStorage.setItem('ai-gov-dark', String(next)); } catch { /* storage unavailable */ }
+  };
+
+  const toggleGuide = () => {
+    const next = !showGuide;
+    setShowGuide(next);
+    if (!next) { try { localStorage.setItem('ai-gov-guide-seen', 'true'); } catch { /* storage unavailable */ } }
+  };
+
   const getMaturity = (id: number) => controlState[id]?.maturity || 0;
   const getRemediation = (id: number) => controlState[id]?.remediation || '';
   const getFlagged = (id: number) => controlState[id]?.flagged || false;
-  const updateMaturity = (id: number, lvl: number) => setControlState(p => ({ ...p, [id]: { ...p[id], maturity: lvl } }));
+  const getOwner = (id: number) => controlState[id]?.owner || '';
+  const getDueDate = (id: number) => controlState[id]?.dueDate || '';
+  const getLastModified = (id: number) => controlState[id]?.lastModified || '';
+  const updateMaturity = (id: number, lvl: number) => setControlState(p => ({ ...p, [id]: { ...p[id], maturity: lvl, lastModified: new Date().toISOString() } }));
   const updateRemediation = (id: number, txt: string) => setControlState(p => ({ ...p, [id]: { ...p[id], remediation: txt } }));
   const toggleFlag = (id: number) => setControlState(p => ({ ...p, [id]: { ...p[id], flagged: !p[id]?.flagged } }));
+  const updateOwner = (id: number, owner: string) => setControlState(p => ({ ...p, [id]: { ...p[id], owner } }));
+  const updateDueDate = (id: number, dueDate: string) => setControlState(p => ({ ...p, [id]: { ...p[id], dueDate } }));
 
   const overallScore = useMemo(() => {
     const total = Object.values(controlState).reduce((a, c) => a + (c.maturity || 0), 0);
@@ -536,30 +644,47 @@ const AIGovernancePlatform = () => {
     });
   }, [controlState]);
 
+  const frameworkCoverage = useMemo(() =>
+    frameworks.map(fw => {
+      const count = complianceData.filter(d => d.mappings[fw as keyof typeof d.mappings]).length;
+      return { fw, count, pct: Math.round((count / complianceData.length) * 100) };
+    }).sort((a, b) => b.count - a.count)
+  , []);
+
+  const printReport = () => window.print();
+
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const exportCSV = () => {
     const rows = [
-      ['ID','Control','Risk Tier','Priority','CCM Domain','SSRM','Maturity','Maturity Label','Flagged for Reassessment','Notes','Frameworks','CCM v4.1.0 Controls'].join(','),
+      ['ID','Control','Risk Tier','Priority','CCM Domain','SSRM','Maturity','Maturity Label','Owner','Due Date','Flagged for Reassessment','Last Modified','Notes','Frameworks','CCM v4.1.0 Controls'].join(','),
       ...complianceData.map(item => {
         const mat = getMaturity(item.id);
         const ccmIds = Object.keys(item.ccmMappings).join('; ');
-        return [item.id, `"${item.concept}"`, item.riskTier, item.priority, item.ccmDomain, item.ownership, mat, maturityLevels[mat].label, getFlagged(item.id) ? 'Yes' : 'No', `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`, `"${ccmIds}"`].join(',');
+        return [item.id, `"${item.concept}"`, item.riskTier, item.priority, item.ccmDomain, item.ownership, mat, maturityLevels[mat].label, `"${getOwner(item.id)}"`, getDueDate(item.id), getFlagged(item.id) ? 'Yes' : 'No', getLastModified(item.id), `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`, `"${ccmIds}"`].join(',');
       })
     ].join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([rows], { type: 'text/csv' }));
-    a.download = 'ai-governance-assessment-v24.csv'; a.click();
+    triggerDownload(new Blob([rows], { type: 'text/csv' }), 'ai-governance-assessment-v24.csv');
   };
 
   const saveProgress = () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(controlState, null, 2)], { type: 'application/json' }));
-    a.download = 'ai-governance-progress.json'; a.click();
+    triggerDownload(new Blob([JSON.stringify(controlState, null, 2)], { type: 'application/json' }), 'ai-governance-progress.json');
   };
 
   const downloadNHID = () => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(NHID_MANIFEST, null, 2)], { type: 'application/json' }));
-    a.download = 'nhid-clinical-controls.json'; a.click();
+    // Download the template file AND immediately load it into the gap analysis
+    triggerDownload(new Blob([JSON.stringify(NHID_MANIFEST, null, 2)], { type: 'application/json' }), 'nhid-clinical-controls.json');
+    setUserControls(NHID_MANIFEST);
+    setUploadedFile('nhid-clinical-controls.json (template loaded)');
   };
 
   const clearAll = () => {
@@ -599,15 +724,15 @@ const AIGovernancePlatform = () => {
   return (
     <>
       <style>{FONTS}</style>
-      <div className="app-wrapper">
+      <div className={`app-wrapper${darkMode ? ' dark' : ''}`}>
 
         <header className="header">
           <div className="header-inner">
             <div className="header-brand">
               <span className="header-title">AI Governance Map</span>
-              <span className="header-version">v2.4 · CCM v4.1.0</span>
+              <span className="header-version">v2.5 · CCM v4.1.0</span>
             </div>
-            <nav className="header-nav">
+            <nav className="header-nav desktop-nav">
               {[
                 { id:'map', icon:Shield, label:'Controls' },
                 { id:'radar', icon:Radio, label:'Posture Radar' },
@@ -624,6 +749,10 @@ const AIGovernancePlatform = () => {
                 <Activity size={13}/><span>{overallScore}%</span>
                 <div className="score-bar-wrap"><div className="score-bar-fill" style={{width:`${overallScore}%`}}/></div>
               </div>
+              <button className="dark-toggle" onClick={toggleDarkMode} title="Toggle dark mode">
+                {darkMode ? <Sun /> : <Moon />}
+              </button>
+              <button className="btn-ghost" onClick={printReport}><Printer /><span>Print</span></button>
               <button className="btn-ghost" onClick={exportCSV}><Download /><span>CSV</span></button>
               <button className="btn-ghost" onClick={saveProgress}><Save /><span>Save</span></button>
               <button className="btn-ghost" onClick={clearAll}><RotateCcw /><span>Reset</span></button>
@@ -633,7 +762,7 @@ const AIGovernancePlatform = () => {
 
         <main className="main">
           <div className="stats-bar">
-            <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">25</div><div className="stat-sub">Global jurisdictions</div></div>
+            <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">27</div><div className="stat-sub">Global jurisdictions</div></div>
             <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">21</div><div className="stat-sub">CMMI + CCM v4.1.0</div></div>
             <div className="stat-card"><div className="stat-label">Critical</div><div className="stat-value">{criticalCount}</div><div className="stat-sub">High-priority controls</div></div>
             <div className="stat-card"><div className="stat-label">Assessed</div><div className="stat-value">{assessedCount}</div><div className="stat-sub">of {complianceData.length} controls</div></div>
@@ -642,6 +771,32 @@ const AIGovernancePlatform = () => {
           {/* ── Controls Tab ─────────────────────────────────────────────────── */}
           {activeTab === 'map' && (
             <div>
+              {/* ── How to Use Guide ──────────────────────────────────────── */}
+              <div className="guide-panel">
+                <div className="guide-header" onClick={toggleGuide}>
+                  <span className="guide-title"><BookOpen />How to use this tool</span>
+                  <ChevronDown size={14} className={`chevron ${showGuide?'open':''}`}/>
+                </div>
+                {showGuide && (
+                  <div className="guide-body">
+                    <div>
+                      <div className="guide-step-num">STEP 1 · SCORE</div>
+                      <div className="guide-step-title">Rate each control (0–5)</div>
+                      <div className="guide-step-desc">Click any card to expand it. Use the CMMI maturity scale: <strong>0</strong> = nothing in place, <strong>1</strong> = ad hoc, <strong>2</strong> = repeatable, <strong>3</strong> = documented policy, <strong>4</strong> = measured with metrics, <strong>5</strong> = continuously optimized. Your scores auto-save to this browser.</div>
+                    </div>
+                    <div>
+                      <div className="guide-step-num">STEP 2 · TRACK</div>
+                      <div className="guide-step-title">Assign owners &amp; due dates</div>
+                      <div className="guide-step-desc">Inside each card, add an owner name (person or team) and a remediation due date. Overdue controls with maturity &lt; 5 will be highlighted in red. Log evidence, Jira links, or audit report references in the Notes field. Flag controls after a Significant System Change for re-assessment.</div>
+                    </div>
+                    <div>
+                      <div className="guide-step-num">STEP 3 · REPORT</div>
+                      <div className="guide-step-title">Review posture &amp; export</div>
+                      <div className="guide-step-desc">Use <strong>Posture Radar</strong> to visualize maturity by CCM domain and framework coverage. Use <strong>Gap Analysis</strong> to compare against your existing control manifest (upload a JSON file). Export to CSV for auditors, Print for a formatted report, or Save your progress as JSON to reload later.</div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <div className="search-wrap">
                 <Search />
                 <input type="text" className="search-input" placeholder="Search controls, frameworks, CCM IDs..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
@@ -668,7 +823,7 @@ const AIGovernancePlatform = () => {
                   const isOpen = expandedRows.has(item.id);
                   const isFlagged = getFlagged(item.id);
                   return (
-                    <div key={item.id} className={`control-card ${isOpen?'expanded':''}`}>
+                    <div key={item.id} className={`control-card ${isOpen?'expanded':''} ${isOverdue(item.id)?'card-overdue':''}`}>
                       <div className="control-header" onClick={()=>toggleRow(item.id)}>
                         <div className={`priority-stripe ${priorityStripe(item.priority)}`}/>
                         <div className="control-meta">
@@ -679,8 +834,14 @@ const AIGovernancePlatform = () => {
                             <span className={ownershipBadge(item.ownership)}>{item.ownership} SSRM</span>
                             {mat>0&&<span className="badge badge-maturity">L{mat} · {maturityLevels[mat].label}</span>}
                             {isFlagged&&<span className="badge" style={{background:'#FFFBEB',color:'#92400E',border:'1px solid #FEF3C7'}}>⚠ Re-assess</span>}
+                            {isOverdue(item.id)&&<span className="overdue-pill"><AlertCircle size={9}/>Overdue</span>}
                           </div>
                           <div className="control-desc">{item.description}</div>
+                        </div>
+                        <div className="maturity-dots" title={`Maturity: ${mat}/5`}>
+                          {[1,2,3,4,5].map(n=>(
+                            <div key={n} className={`maturity-dot ${n<=mat?(item.priority==='Critical'&&mat<3?'filled-critical':'filled'):''}`}/>
+                          ))}
                         </div>
                         <ChevronDown size={16} className={`chevron ${isOpen?'open':''}`}/>
                       </div>
@@ -715,6 +876,19 @@ const AIGovernancePlatform = () => {
                               <label><AlertCircle size={11} style={{display:'inline',marginRight:4}}/>Flag for re-assessment (Significant System Change)</label>
                             </div>
 
+                            <div className="owner-due-grid">
+                              <div>
+                                <div className="field-label"><User/>Owner</div>
+                                <input type="text" className="field-input" placeholder="Team or individual..." value={getOwner(item.id)} onChange={e=>updateOwner(item.id,e.target.value)}/>
+                              </div>
+                              <div>
+                                <div className="field-label"><Calendar/>Remediation Due</div>
+                                <input type="date" className={`field-input ${isOverdue(item.id)?'field-input-overdue':''}`} value={getDueDate(item.id)} onChange={e=>updateDueDate(item.id,e.target.value)}/>
+                              </div>
+                            </div>
+                            {getLastModified(item.id) && (
+                              <div className="last-modified"><Clock/>Last scored: {new Date(getLastModified(item.id)).toLocaleString()}</div>
+                            )}
                             <div className="section-label" style={{marginTop:'1rem'}}><FileText/>Evidence / Notes</div>
                             <textarea className="remediation-area" placeholder="Log evidence, Jira links, pen test reports..." value={getRemediation(item.id)} onChange={e=>updateRemediation(item.id,e.target.value)}/>
                           </div>
@@ -757,48 +931,81 @@ const AIGovernancePlatform = () => {
 
           {/* ── Posture Radar Tab ─────────────────────────────────────────────── */}
           {activeTab === 'radar' && (
-            <div className="radar-container">
-              <div className="radar-header">
-                <div className="radar-title">Maturity Posture Radar</div>
-                <div className="radar-subtitle">Average CMMI maturity score per CCM v4.1.0 domain · Score controls in the Controls tab to populate</div>
-              </div>
-              <div className="radar-body">
-                <div style={{height: 420}}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData.filter(d => d.hasControls)}>
-                      <PolarGrid strokeDasharray="3 3" stroke="#DDD9D0" />
-                      <PolarAngleAxis
-                        dataKey="domain"
-                        tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: '#5C5751' }}
-                      />
-                      <Radar
-                        name="Maturity"
-                        dataKey="maturity"
-                        stroke="#1B3D2E"
-                        fill="#1B3D2E"
-                        fillOpacity={0.25}
-                        strokeWidth={2}
-                      />
-                      <Tooltip
-                        formatter={(val: number) => [`${val} / 5`, 'Avg Maturity']}
-                        contentStyle={{ fontFamily: 'IBM Plex Mono', fontSize: 11, border: '1px solid #DDD9D0', borderRadius: 6 }}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+            <div>
+              <div className="radar-container">
+                <div className="radar-header">
+                  <div className="radar-title">Maturity Posture Radar</div>
+                  <div className="radar-subtitle">Average CMMI maturity score per CCM v4.1.0 domain · Score controls in the Controls tab to populate</div>
                 </div>
-
-                <div>
-                  <div className="radar-legend">
-                    {radarData.filter(d => d.hasControls).map(d => (
-                      <div key={d.domain} className="radar-legend-item">
-                        <span className="radar-legend-domain">{d.domain}</span>
-                        <span className="radar-legend-val">{d.maturity > 0 ? `${d.maturity} / 5` : '—'}</span>
-                      </div>
-                    ))}
+                {overallScore === 0 ? (
+                  <div className="radar-empty">
+                    <div className="radar-empty-icon"><Radio size={22}/></div>
+                    <div className="radar-empty-title">No scores yet</div>
+                    <div className="radar-empty-desc">Go to the <strong>Controls</strong> tab and score at least one control (0–5) to populate the radar chart.</div>
                   </div>
-                  <div className="radar-ccm-note">
-                    <strong>CCM v4.1.0 · 17 domains · 207 controls</strong><br/>
-                    Radar plots the 9 domains with mapped AI governance controls. Remaining 8 CCM domains (DCS, HRS, IPY, I&S, SEF, TVM, UEM) are not plotted — no controls currently assigned. Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA, Jan 2026). AIS-08 API Security added in Nov 2025 v4.1 upgrade.
+                ) : (
+                  <div className="radar-body">
+                    <div style={{height: 420}}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={radarData.filter(d => d.hasControls)}>
+                          <PolarGrid strokeDasharray="3 3" stroke="#DDD9D0" />
+                          <PolarAngleAxis
+                            dataKey="domain"
+                            tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: '#5C5751' }}
+                          />
+                          <Radar
+                            name="Maturity"
+                            dataKey="maturity"
+                            stroke="#1B3D2E"
+                            fill="#1B3D2E"
+                            fillOpacity={0.25}
+                            strokeWidth={2}
+                          />
+                          <Tooltip
+                            formatter={(val: number) => [`${val} / 5`, 'Avg Maturity']}
+                            contentStyle={{ fontFamily: 'IBM Plex Mono', fontSize: 11, border: '1px solid #DDD9D0', borderRadius: 6 }}
+                          />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div>
+                      <div className="radar-legend">
+                        {radarData.filter(d => d.hasControls).map(d => (
+                          <div key={d.domain} className="radar-legend-item">
+                            <span className="radar-legend-domain">{d.domain}</span>
+                            <span className="radar-legend-val">{d.maturity > 0 ? `${d.maturity} / 5` : '—'}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="radar-ccm-note">
+                        <strong>CCM v4.1.0 · 17 domains · 207 controls</strong><br/>
+                        Radar plots the 9 domains with mapped AI governance controls. Remaining 8 CCM domains (DCS, HRS, IPY, I&S, SEF, TVM, UEM) are not plotted — no controls currently assigned. Source: CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA, Jan 2026). AIS-08 API Security added in Nov 2025 v4.1 upgrade.
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Framework Coverage ─────────────────────────────────────── */}
+              <div className="radar-container" style={{marginTop:'1rem'}}>
+                <div className="radar-header">
+                  <div className="radar-title">Framework Coverage</div>
+                  <div className="radar-subtitle">Number of the 21 AI governance controls mapped per framework · Click any framework in the Matrix tab to filter controls</div>
+                </div>
+                <div style={{padding:'1.5rem'}}>
+                  <div className="fw-coverage-grid">
+                    {frameworkCoverage.map(({fw, count, pct}) => {
+                      const color = pct >= 70 ? 'var(--accent)' : pct >= 40 ? 'var(--gold)' : 'var(--red)';
+                      return (
+                        <div key={fw} className="fw-coverage-item">
+                          <span className="fw-coverage-name" title={fw}>{fw}</span>
+                          <div className="fw-coverage-bar-wrap">
+                            <div className="fw-coverage-bar" style={{width:`${pct}%`, background: color}}/>
+                          </div>
+                          <span className="fw-coverage-pct" style={{color}}>{count}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -861,7 +1068,6 @@ const AIGovernancePlatform = () => {
                   </button>
                 </div>
                 {uploadedFile && <div className="upload-success"><CheckCircle size={14}/>{uploadedFile}</div>}
-                {!uploadedFile && <div style={{marginTop:'0.75rem',fontSize:'0.7rem',color:'var(--ink-3)',fontFamily:'var(--font-mono)'}}>Format: [{"{ "}{"\"concept\": \"Control Name\""}{"}" }]</div>}
               </div>
 
               {gapAnalysis && (
