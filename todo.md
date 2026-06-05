@@ -17,6 +17,14 @@
 - [x] Implement data persistence for controls
 
 ## Features
-- [ ] Real-time data integration for charts
-- [ ] Export and reporting functionality
-- [ ] Custom date range filters for analytics
+- [x] Real-time data integration for charts
+- [x] Export and reporting functionality
+- [x] Custom date range filters for analytics
+
+## Notifications
+- [x] Create notifications database table
+- [x] Add notification tRPC procedures (create, list, mark as read, delete)
+- [x] Build notification center UI component
+- [x] Add notification bell icon to header with unread count
+- [x] Implement real-time notification updates
+- [x] Add notification types (control_update, assessment_complete, compliance_alert)
