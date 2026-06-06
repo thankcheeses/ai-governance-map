@@ -336,15 +336,37 @@ export default function Home() {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {frameworks.length > 0 ? (
-                      frameworks.map((fw: any) => (
-                        <button
-                          key={fw.id}
-                          onClick={() => navigate(`/frameworks/${fw.id}`)}
-                          className="rounded-lg border border-border bg-secondary p-3 transition-all hover:bg-primary hover:text-primary-foreground"
-                        >
-                          <p className="text-body-sm font-medium">{fw.name}</p>
-                        </button>
-                      ))
+                      frameworks.map((fw: any) => {
+                        const slug = fw.name
+                          .toLowerCase()
+                          .replace(/\s+/g, '-')
+                          .replace(/[^a-z0-9-]/g, '');
+                        const compliancePercentage = (fw as any).compliancePercentage || 0;
+                        const progressColor = compliancePercentage >= 80 ? 'bg-green-500' :
+                          compliancePercentage >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+
+                        return (
+                          <button
+                            key={fw.id}
+                            onClick={() => navigate(`/frameworks/${slug}`)}
+                            className="rounded-lg border border-border bg-secondary p-3 transition-all hover:bg-primary hover:text-primary-foreground"
+                          >
+                            <p className="text-body-sm font-medium">{fw.name}</p>
+                            <div className="mt-3 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Compliance</span>
+                                <span className="text-xs font-semibold text-primary">{compliancePercentage}%</span>
+                              </div>
+                              <div className="h-2 w-full rounded-full bg-secondary-foreground/20 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${progressColor}`}
+                                  style={{ width: `${compliancePercentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })
                     ) : (
                       <div className="col-span-full text-center py-8">
                         <p className="text-body-sm text-muted-foreground">No frameworks available</p>

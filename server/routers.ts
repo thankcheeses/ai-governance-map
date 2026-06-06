@@ -70,6 +70,10 @@ export const appRouter = router({
       return db.getAllFrameworks();
     }),
 
+    listWithCompliance: publicProcedure.query(async () => {
+      return db.getFrameworksWithCompliance();
+    }),
+
     getById: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {

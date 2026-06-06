@@ -1,4 +1,5 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
+import { controlFrameworkMap } from "../drizzle/schema";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, controls, InsertControl, frameworks, InsertFramework, assessments, InsertAssessment, complianceMetrics, InsertComplianceMetric, notifications, InsertNotification } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -261,4 +262,55 @@ export async function deleteNotification(notificationId: number) {
   if (!db) throw new Error("Database not available");
   
   return db.delete(notifications).where(eq(notifications.id, notificationId));
+}
+
+
+export async function getFrameworksWithCompliance() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const frameworkList = await db.select().from(frameworks).where(eq(frameworks.status, 'active'));
+  
+  // For each framework, calculate compliance percentage
+  const frameworksWithCompliance = await Promise.all(
+    frameworkList.map(async (fw) => {
+      try {
+        // Get all controls mapped to this framework
+        const mappings = await db.select().from(controlFrameworkMap)
+          .where(eq(controlFrameworkMap.frameworkId, fw.id));
+        
+        if (mappings.length === 0) {
+          return { ...fw, compliancePercentage: 0, controlCount: 0 };
+        }
+        
+        // Get assessments for these controls
+        const controlIds = mappings.map((m: any) => m.controlId);
+        const assessmentResults = await db.select().from(assessments)
+          .where(inArray(assessments.controlId, controlIds))
+          .orderBy(desc(assessments.assessmentDate));
+        
+        // Get latest assessment per control
+        const latestAssessments = new Map();
+        assessmentResults.forEach((a: any) => {
+          if (!latestAssessments.has(a.controlId)) {
+            latestAssessments.set(a.controlId, a);
+          }
+        });
+        
+        // Calculate compliance percentage
+        const compliantCount = Array.from(latestAssessments.values())
+          .filter((a: any) => a.status === 'compliant').length;
+        const compliancePercentage = mappings.length > 0 
+          ? Math.round((compliantCount / mappings.length) * 100)
+          : 0;
+        
+        return { ...fw, compliancePercentage, controlCount: mappings.length };
+      } catch (error) {
+        console.error(`Error calculating compliance for framework ${fw.id}:`, error);
+        return { ...fw, compliancePercentage: 0, controlCount: 0 };
+      }
+    })
+  );
+  
+  return frameworksWithCompliance;
 }

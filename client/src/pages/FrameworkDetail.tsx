@@ -208,6 +208,42 @@ export default function FrameworkDetail() {
 
       {/* Main Content */}
       <main className="p-6 lg:p-8">
+        {/* Compliance Progress */}
+        <Card className="mb-8 border-border bg-card">
+          <CardHeader>
+            <CardTitle>Compliance Progress</CardTitle>
+            <CardDescription>Current compliance status for this framework</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-body-sm font-medium text-foreground">Overall Compliance</span>
+                <span className="text-body-md font-bold text-primary">0%</span>
+              </div>
+              <div className="h-3 w-full rounded-full bg-secondary-foreground/20 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-red-500 transition-all"
+                  style={{ width: '0%' }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="text-center">
+                <p className="text-body-sm text-muted-foreground">Compliant</p>
+                <p className="mt-1 text-2xl font-bold text-green-600">0</p>
+              </div>
+              <div className="text-center">
+                <p className="text-body-sm text-muted-foreground">In Progress</p>
+                <p className="mt-1 text-2xl font-bold text-yellow-600">0</p>
+              </div>
+              <div className="text-center">
+                <p className="text-body-sm text-muted-foreground">Non-Compliant</p>
+                <p className="mt-1 text-2xl font-bold text-red-600">0</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Overview */}
         <Card className="mb-8 border-border bg-card">
           <CardHeader>
