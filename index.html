@@ -1,1332 +1,1182 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Governance Map — Interactive Maturity Radar</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
-    </script>
-    <style>
-        :root {
-            --bg: #0b0f16;
-            --surface: #141b24;
-            --surface2: #1a2332;
-            --border: #263040;
-            --text: #e2e8f0;
-            --text2: #94a3b8;
-            --accent: #38bdf8;
-            --accent2: #818cf8;
-            --red: #f87171;
-            --amber: #fbbf24;
-            --green: #4ade80;
-            --emerald: #34d399;
-            --purple: #a78bfa;
-            --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --radius: 10px;
-            --shadow: 0 1px 3px rgba(0, 0, 0, .4);
-            --transition: 180ms ease;
-        }
-        [data-theme="light"] {
-            --bg: #f4f6f9;
-            --surface: #fff;
-            --surface2: #f0f3f7;
-            --border: #dce3ea;
-            --text: #1e293b;
-            --text2: #64748b;
-            --shadow: 0 1px 4px rgba(0, 0, 0, .07);
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.5;
-            min-height: 100vh;
-            transition: background var(--transition), color var(--transition);
-        }
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: var(--shadow);
-        }
-        header h1 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: -.01em;
-            white-space: nowrap;
-        }
-        header h1 span {
-            color: var(--accent);
-        }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .search-input {
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            color: var(--text);
-            font-size: .88rem;
-            width: 220px;
-            transition: all var(--transition);
-        }
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, .15);
-        }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            font-size: .84rem;
-            font-weight: 600;
-            background: var(--surface2);
-            color: var(--text);
-            transition: all var(--transition);
-            white-space: nowrap;
-        }
-        .btn:hover {
-            border-color: var(--accent);
-            background: #1e2a3a;
-        }
-        [data-theme="light"] .btn:hover {
-            background: #e8edf3;
-        }
-        .btn.active-tab {
-            background: var(--accent);
-            color: #0b0f16;
-            border-color: var(--accent);
-        }
-        .theme-toggle {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            background: var(--surface2);
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-        }
-        .theme-toggle:hover {
-            border-color: var(--accent);
-        }
-        nav {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 24px;
-            display: flex;
-            gap: 2px;
-            overflow-x: auto;
-            flex-wrap: nowrap;
-            scrollbar-width: thin;
-        }
-        nav button {
-            padding: 12px 18px;
-            border: none;
-            background: transparent;
-            color: var(--text2);
-            cursor: pointer;
-            font-size: .85rem;
-            font-weight: 600;
-            white-space: nowrap;
-            border-bottom: 3px solid transparent;
-            transition: all var(--transition);
-            letter-spacing: .01em;
-        }
-        nav button:hover {
-            color: var(--text);
-            border-bottom-color: var(--accent2);
-        }
-        nav button.active-nav {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-        main {
-            padding: 22px 24px 40px;
-            max-width: 1360px;
-            margin: 0 auto;
-        }
-        .section {
-            display: none;
-            animation: fadeIn .3s ease;
-        }
-        .section.active-section {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 22px;
-        }
-        .kpi-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            box-shadow: var(--shadow);
-        }
-        .kpi-card .kpi-label {
-            font-size: .78rem;
-            color: var(--text2);
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            margin-bottom: 6px;
-        }
-        .kpi-card .kpi-value {
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -.02em;
-        }
-        .kpi-card .kpi-sub {
-            font-size: .8rem;
-            color: var(--text2);
-            margin-top: 2px;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-        @media(max-width:860px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-        }
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px 22px;
-            box-shadow: var(--shadow);
-            margin-bottom: 18px;
-        }
-        .card h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 14px;
-            letter-spacing: -.01em;
-        }
-        .progress-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .progress-row .label {
-            flex: 0 0 140px;
-            font-size: .82rem;
-            color: var(--text2);
-        }
-        .progress-bar {
-            flex: 1;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--surface2);
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width .4s ease;
-        }
-        .fill-green {
-            background: var(--green);
-        }
-        .fill-amber {
-            background: var(--amber);
-        }
-        .fill-red {
-            background: var(--red);
-        }
-        .fill-accent {
-            background: var(--accent);
-        }
-        .fill-purple {
-            background: var(--purple);
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 14px;
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .02em;
-            white-space: nowrap;
-        }
-        .badge-mandatory {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-        [data-theme="dark"] .badge-mandatory {
-            background: #3b1212;
-            color: #f87171;
-        }
-        .badge-recommended {
-            background: #eff6ff;
-            color: #1d4ed8;
-        }
-        [data-theme="dark"] .badge-recommended {
-            background: #0f1f3d;
-            color: #60a5fa;
-        }
-        .badge-critical {
-            background: #fde8e8;
-            color: #9b1c1c;
-        }
-        [data-theme="dark"] .badge-critical {
-            background: #3b1010;
-            color: #fca5a5;
-        }
-        .badge-high {
-            background: #fff7ed;
-            color: #c2410c;
-        }
-        [data-theme="dark"] .badge-high {
-            background: #2d1a0a;
-            color: #fb923c;
-        }
-        .badge-active {
-            background: #ecfdf5;
-            color: #065f46;
-        }
-        [data-theme="dark"] .badge-active {
-            background: #0a2e1f;
-            color: #34d399;
-        }
-        .badge-upcoming {
-            background: #fefce8;
-            color: #854d0e;
-        }
-        [data-theme="dark"] .badge-upcoming {
-            background: #2a2008;
-            color: #facc15;
-        }
-        .badge-draft {
-            background: #f3f4f6;
-            color: #4b5563;
-        }
-        [data-theme="dark"] .badge-draft {
-            background: #1f2937;
-            color: #9ca3af;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .82rem;
-        }
-        th,
-        td {
-            padding: 10px 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-        th {
-            color: var(--text2);
-            font-weight: 700;
-            font-size: .75rem;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            background: var(--surface2);
-            position: sticky;
-            top: 0;
-        }
-        tr:hover td {
-            background: var(--surface2);
-        }
-        .tag-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 4px;
-        }
-        .tag {
-            font-size: .68rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: var(--surface2);
-            color: var(--text2);
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
-        .tag-framework {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        select.maturity-select {
-            padding: 5px 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--surface2);
-            color: var(--text);
-            font-size: .82rem;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-        select.maturity-select:focus {
-            border-color: var(--accent);
-            outline: none;
-        }
-        .heatmap-grid {
-            display: grid;
-            grid-template-columns: 100px repeat(5, 1fr);
-            gap: 3px;
-            font-size: .78rem;
-            margin-top: 10px;
-        }
-        .heatmap-cell {
-            padding: 14px 8px;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all var(--transition);
-            border: 2px solid transparent;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--surface2);
-            color: var(--text2);
-        }
-        .heatmap-cell.hot {
-            background: #7f1d1d30;
-            color: var(--red);
-            border-color: #7f1d1d60;
-        }
-        .heatmap-cell.warm {
-            background: #78350f30;
-            color: var(--amber);
-            border-color: #78350f60;
-        }
-        .heatmap-cell.mild {
-            background: #1e3a5f30;
-            color: var(--accent);
-            border-color: #1e3a5f60;
-        }
-        .heatmap-cell.cool {
-            background: #064e3b30;
-            color: var(--emerald);
-            border-color: #064e3b60;
-        }
-        .heatmap-cell.header-cell {
-            background: transparent;
-            cursor: default;
-            font-weight: 800;
-            color: var(--text2);
-            border: none;
-        }
-        .heatmap-cell:hover:not(.header-cell) {
-            border-color: #fff;
-            transform: scale(1.04);
-            z-index: 2;
-        }
-        .detail-panel {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-top: 14px;
-            display: none;
-        }
-        .detail-panel.open {
-            display: block;
-            animation: fadeIn .25s ease;
-        }
-        .timeline-item {
-            display: flex;
-            gap: 14px;
-            padding: 12px 0;
-            border-left: 3px solid var(--border);
-            padding-left: 18px;
-            margin-left: 8px;
-            position: relative;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -7px;
-            top: 16px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: 2px solid var(--surface);
-        }
-        .timeline-item.past::before {
-            background: var(--green);
-        }
-        .timeline-item.current::before {
-            background: var(--amber);
-            box-shadow: 0 0 10px var(--amber);
-        }
-        .timeline-date {
-            font-weight: 700;
-            font-size: .82rem;
-            color: var(--accent);
-            min-width: 100px;
-        }
-        .countdown-badge {
-            background: var(--amber);
-            color: #0b0f16;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: .78rem;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: .6;
-            }
-        }
-        .tabs-row {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            font-size: .8rem;
-            font-weight: 600;
-            background: var(--surface2);
-            color: var(--text2);
-            transition: all var(--transition);
-        }
-        .tab-btn.active-tab {
-            background: var(--accent);
-            color: #0b0f16;
-            border-color: var(--accent);
-        }
-        .framework-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 16px;
-        }
-        .fw-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            transition: all var(--transition);
-            cursor: pointer;
-        }
-        .fw-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-        .fw-card h4 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .fw-card .fw-type {
-            font-size: .72rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            margin-bottom: 8px;
-        }
-        .fw-card .fw-meta {
-            font-size: .78rem;
-            color: var(--text2);
-            line-height: 1.6;
-        }
-        .coverage-bar {
-            height: 5px;
-            border-radius: 3px;
-            background: var(--surface2);
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .coverage-fill {
-            height: 100%;
-            border-radius: 3px;
-            background: var(--accent);
-        }
-        footer {
-            text-align: center;
-            padding: 16px;
-            font-size: .72rem;
-            color: var(--text2);
-            border-top: 1px solid var(--border);
-        }
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Governance Map v2.5 — CCM v4.1.0 | NIST AI RMF | EU AI Act | ISO/IEC 42001</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0D1117;
+      --surface: #161B22;
+      --surface2: #21262D;
+      --border: #30363D;
+      --text: #E6EDF3;
+      --text2: #8B949E;
+      --accent: #38BDF8;
+      --accent-dark: #0E7490;
+      --red: #F85149;
+      --amber: #E3B341;
+      --green: #3FB950;
+      --purple: #BC8CFF;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.24);
+      --shadow-hover: 0 4px 24px rgba(56,189,248,.14), 0 8px 32px rgba(0,0,0,.32);
+      --transition: 200ms ease;
+    }
+    [data-theme="light"] {
+      --bg: #F6F8FA;
+      --surface: #FFFFFF;
+      --surface2: #F0F3F7;
+      --border: #D0D7DE;
+      --text: #1F2328;
+      --text2: #656D76;
+      --shadow: 0 1px 3px rgba(31,35,40,.08), 0 4px 12px rgba(31,35,40,.04);
+      --shadow-hover: 0 4px 20px rgba(8,145,178,.12), 0 8px 24px rgba(31,35,40,.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      font-size: 14px;
+      font-feature-settings: "cv02","cv03","cv04";
+      -webkit-font-smoothing: antialiased;
+      transition: background var(--transition), color var(--transition);
+    }
+    /* ── HEADER ── */
+    header {
+      background: rgba(22,27,34,.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    [data-theme="light"] header { background: rgba(255,255,255,.9); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #0E7490, #38BDF8);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-icon svg { width: 18px; height: 18px; color: #fff; }
+    .brand-name {
+      font-size: .95rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+    }
+    .brand-name span { color: var(--accent); }
+    .brand-ver {
+      font-family: var(--mono); font-size: .6rem; color: var(--text2);
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 2px 7px; border-radius: 4px; letter-spacing: .03em; white-space: nowrap;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .search-wrap { position: relative; }
+    .search-wrap svg {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px; color: var(--text2); pointer-events: none;
+    }
+    .search-input {
+      padding: 7px 12px 7px 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: .82rem;
+      width: 220px;
+      transition: all var(--transition);
+      font-family: var(--font);
+    }
+    .search-input::placeholder { color: var(--text2); }
+    .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.15); }
+    .theme-toggle {
+      width: 34px; height: 34px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); cursor: pointer;
+      background: var(--surface2); color: var(--text2);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    /* ── NAV ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    nav button {
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 16px;
+      border: none; background: transparent;
+      color: var(--text2); cursor: pointer;
+      font-size: .8rem; font-weight: 500;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition);
+      font-family: var(--font);
+    }
+    nav button svg { width: 14px; height: 14px; flex-shrink: 0; }
+    nav button:hover { color: var(--text); border-bottom-color: var(--border); }
+    nav button.active-nav { color: var(--accent); border-bottom-color: var(--accent); }
+    /* ── MAIN ── */
+    main { padding: 24px; max-width: 1360px; margin: 0 auto; }
+    .section { display: none; }
+    .section.active-section { display: block; animation: fadeUp .25s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* ── KPI GRID ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #0E7490, #38BDF8);
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    .kpi-label {
+      font-size: .68rem; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px;
+    }
+    .kpi-value { font-size: 2.1rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+    .kpi-sub { font-size: .73rem; color: var(--text2); margin-top: 5px; line-height: 1.4; }
+    /* ── GRID-2 ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .card-title {
+      font-size: .88rem; font-weight: 700; margin-bottom: 16px;
+      letter-spacing: -.01em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title svg { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+    /* ── PROGRESS ── */
+    .progress-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .progress-row .label { flex: 0 0 160px; font-size: .79rem; color: var(--text2); }
+    .progress-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+    .fill-green  { background: linear-gradient(90deg,#2EA043,#3FB950); }
+    .fill-amber  { background: linear-gradient(90deg,#B08800,#E3B341); }
+    .fill-red    { background: linear-gradient(90deg,#8B1A1A,#F85149); }
+    .fill-accent { background: linear-gradient(90deg,#0E7490,#38BDF8); }
+    .fill-purple { background: linear-gradient(90deg,#5B21B6,#BC8CFF); }
+    .fill-teal   { background: linear-gradient(90deg,#0D9488,#2DD4BF); }
+    /* ── BADGES ── */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: .66rem; font-weight: 700; letter-spacing: .02em; white-space: nowrap;
+    }
+    .badge-mandatory { background: rgba(248,81,73,.15); color: #F85149; border: 1px solid rgba(248,81,73,.3); }
+    .badge-recommended { background: rgba(56,189,248,.12); color: var(--accent); border: 1px solid rgba(56,189,248,.25); }
+    .badge-critical { background: rgba(139,0,0,.2); color: #F85149; border: 1px solid rgba(248,81,73,.3); }
+    .badge-high { background: rgba(227,179,65,.15); color: var(--amber); border: 1px solid rgba(227,179,65,.3); }
+    .badge-active { background: rgba(63,185,80,.12); color: #3FB950; border: 1px solid rgba(63,185,80,.25); }
+    .badge-upcoming { background: rgba(227,179,65,.12); color: var(--amber); border: 1px solid rgba(227,179,65,.25); }
+    .badge-draft { background: rgba(139,148,158,.12); color: var(--text2); border: 1px solid var(--border); }
+    [data-theme="light"] .badge-mandatory  { background:#fef2f2; color:#B91C1C; border-color:#fca5a5; }
+    [data-theme="light"] .badge-recommended{ background:#EFF6FF; color:#1D4ED8; border-color:#93C5FD; }
+    [data-theme="light"] .badge-critical   { background:#fef2f2; color:#7F1D1D; border-color:#fca5a5; }
+    [data-theme="light"] .badge-high       { background:#FFFBEB; color:#92400E; border-color:#FCD34D; }
+    [data-theme="light"] .badge-active     { background:#F0FDF4; color:#166534; border-color:#86EFAC; }
+    [data-theme="light"] .badge-upcoming   { background:#FEFCE8; color:#713F12; border-color:#FDE68A; }
+    [data-theme="light"] .badge-draft      { background:#F9FAFB; color:#374151; border-color:#D1D5DB; }
+    /* ── TABLES ── */
+    table { width: 100%; border-collapse: collapse; font-size: .81rem; }
+    th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th {
+      color: var(--text2); font-weight: 700; font-size: .69rem;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: var(--surface2); position: sticky; top: 0;
+    }
+    tbody tr { transition: background var(--transition); }
+    tbody tr:hover td { background: var(--surface2); }
+    /* ── TAGS ── */
+    .tag {
+      font-size: .65rem; padding: 2px 8px; border-radius: 10px;
+      background: var(--surface2); color: var(--text2); border: 1px solid var(--border); white-space: nowrap;
+    }
+    .tag-framework { border-color: rgba(56,189,248,.4); color: var(--accent); background: rgba(56,189,248,.08); }
+    /* ── MATURITY SELECT ── */
+    select.maturity-select {
+      padding: 5px 10px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-size: .79rem; cursor: pointer;
+      transition: all var(--transition); font-family: var(--font);
+    }
+    select.maturity-select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px rgba(56,189,248,.15); }
+    /* ── TABS ── */
+    .tabs-row { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 7px 15px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); cursor: pointer;
+      font-size: .78rem; font-weight: 600;
+      background: var(--surface2); color: var(--text2);
+      transition: all var(--transition); font-family: var(--font);
+    }
+    .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+    .tab-btn.active-tab { background: rgba(56,189,248,.14); color: var(--accent); border-color: rgba(56,189,248,.4); }
+    /* ── FRAMEWORK CARDS ── */
+    .framework-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .fw-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px;
+      box-shadow: var(--shadow); transition: all var(--transition); cursor: pointer;
+    }
+    .fw-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+    .fw-card h4 { font-size: .92rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -.01em; }
+    .fw-card .fw-type { font-size: .65rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .fw-card .fw-meta { font-size: .77rem; color: var(--text2); line-height: 1.6; }
+    .coverage-bar { height: 4px; border-radius: 2px; background: var(--surface2); margin-top: 12px; overflow: hidden; }
+    .coverage-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg,#0E7490,#38BDF8); }
+    /* ── HEATMAP ── */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: 110px repeat(5, 1fr);
+      gap: 4px; font-size: .7rem; margin-top: 12px;
+    }
+    .heatmap-cell {
+      padding: 10px 6px; text-align: center;
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-weight: 600; transition: all var(--transition);
+      border: 1px solid transparent;
+      min-height: 48px; display: flex; align-items: center; justify-content: center;
+      background: var(--surface2); color: var(--text2); line-height: 1.3;
+    }
+    .heatmap-cell.hot   { background: rgba(127,29,29,.25); color:#F85149; border-color:rgba(248,81,73,.3); }
+    .heatmap-cell.warm  { background: rgba(120,53,15,.25); color:var(--amber); border-color:rgba(227,179,65,.3); }
+    .heatmap-cell.mild  { background: rgba(14,116,144,.15); color:var(--accent); border-color:rgba(56,189,248,.25); }
+    .heatmap-cell.cool  { background: rgba(46,160,67,.12); color:#3FB950; border-color:rgba(63,185,80,.25); }
+    .heatmap-cell.header-cell { background:transparent; cursor:default; font-weight:700; color:var(--text2); border:none; }
+    .heatmap-cell:hover:not(.header-cell) { transform:scale(1.04); z-index:2; box-shadow:0 4px 16px rgba(0,0,0,.3); }
+    .detail-panel {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; margin-top: 16px; display: none;
+    }
+    .detail-panel.open { display: block; animation: fadeUp .2s ease; }
+    /* ── TIMELINE ── */
+    .timeline-item {
+      display: flex; gap: 16px;
+      padding: 14px 0 14px 22px;
+      border-left: 2px solid var(--border); margin-left: 10px; position: relative;
+    }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -7px; top: 18px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); border: 2px solid var(--bg);
+    }
+    .timeline-item.past::before { background: var(--green); }
+    .timeline-item.current::before { background: var(--amber); box-shadow: 0 0 12px rgba(227,179,65,.5); }
+    .timeline-date { font-weight: 700; font-size: .78rem; color: var(--accent); min-width: 100px; font-family: var(--mono); }
+    .countdown-badge {
+      display: inline-block; background: var(--amber); color: #0D1117;
+      padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: .7rem;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.65;} }
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 16px;
+      font-family: var(--mono); font-size: .74rem; line-height: 1.7; overflow-x: auto;
+    }
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); cursor: pointer;
+      font-size: .82rem; font-weight: 600;
+      background: var(--surface2); color: var(--text);
+      transition: all var(--transition); text-decoration: none; font-family: var(--font);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg,#0E7490,#38BDF8);
+      color: #0D1117; border-color: transparent;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(56,189,248,.4); }
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 20px; font-size: .71rem;
+      color: var(--text2); border-top: 1px solid var(--border); margin-top: 40px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      main { padding: 16px; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .heatmap-grid { grid-template-columns: 70px repeat(5,1fr); font-size:.6rem; }
+      .search-input { width: 140px; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>⚖️ AI <span>Governance Map</span></h1>
-        <div class="header-actions">
-            <input type="text" class="search-input" id="globalSearch" placeholder="🔍 Search obligations & controls...">
-            <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌓</button>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">AI <span>Governance Map</span></div>
+        <div class="brand-ver">v2.5 &middot; CCM v4.1.0 &middot; NIST AI RMF &middot; EU AI Act &middot; ISO/IEC 42001</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" class="search-input" id="globalSearch" placeholder="Search controls &amp; obligations…">
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav id="mainNav">
+    <button class="active-nav" data-section="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button data-section="frameworks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Frameworks
+    </button>
+    <button data-section="obligations">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Obligations
+    </button>
+    <button data-section="controls">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Controls
+    </button>
+    <button data-section="crosswalk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+      Crosswalk
+    </button>
+    <button data-section="timeline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Timeline
+    </button>
+    <button data-section="heatmap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Risk Heatmap
+    </button>
+    <button data-section="nhid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      NHID-Clinical
+    </button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section class="section active-section" id="section-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Frameworks Tracked</div>
+          <div class="kpi-value">4</div>
+          <div class="kpi-sub">EU AI Act &middot; ISO 42001 &middot; NIST RMF &middot; OECD</div>
         </div>
-    </header>
-    <nav id="mainNav">
-        <button class="active-nav" data-section="dashboard">📊 Dashboard</button>
-        <button data-section="frameworks">📚 Frameworks</button>
-        <button data-section="obligations">⚖️ Obligations</button>
-        <button data-section="controls">🛡️ Controls</button>
-        <button data-section="crosswalk">🔀 Crosswalk</button>
-        <button data-section="timeline">📅 Timeline</button>
-        <button data-section="heatmap">🔥 Risk Heatmap</button>
-        <button data-section="nhid">🩺 NHID‑Clinical</button>
-    </nav>
-    <main>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Obligations</div>
+          <div class="kpi-value">16</div>
+          <div class="kpi-sub">6 mandatory &middot; 10 recommended</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Controls Scored</div>
+          <div class="kpi-value" id="kpiScored">0</div>
+          <div class="kpi-sub">of <span id="kpiTotal">0</span> with maturity &ge; 1</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Next Deadline</div>
+          <div class="kpi-value" style="color:var(--amber)" id="kpiDays">59d</div>
+          <div class="kpi-sub">EU Transparency Rules &middot; Aug 2, 2026</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Compliance Progress by Layer
+          </div>
+          <div class="progress-row"><span class="label">Legal Obligations</span><div class="progress-bar"><div class="progress-fill fill-green" style="width:72%"></div></div><span style="font-size:.77rem;font-family:var(--mono)">72%</span></div>
+          <div class="progress-row"><span class="label">Management System</span><div class="progress-bar"><div class="progress-fill fill-accent" style="width:58%"></div></div><span style="font-size:.77rem;font-family:var(--mono)">58%</span></div>
+          <div class="progress-row"><span class="label">Risk Operations</span><div class="progress-bar"><div class="progress-fill fill-amber" style="width:45%"></div></div><span style="font-size:.77rem;font-family:var(--mono)">45%</span></div>
+          <div class="progress-row"><span class="label">Evidence &amp; Artifacts</span><div class="progress-bar"><div class="progress-fill fill-red" style="width:31%"></div></div><span style="font-size:.77rem;font-family:var(--mono)">31%</span></div>
+          <div class="progress-row"><span class="label">Monitoring &amp; Remediation</span><div class="progress-bar"><div class="progress-fill fill-purple" style="width:40%"></div></div><span style="font-size:.77rem;font-family:var(--mono)">40%</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Maturity Posture Radar — CCM v4.1.0
+          </div>
+          <canvas id="maturityRadar" height="220"></canvas>
+          <p style="font-size:.71rem;color:var(--text2);margin-top:8px">Average maturity per CCM domain &mdash; updates live from Controls tab</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Upcoming Obligations
+        </div>
+        <table>
+          <thead><tr><th>Obligation</th><th>Framework</th><th>Effective Date</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Disclose AI interaction</td><td>EU AI Act</td><td>2026-08-02</td><td><span class="badge badge-upcoming">Due in 59 days</span></td></tr>
+            <tr><td>Human oversight for high-risk</td><td>EU AI Act</td><td>2027-12-02</td><td><span class="badge badge-upcoming">Upcoming</span></td></tr>
+            <tr><td>Logging &amp; traceability</td><td>EU AI Act</td><td>2027-12-02</td><td><span class="badge badge-upcoming">Upcoming</span></td></tr>
+            <tr><td>Control documented information</td><td>ISO 42001</td><td>Ongoing</td><td><span class="badge badge-active">Active</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <!-- DASHBOARD -->
-        <section class="section active-section" id="section-dashboard">
-            <div class="kpi-grid">
-                <div class="kpi-card"><div class="kpi-label">Frameworks Tracked</div><div class="kpi-value">4</div><div class="kpi-sub">EU AI Act · ISO 42001 · NIST RMF · OECD</div></div>
-                <div class="kpi-card"><div class="kpi-label">Active Obligations</div><div class="kpi-value">16</div><div class="kpi-sub">6 mandatory · 10 recommended</div></div>
-                <div class="kpi-card"><div class="kpi-label">Controls Scored</div><div class="kpi-value" id="kpiScored">0</div><div class="kpi-sub">out of 8 with maturity ≥ 1</div></div>
-                <div class="kpi-card"><div class="kpi-label">Next Deadline</div><div class="kpi-value" style="color:var(--amber)">59d</div><div class="kpi-sub">EU Transparency Rules · Aug 2, 2026</div></div>
-            </div>
-            <div class="grid-2">
-                <div class="card">
-                    <h3>📈 Compliance Progress by Layer</h3>
-                    <div class="progress-row"><span class="label">Legal Obligations</span><div class="progress-bar"><div class="progress-fill fill-green" style="width:72%"></div></div><span style="font-size:.78rem">72%</span></div>
-                    <div class="progress-row"><span class="label">Management System</span><div class="progress-bar"><div class="progress-fill fill-accent" style="width:58%"></div></div><span style="font-size:.78rem">58%</span></div>
-                    <div class="progress-row"><span class="label">Risk Operations</span><div class="progress-bar"><div class="progress-fill fill-amber" style="width:45%"></div></div><span style="font-size:.78rem">45%</span></div>
-                    <div class="progress-row"><span class="label">Evidence & Artifacts</span><div class="progress-bar"><div class="progress-fill fill-red" style="width:31%"></div></div><span style="font-size:.78rem">31%</span></div>
-                    <div class="progress-row"><span class="label">Monitoring & Remediation</span><div class="progress-bar"><div class="progress-fill fill-purple" style="width:40%"></div></div><span style="font-size:.78rem">40%</span></div>
-                </div>
-                <div class="card">
-                    <h3>🎯 Maturity Posture Radar (CCM v4.1.0)</h3>
-                    <canvas id="maturityRadar" height="220"></canvas>
-                    <p style="font-size:.72rem;color:var(--text2);margin-top:8px">Average maturity per domain — scores updated live from Controls tab</p>
-                </div>
-            </div>
-            <div class="card" style="margin-top:18px">
-                <h3>⏰ Upcoming Obligations</h3>
-                <table>
-                    <thead><tr><th>Obligation</th><th>Framework</th><th>Effective Date</th><th>Status</th></tr></thead>
-                    <tbody>
-                        <tr><td>Disclose AI interaction</td><td>EU AI Act</td><td>2026-08-02</td><td><span class="badge badge-upcoming">Due in 59 days</span></td></tr>
-                        <tr><td>Human oversight for high-risk</td><td>EU AI Act</td><td>2027-12-02</td><td><span class="badge badge-upcoming">Upcoming</span></td></tr>
-                        <tr><td>Logging & traceability</td><td>EU AI Act</td><td>2027-12-02</td><td><span class="badge badge-upcoming">Upcoming</span></td></tr>
-                        <tr><td>Control documented information</td><td>ISO 42001</td><td>Ongoing</td><td><span class="badge badge-active">Active</span></td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    <!-- FRAMEWORKS -->
+    <section class="section" id="section-frameworks">
+      <div class="framework-cards" id="fwCards"></div>
+    </section>
 
-        <!-- FRAMEWORKS -->
-        <section class="section" id="section-frameworks">
-            <div class="framework-cards" id="fwCards"></div>
-        </section>
+    <!-- OBLIGATIONS -->
+    <section class="section" id="section-obligations">
+      <div class="tabs-row" id="oblFilterRow">
+        <button class="tab-btn active-tab" data-filter="all">All</button>
+        <button class="tab-btn" data-filter="EU">EU AI Act</button>
+        <button class="tab-btn" data-filter="ISO">ISO 42001</button>
+        <button class="tab-btn" data-filter="NIST">NIST RMF</button>
+        <button class="tab-btn" data-filter="OECD">OECD</button>
+      </div>
+      <div class="card" style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Obligation</th><th>Framework</th><th>Topic</th><th>Type</th><th>Effective</th><th>Severity</th></tr></thead>
+          <tbody id="oblTableBody"></tbody>
+        </table>
+      </div>
+    </section>
 
-        <!-- OBLIGATIONS -->
-        <section class="section" id="section-obligations">
-            <div class="tabs-row" id="oblFilterRow">
-                <button class="tab-btn active-tab" data-filter="all">All</button>
-                <button class="tab-btn" data-filter="EU">EU AI Act</button>
-                <button class="tab-btn" data-filter="ISO">ISO 42001</button>
-                <button class="tab-btn" data-filter="NIST">NIST RMF</button>
-                <button class="tab-btn" data-filter="OECD">OECD</button>
-            </div>
-            <div class="card" style="overflow-x:auto">
-                <table><thead><tr><th>Obligation</th><th>Framework</th><th>Topic</th><th>Type</th><th>Effective</th><th>Severity</th></tr></thead>
-                    <tbody id="oblTableBody"></tbody></table>
-            </div>
-        </section>
+    <!-- CONTROLS -->
+    <section class="section" id="section-controls">
+      <div class="tabs-row" id="ctrlFilterRow">
+        <button class="tab-btn active-tab" data-filter="all">All Domains</button>
+        <button class="tab-btn" data-filter="governance">Governance</button>
+        <button class="tab-btn" data-filter="transparency">Transparency</button>
+        <button class="tab-btn" data-filter="oversight">Oversight</button>
+        <button class="tab-btn" data-filter="security">Security</button>
+        <button class="tab-btn" data-filter="monitoring">Monitoring</button>
+        <button class="tab-btn" data-filter="audit">Audit</button>
+        <button class="tab-btn" data-filter="resilience">Resilience</button>
+      </div>
+      <div class="card" style="overflow-x:auto">
+        <table>
+          <thead><tr><th>CCM Code</th><th>Control</th><th>Family</th><th>Type</th><th>Automation</th><th>Status</th><th>Maturity (0–5)</th></tr></thead>
+          <tbody id="ctrlTableBody"></tbody>
+        </table>
+      </div>
+    </section>
 
-        <!-- CONTROLS -->
-        <section class="section" id="section-controls">
-            <div class="tabs-row" id="ctrlFilterRow">
-                <button class="tab-btn active-tab" data-filter="all">All Families</button>
-                <button class="tab-btn" data-filter="governance">Governance</button>
-                <button class="tab-btn" data-filter="transparency">Transparency</button>
-                <button class="tab-btn" data-filter="oversight">Oversight</button>
-                <button class="tab-btn" data-filter="monitoring">Monitoring</button>
-                <button class="tab-btn" data-filter="documentation">Documentation</button>
-            </div>
-            <div class="card" style="overflow-x:auto">
-                <table><thead><tr><th>Code</th><th>Control</th><th>Family</th><th>Type</th><th>Automation</th><th>Status</th><th>Maturity (1–5)</th></tr></thead>
-                    <tbody id="ctrlTableBody"></tbody></table>
-            </div>
-        </section>
+    <!-- CROSSWALK -->
+    <section class="section" id="section-crosswalk">
+      <div class="tabs-row" id="xwalkTabs">
+        <button class="tab-btn active-tab" data-xwalk="coverage">Control Coverage</button>
+        <button class="tab-btn" data-xwalk="topics">Topic Matrix</button>
+        <button class="tab-btn" data-xwalk="actors">Actor Obligations</button>
+      </div>
+      <div class="card" id="xwalkContent" style="overflow-x:auto"></div>
+    </section>
 
-        <!-- CROSSWALK -->
-        <section class="section" id="section-crosswalk">
-            <div class="tabs-row" id="xwalkTabs">
-                <button class="tab-btn active-tab" data-xwalk="coverage">📋 Control Coverage</button>
-                <button class="tab-btn" data-xwalk="topics">🏷️ Topic Matrix</button>
-                <button class="tab-btn" data-xwalk="actors">👥 Actor Obligations</button>
-            </div>
-            <div class="card" id="xwalkContent" style="overflow-x:auto"></div>
-        </section>
+    <!-- TIMELINE -->
+    <section class="section" id="section-timeline">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          EU AI Act Application Timeline
+        </div>
+        <div id="timelineContainer"></div>
+      </div>
+    </section>
 
-        <!-- TIMELINE -->
-        <section class="section" id="section-timeline">
-            <div class="card">
-                <h3>📅 EU AI Act Application Timeline</h3>
-                <div id="timelineContainer"></div>
-            </div>
-        </section>
+    <!-- HEATMAP -->
+    <section class="section" id="section-heatmap">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Governance Risk Heatmap — Likelihood &times; Impact
+        </div>
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+        <div class="detail-panel" id="heatmapDetail"></div>
+      </div>
+    </section>
 
-        <!-- HEATMAP -->
-        <section class="section" id="section-heatmap">
-            <div class="card">
-                <h3>🔥 Governance Risk Heatmap — Likelihood × Impact</h3>
-                <div class="heatmap-grid" id="heatmapGrid"></div>
-                <div class="detail-panel" id="heatmapDetail"></div>
-            </div>
-        </section>
+    <!-- NHID-CLINICAL -->
+    <section class="section" id="section-nhid">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          NHID-Clinical v1.3 — Voice Agent Conformance
+        </div>
+        <p style="font-size:.81rem;color:var(--text2);margin-bottom:16px;line-height:1.6">
+          Voluntary framework for AI voice agents in B2B healthcare payer-provider workflows.
+          Disclosure before data exchange, no human mimicry, human handoff, minimal audit log.
+        </p>
+        <table>
+          <thead><tr><th>Control</th><th>Requirement</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="font-family:var(--mono)">DISC-01</strong></td><td>Disclose AI identity before any data exchange</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">MIME-01</strong></td><td>No human voice mimicry or impersonation</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">HAND-01</strong></td><td>Offer human handoff on request</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">LOG-01</strong></td><td>Minimal audit log of call and disclosures</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr style="background:rgba(227,179,65,.06)"><td><strong style="font-family:var(--mono)">AUTH-01</strong></td><td>Verify caller authorization / NPI delegation</td><td><span class="badge badge-upcoming">Gap — Not in v1.3</span></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:.88rem;font-weight:700">Conformance Score:</span>
+          <span class="badge badge-active" style="font-size:.84rem">4 / 5 controls</span>
+        </div>
+        <p style="font-size:.75rem;color:var(--amber);margin-top:12px;padding:10px 14px;background:rgba(227,179,65,.08);border:1px solid rgba(227,179,65,.2);border-radius:var(--radius-sm);line-height:1.5">
+          <strong>AUTH-01 gap:</strong> v1.3 does not verify caller authorization. A spoofed NPI + voice AI passes all four behavioral controls while bypassing identity verification entirely.
+        </p>
+        <div style="margin-top:20px;text-align:center">
+          <a href="https://nhid-clinical.org/gov-sim.html?scenario=spoofed-identity" target="_blank" rel="noopener" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            Test the AUTH-01 Gap — Open Spoofed Identity Simulator
+          </a>
+          <p style="font-size:.71rem;color:var(--text2);margin-top:8px">Interactively demonstrate why disclosure alone cannot prevent spoofed-identity attacks in B2B healthcare voice channels.</p>
+        </div>
+      </div>
 
-        <!-- NHID-CLINICAL -->
-        <section class="section" id="section-nhid">
-            <div class="card">
-                <h3>🩺 NHID‑Clinical v1.3 — Voice Agent Conformance</h3>
-                <p style="font-size:.82rem; color:var(--text2); margin-bottom:16px">
-                    Voluntary framework for AI voice agents in B2B healthcare payer‑provider workflows.
-                    Disclosure before data exchange, no human mimicry, human handoff, minimal audit log.
-                </p>
-                <table>
-                    <thead><tr><th>Control</th><th>Requirement</th><th>Status</th></tr></thead>
-                    <tbody>
-                        <tr><td><strong>DISC‑01</strong></td><td>Disclose AI identity before any data exchange</td><td><span class="badge badge-active">✅ Conformant</span></td></tr>
-                        <tr><td><strong>MIME‑01</strong></td><td>No human voice mimicry or impersonation</td><td><span class="badge badge-active">✅ Conformant</span></td></tr>
-                        <tr><td><strong>HAND‑01</strong></td><td>Offer human handoff on request</td><td><span class="badge badge-active">✅ Conformant</span></td></tr>
-                        <tr><td><strong>LOG‑01</strong></td><td>Minimal audit log of call and disclosures</td><td><span class="badge badge-active">✅ Conformant</span></td></tr>
-                        <tr style="background:rgba(251,191,36,.08)"><td><strong>AUTH‑01</strong></td><td>Verify caller authorization / NPI delegation</td><td><span class="badge badge-upcoming">⚠️ Gap — Not in v1.3</span></td></tr>
-                    </tbody>
-                </table>
-                <div style="margin-top:14px; display:flex; align-items:center; gap:12px">
-                    <div style="font-size:.9rem; font-weight:700">Conformance Score:</div>
-                    <span class="badge badge-active" style="font-size:.9rem">4/5 controls</span>
-                </div>
-                <p style="font-size:.76rem;color:var(--amber);margin-top:10px">
-                    ⚠️ <strong>v1.3 does not verify caller authorization (AUTH‑01).</strong> A spoofed NPI + voice AI can pass all four behavioral controls while completely bypassing identity verification.
-                </p>
-                <div style="margin-top:20px; text-align:center">
-                    <a href="https://nhid-clinical.org/gov-sim.html?scenario=spoofed-identity"
-                       target="_blank" rel="noopener"
-                       class="btn" style="background:var(--accent);color:#0b0f16;border-color:var(--accent);padding:12px 28px;font-size:.95rem;font-weight:700;display:inline-block">
-                        🔬 Test the AUTH‑01 Gap — Open Spoofed Identity Simulator →
-                    </a>
-                    <p style="font-size:.72rem;color:var(--text2);margin-top:6px">
-                        Interactively demonstrate why disclosure alone is not enough to prevent spoofed-identity attacks in B2B healthcare voice channels.
-                    </p>
-                </div>
-            </div>
+      <div class="card" style="background:var(--surface2)">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          NHID-Clinical in the 5-Layer Trust Stack for B2B Healthcare Voice
+        </div>
+        <table style="font-size:.76rem">
+          <thead><tr><th style="width:90px">Layer</th><th>Scope</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Layer 0</strong></td><td>NPI Registry — no delegation proof, no call-time authorization</td></tr>
+            <tr><td><strong>Layer 1</strong></td><td>STIR/SHAKEN — carrier attestation (A/B/C levels), verifies phone number origin only</td></tr>
+            <tr style="background:rgba(56,189,248,.08)"><td style="color:var(--accent)"><strong>Layer 2 &#9733;</strong></td><td style="color:var(--accent)"><strong>NHID-Clinical v1.3 — Behavioral Baseline</strong> (disclosure, no mimicry, handoff, audit log)</td></tr>
+            <tr><td><strong>Layer 3</strong></td><td>NHID-Auth v1.4 — Ed25519 delegation chain + DPoP call-nonce binding (closes AUTH-01)</td></tr>
+            <tr><td><strong>Layer 4</strong></td><td>FHIR AuditEvent R4 / IHE BALP — healthcare-native structured logging</td></tr>
+            <tr><td><strong>Layer 5</strong></td><td>OpenTelemetry spans &rarr; SIEM / enterprise observability pipeline</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px;font-size:.7rem;color:var(--text2)">&#9733; NHID-Clinical connects these layers for cross-organizational, real-time voice-channel authorization. AUTH-01 is closed only at Layer 3+.</p>
+      </div>
 
-            <!-- 5-Layer Trust Stack -->
-            <div class="card" style="margin-top:16px; background:var(--surface2)">
-                <h4 style="margin-bottom:12px">🔗 NHID‑Clinical in the 5‑Layer Trust Stack for B2B Healthcare Voice</h4>
-                <table style="font-size:.76rem">
-                    <thead><tr><th style="width:90px">Layer</th><th>Scope</th></tr></thead>
-                    <tbody>
-                        <tr><td><strong>Layer 0</strong></td><td>NPI Registry — no delegation proof, no call-time authorization</td></tr>
-                        <tr><td><strong>Layer 1</strong></td><td>STIR/SHAKEN — carrier attestation (A/B/C levels), verifies phone number origin only</td></tr>
-                        <tr style="background:rgba(56,189,248,.1)"><td style="color:var(--accent)"><strong>Layer 2 ★</strong></td><td style="color:var(--accent)"><strong>NHID‑Clinical v1.3 — Behavioral Baseline</strong> (disclosure, no mimicry, handoff, audit log)</td></tr>
-                        <tr><td><strong>Layer 3</strong></td><td>NHID‑Auth v1.4 — Ed25519 delegation chain + DPoP call‑nonce binding (closes AUTH‑01)</td></tr>
-                        <tr><td><strong>Layer 4</strong></td><td>FHIR AuditEvent R4 / IHE BALP — healthcare‑native structured logging</td></tr>
-                        <tr><td><strong>Layer 5</strong></td><td>OpenTelemetry spans → SIEM / enterprise observability pipeline</td></tr>
-                    </tbody>
-                </table>
-                <p style="margin-top:10px;font-size:.7rem;color:var(--text2)">
-                    ★ NHID‑Clinical is the governance spec that connects these layers for cross‑organizational, real‑time voice‑channel authorization. AUTH‑01 is closed only at Layer 3+.
-                </p>
-            </div>
-
-            <!-- Event Trace Example -->
-            <div class="card" style="margin-top:16px">
-                <h3>📋 NHID‑Clinical Compliant Event Trace Example</h3>
-                <div style="background:var(--surface2); padding:14px; border-radius:6px; font-family:monospace; font-size:.77rem; line-height:1.6; overflow-x:auto">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          NHID-Clinical Compliant Event Trace Example
+        </div>
+        <div class="code-block">
 {<br>
 &nbsp;&nbsp;"call_id": "nhid-call-2026-06-04-001",<br>
-&nbsp;&nbsp;"agent_id": "brianna-voice-agent-v3",<br>
+&nbsp;&nbsp;"agent_id": "voice-agent-v3",<br>
 &nbsp;&nbsp;"start_time": "2026-06-04T09:12:00Z",<br>
 &nbsp;&nbsp;"disclosure_time": "2026-06-04T09:12:02Z",<br>
-&nbsp;&nbsp;"disclosure_text": "I'm an automated assistant from Dr. Smith's office.",<br>
+&nbsp;&nbsp;"disclosure_text": "I'm an automated assistant. This call may be recorded.",<br>
 &nbsp;&nbsp;"operational_data_exchanged": "09:12:08Z",<br>
 &nbsp;&nbsp;"human_handoff_requested": true,<br>
 &nbsp;&nbsp;"handoff_time": "2026-06-04T09:12:22Z",<br>
 &nbsp;&nbsp;"audit_log_complete": true,<br>
 &nbsp;&nbsp;"deceptive_artifacts_detected": false,<br>
-&nbsp;&nbsp;"auth_01_verified": false,<span style="color:var(--amber)"> // ← AUTH-01 gap: NPI not cryptographically verified</span><br>
+&nbsp;&nbsp;"auth_01_verified": false, <span style="color:var(--amber)">// AUTH-01 gap: NPI not cryptographically verified</span><br>
 &nbsp;&nbsp;"nhid_clinical_score": "4/5"<br>
 }
-                </div>
-                <p style="font-size:.72rem; color:var(--text2); margin-top:8px">
-                    This trace passes all four behavioral controls (DISC‑01, MIME‑01, HAND‑01, LOG‑01) but AUTH‑01 remains unverified — a spoofed caller would produce an identical trace.
-                </p>
-            </div>
-        </section>
+        </div>
+        <p style="font-size:.71rem;color:var(--text2);margin-top:8px;line-height:1.5">This trace passes all four behavioral controls but AUTH-01 remains unverified — a spoofed caller produces an identical trace.</p>
+      </div>
+    </section>
+  </main>
 
-    </main>
-    <footer>
-        AI Governance Map · v3.0 · June 2026 · Built with NIST AI RMF spine · EU AI Act timeline · ISO/IEC 42001 scaffold ·
-        <a href="https://atlas.mitre.org/matrices/ATLAS-matrix" target="_blank">MITRE ATLAS</a> ·
-        <a href="https://airisk.mit.edu/ai-governance" target="_blank">MIT AI Risk</a>
-    </footer>
+  <footer>
+    AI Governance Map &middot; v2.5 &middot; June 2026 &middot; CCM v4.1.0 spine &middot; EU AI Act timeline &middot; ISO/IEC 42001 scaffold &middot;
+    <a href="https://atlas.mitre.org/matrices/ATLAS-matrix" target="_blank" rel="noopener">MITRE ATLAS</a> &middot;
+    <a href="https://csrc.nist.gov/projects/artificial-intelligence" target="_blank" rel="noopener">NIST AI</a>
+  </footer>
 
-    <script>
-        (function() {
-            // ── THEME ──────────────────────────────
-            const html = document.documentElement;
-            const themeToggle = document.getElementById('themeToggle');
-            const saved = localStorage.getItem('ai-gov-theme');
-            if (saved) html.setAttribute('data-theme', saved);
-            themeToggle.addEventListener('click', () => {
-                const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                html.setAttribute('data-theme', next);
-                localStorage.setItem('ai-gov-theme', next);
-            });
+  <script>
+  (function() {
+    // ── THEME ──────────────────────────────────────────────────────────────────
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const iconMoon = document.getElementById('iconMoon');
+    const iconSun  = document.getElementById('iconSun');
 
-            // ── NAVIGATION ─────────────────────────
-            const navButtons = document.querySelectorAll('#mainNav button');
-            const sections = document.querySelectorAll('.section');
-            navButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    navButtons.forEach(b => b.classList.remove('active-nav'));
-                    btn.classList.add('active-nav');
-                    const target = btn.dataset.section;
-                    sections.forEach(s => s.classList.remove('active-section'));
-                    document.getElementById('section-' + target).classList.add('active-section');
-                });
-            });
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      localStorage.setItem('ai-gov-theme', t);
+      iconMoon.style.display = t === 'dark'  ? 'block' : 'none';
+      iconSun.style.display  = t === 'light' ? 'block' : 'none';
+    }
+    applyTheme(localStorage.getItem('ai-gov-theme') || 'dark');
+    themeToggle.addEventListener('click', () =>
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 
-            // ── DATA ───────────────────────────────
-            const frameworks = [
-                { slug: 'eu-ai-act', name: 'EU Artificial Intelligence Act', type: 'Regulation (Binding)',
-                    jurisdiction: 'EU', version: 'Regulation (EU) 2024/1689', coverage: 72,
-                    summary: 'Risk-based legal framework. Prohibited practices from Feb 2025, GPAI rules from Aug 2025, transparency from Aug 2026, high-risk from Dec 2027.' },
-                { slug: 'iso-iec-42001', name: 'ISO/IEC 42001:2023', type: 'Standard (Voluntary)',
-                    jurisdiction: 'Global', version: '2023 Edition', coverage: 58,
-                    summary: 'AI management system standard — Clauses 4–10 cover context, leadership, planning, support, operation, evaluation, improvement.' },
-                { slug: 'nist-ai-rmf', name: 'NIST AI RMF 1.0', type: 'Framework (Voluntary)',
-                    jurisdiction: 'US / Global', version: '1.0 (Jan 2023)', coverage: 65,
-                    summary: 'Four-function risk framework: Govern · Map · Measure · Manage. Lifecycle-oriented and iterative.' },
-                { slug: 'oecd-ai-principles', name: 'OECD AI Principles', type: 'Principles (Voluntary)',
-                    jurisdiction: 'Global', version: '2019 / Updated 2024', coverage: 50,
-                    summary: '5 values-based principles + 5 policy recommendations. Human rights, transparency, robustness, accountability.' },
-            ];
+    // ── NAVIGATION ─────────────────────────────────────────────────────────────
+    const navButtons = document.querySelectorAll('#mainNav button');
+    const sections   = document.querySelectorAll('.section');
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        navButtons.forEach(b => b.classList.remove('active-nav'));
+        btn.classList.add('active-nav');
+        const target = btn.dataset.section;
+        sections.forEach(s => s.classList.remove('active-section'));
+        document.getElementById('section-' + target).classList.add('active-section');
+      });
+    });
 
-            const obligations = [
-                { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency',
-                    type: 'mandatory', effective: '2026-08-02', severity: 'high',
-                    summary: 'Users must be informed when interacting with an AI system under transparency rules.' },
-                { id: 'obl2', title: 'Implement appropriate human oversight', framework: 'EU', topic: 'Human Oversight',
-                    type: 'mandatory', effective: '2027-12-02', severity: 'critical',
-                    summary: 'High-risk AI systems must include measures enabling appropriate human oversight.' },
-                { id: 'obl3', title: 'Maintain logging for traceability', framework: 'EU', topic: 'Logging',
-                    type: 'mandatory', effective: '2027-12-02', severity: 'critical',
-                    summary: 'High-risk systems must log activity to support traceability and compliance review.' },
-                { id: 'obl4', title: 'Risk management system for high-risk AI', framework: 'EU', topic: 'Risk Management',
-                    type: 'mandatory', effective: '2027-12-02', severity: 'critical',
-                    summary: 'Continuous, iterative risk management process throughout the AI system lifecycle.' },
-                { id: 'obl5', title: 'Data governance & quality for high-risk', framework: 'EU', topic: 'Data Governance',
-                    type: 'mandatory', effective: '2027-12-02', severity: 'high',
-                    summary: 'Training, validation, and testing datasets must meet quality and governance standards.' },
-                { id: 'obl6', title: 'Technical documentation for high-risk', framework: 'EU', topic: 'Documentation',
-                    type: 'mandatory', effective: '2027-12-02', severity: 'high',
-                    summary: 'Comprehensive technical documentation must be maintained and provided to authorities.' },
-                { id: 'obl7', title: 'GPAI model transparency obligations', framework: 'EU', topic: 'GPAI', type: 'mandatory',
-                    effective: '2025-08-02', severity: 'high',
-                    summary: 'General-purpose AI model providers must disclose training data summaries and comply with copyright rules.' },
-                { id: 'obl8', title: 'Prohibited practices screening', framework: 'EU', topic: 'Prohibited Practices',
-                    type: 'mandatory', effective: '2025-02-02', severity: 'critical',
-                    summary: 'Screen for 8 banned practices: manipulation, exploitation, social scoring, certain biometric uses, etc.' },
-                { id: 'obl9', title: 'Control documented information', framework: 'ISO', topic: 'Documentation',
-                    type: 'recommended', effective: 'Ongoing', severity: 'high',
-                    summary: 'Documented information must be created, updated, controlled, retained, and protected per Clause 7.5.' },
-                { id: 'obl10', title: 'Establish AIMS scope & context', framework: 'ISO', topic: 'Governance',
-                    type: 'recommended', effective: 'Ongoing', severity: 'medium',
-                    summary: 'Understand internal/external issues, interested parties, and define AIMS scope per Clause 4.' },
-                { id: 'obl11', title: 'Leadership commitment & AI policy', framework: 'ISO', topic: 'Governance',
-                    type: 'recommended', effective: 'Ongoing', severity: 'high',
-                    summary: 'Top management must demonstrate leadership and establish an AI policy per Clause 5.' },
-                { id: 'obl12', title: 'Internal audit & management review', framework: 'ISO', topic: 'Monitoring',
-                    type: 'recommended', effective: 'Ongoing', severity: 'medium',
-                    summary: 'Conduct internal audits and management reviews per Clause 9.' },
-                { id: 'obl13', title: 'Maintain AI governance inventory & roles', framework: 'NIST', topic: 'Risk Management',
-                    type: 'recommended', effective: 'Ongoing', severity: 'high',
-                    summary: 'Organizations should maintain inventory, defined governance roles, and accountability structures.' },
-                { id: 'obl14', title: 'Map system context & stakeholders', framework: 'NIST', topic: 'Risk Management',
-                    type: 'recommended', effective: 'Ongoing', severity: 'medium',
-                    summary: 'Map system purpose, context, stakeholders, affected parties, and intended use.' },
-                { id: 'obl15', title: 'Provide transparency & responsible disclosure', framework: 'OECD',
-                    topic: 'Transparency', type: 'recommended', effective: 'Ongoing', severity: 'high',
-                    summary: 'AI actors should provide meaningful info about capabilities, limitations, and challenge pathways.' },
-                { id: 'obl16', title: 'Ensure robustness, security & safety', framework: 'OECD', topic: 'Cybersecurity',
-                    type: 'recommended', effective: 'Ongoing', severity: 'high',
-                    summary: 'AI systems should be robust, secure, and safe throughout the lifecycle with safe override capability.' },
-            ];
+    // ── DEADLINE COUNTDOWN ─────────────────────────────────────────────────────
+    const deadline = new Date('2026-08-02');
+    const days = Math.ceil((deadline - new Date()) / 86400000);
+    document.getElementById('kpiDays').textContent = days > 0 ? days + 'd' : 'Overdue';
 
-            let controls = [
-                { code: 'CTRL-GOV-001', title: 'AI Governance Board & Charter', family: 'governance',
-                    type: 'governance', auto: 'manual', status: 'Implemented', ccmDomain: 'GRC', maturity: 0,
-                    frameworks: ['ISO 42001', 'NIST RMF'],
-                    desc: 'Establish cross-functional AI governance board with defined charter and meeting cadence.' },
-                { code: 'CTRL-TRN-001', title: 'Opening Disclosure Prompt', family: 'transparency', type: 'preventive',
-                    auto: 'automated', status: 'In Progress', ccmDomain: 'AAC', maturity: 0,
-                    frameworks: ['EU AI Act', 'OECD'],
-                    desc: 'Enforce AI interaction disclosure at first user contact before workflow access.' },
-                { code: 'CTRL-OVR-001', title: 'Human Override & Escalation', family: 'oversight', type: 'corrective',
-                    auto: 'semi_automated', status: 'Planned', ccmDomain: 'HRS', maturity: 0,
-                    frameworks: ['EU AI Act', 'OECD'],
-                    desc: 'Implement override, escalation, and challenge mechanisms for high-risk system outputs.' },
-                { code: 'CTRL-LOG-001', title: 'Activity Logging & Traceability', family: 'monitoring', type: 'detective',
-                    auto: 'automated', status: 'In Progress', ccmDomain: 'LOG', maturity: 0,
-                    frameworks: ['EU AI Act', 'ISO 42001'],
-                    desc: 'Log all system activity with tamper-proof audit trails for traceability.' },
-                { code: 'CTRL-DOC-001', title: 'Technical Documentation Repository', family: 'documentation',
-                    type: 'governance', auto: 'manual', status: 'Implemented', ccmDomain: 'AAC', maturity: 0,
-                    frameworks: ['EU AI Act', 'ISO 42001'],
-                    desc: 'Maintain versioned technical documentation covering system design, data, and risk management.' },
-                { code: 'CTRL-MON-001', title: 'Post-Deployment Monitoring', family: 'monitoring', type: 'detective',
-                    auto: 'automated', status: 'Planned', ccmDomain: 'LOG', maturity: 0,
-                    frameworks: ['NIST RMF', 'ISO 42001'],
-                    desc: 'Continuous monitoring for drift, anomalies, adverse impacts, and performance degradation.' },
-                { code: 'CTRL-INC-001', title: 'Incident Response & Remediation', family: 'monitoring', type: 'corrective',
-                    auto: 'semi_automated', status: 'Planned', ccmDomain: 'SEF', maturity: 0,
-                    frameworks: ['NIST RMF', 'ISO 42001'],
-                    desc: 'Define incident response procedures with root-cause analysis and remediation loops.' },
-                { code: 'CTRL-VND-001', title: 'Third-Party & Supplier Oversight', family: 'governance', type: 'preventive',
-                    auto: 'manual', status: 'In Progress', ccmDomain: 'STA', maturity: 0,
-                    frameworks: ['ISO 42001', 'NIST RMF'],
-                    desc: 'Assess and monitor upstream model, data, and component providers for governance compliance.' },
-            ];
+    // ── DATA ────────────────────────────────────────────────────────────────────
+    const frameworks = [
+      { slug:'eu-ai-act', name:'EU Artificial Intelligence Act', type:'Regulation (Binding)',
+        jurisdiction:'EU', version:'Regulation (EU) 2024/1689', coverage:72,
+        summary:'Risk-based legal framework. Prohibited practices from Feb 2025, GPAI rules from Aug 2025, transparency from Aug 2026, high-risk from Dec 2027.' },
+      { slug:'iso-iec-42001', name:'ISO/IEC 42001:2023', type:'Standard (Voluntary)',
+        jurisdiction:'Global', version:'2023 Edition', coverage:58,
+        summary:'AI management system standard — Clauses 4-10 cover context, leadership, planning, support, operation, evaluation, improvement.' },
+      { slug:'nist-ai-rmf', name:'NIST AI RMF 1.0', type:'Framework (Voluntary)',
+        jurisdiction:'US / Global', version:'1.0 (Jan 2023)', coverage:65,
+        summary:'Four-function risk framework: Govern · Map · Measure · Manage. Lifecycle-oriented and iterative.' },
+      { slug:'oecd-ai-principles', name:'OECD AI Principles', type:'Principles (Voluntary)',
+        jurisdiction:'Global', version:'2019 / Updated 2024', coverage:50,
+        summary:'5 values-based principles + 5 policy recommendations. Human rights, transparency, robustness, accountability.' },
+    ];
 
-            // ── FRAMEWORK CARDS ────────────────────
-            const fwCards = document.getElementById('fwCards');
-            frameworks.forEach(fw => {
-                const filterKey = fw.slug === 'eu-ai-act' ? 'EU' : fw.slug === 'iso-iec-42001' ? 'ISO' : fw.slug === 'nist-ai-rmf' ? 'NIST' : 'OECD';
-                const card = document.createElement('div');
-                card.className = 'fw-card';
-                card.innerHTML = `
-                    <div class="fw-type">${fw.type}</div>
-                    <h4>${fw.name}</h4>
-                    <div class="fw-meta">
-                        <strong>Jurisdiction:</strong> ${fw.jurisdiction}<br>
-                        <strong>Version:</strong> ${fw.version}<br>
-                        <strong>Coverage depth:</strong> ${fw.coverage}%<br>
-                        <p style="margin-top:6px;font-size:.76rem">${fw.summary}</p>
-                    </div>
-                    <div class="coverage-bar"><div class="coverage-fill" style="width:${fw.coverage}%"></div></div>
-                `;
-                card.addEventListener('click', () => {
-                    document.querySelector('#mainNav button[data-section="obligations"]').click();
-                    document.querySelector(`#oblFilterRow button[data-filter="${filterKey}"]`).click();
-                });
-                fwCards.appendChild(card);
-            });
+    const obligations = [
+      { id:'obl1',  title:'Disclose AI interaction at first contact',     framework:'EU',   topic:'Transparency',        type:'mandatory',    effective:'2026-08-02', severity:'high',     summary:'Users must be informed when interacting with an AI system under transparency rules.' },
+      { id:'obl2',  title:'Implement appropriate human oversight',         framework:'EU',   topic:'Human Oversight',     type:'mandatory',    effective:'2027-12-02', severity:'critical', summary:'High-risk AI systems must include measures enabling appropriate human oversight.' },
+      { id:'obl3',  title:'Maintain logging for traceability',             framework:'EU',   topic:'Logging',             type:'mandatory',    effective:'2027-12-02', severity:'critical', summary:'High-risk systems must log activity to support traceability and compliance review.' },
+      { id:'obl4',  title:'Risk management system for high-risk AI',       framework:'EU',   topic:'Risk Management',     type:'mandatory',    effective:'2027-12-02', severity:'critical', summary:'Continuous, iterative risk management process throughout the AI system lifecycle.' },
+      { id:'obl5',  title:'Data governance & quality for high-risk',       framework:'EU',   topic:'Data Governance',     type:'mandatory',    effective:'2027-12-02', severity:'high',     summary:'Training, validation, and testing datasets must meet quality and governance standards.' },
+      { id:'obl6',  title:'Technical documentation for high-risk',         framework:'EU',   topic:'Documentation',       type:'mandatory',    effective:'2027-12-02', severity:'high',     summary:'Comprehensive technical documentation must be maintained and provided to authorities.' },
+      { id:'obl7',  title:'GPAI model transparency obligations',            framework:'EU',   topic:'GPAI',                type:'mandatory',    effective:'2025-08-02', severity:'high',     summary:'General-purpose AI model providers must disclose training data summaries and comply with copyright rules.' },
+      { id:'obl8',  title:'Prohibited practices screening',                framework:'EU',   topic:'Prohibited Practices',type:'mandatory',    effective:'2025-02-02', severity:'critical', summary:'Screen for 8 banned practices: manipulation, exploitation, social scoring, certain biometric uses, etc.' },
+      { id:'obl9',  title:'Control documented information',                 framework:'ISO',  topic:'Documentation',       type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'Documented information must be created, updated, controlled, retained, and protected per Clause 7.5.' },
+      { id:'obl10', title:'Establish AIMS scope & context',                 framework:'ISO',  topic:'Governance',          type:'recommended',  effective:'Ongoing',    severity:'medium',   summary:'Understand internal/external issues, interested parties, and define AIMS scope per Clause 4.' },
+      { id:'obl11', title:'Leadership commitment & AI policy',              framework:'ISO',  topic:'Governance',          type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'Top management must demonstrate leadership and establish an AI policy per Clause 5.' },
+      { id:'obl12', title:'Internal audit & management review',             framework:'ISO',  topic:'Monitoring',          type:'recommended',  effective:'Ongoing',    severity:'medium',   summary:'Conduct internal audits and management reviews per Clause 9.' },
+      { id:'obl13', title:'Maintain AI governance inventory & roles',       framework:'NIST', topic:'Risk Management',     type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'Organizations should maintain inventory, defined governance roles, and accountability structures.' },
+      { id:'obl14', title:'Map system context & stakeholders',              framework:'NIST', topic:'Risk Management',     type:'recommended',  effective:'Ongoing',    severity:'medium',   summary:'Map system purpose, context, stakeholders, affected parties, and intended use.' },
+      { id:'obl15', title:'Provide transparency & responsible disclosure',  framework:'OECD', topic:'Transparency',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI actors should provide meaningful info about capabilities, limitations, and challenge pathways.' },
+      { id:'obl16', title:'Ensure robustness, security & safety',          framework:'OECD', topic:'Cybersecurity',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI systems should be robust, secure, and safe throughout the lifecycle with safe override capability.' },
+    ];
 
-            // ── OBLIGATIONS TABLE ──────────────────
-            const oblBody = document.getElementById('oblTableBody');
-            let oblFilter = 'all';
+    let controls = [
+      // ── GRC: Governance, Risk & Compliance (4 controls) ────────────────────
+      { code:'CTRL-GRC-001', title:'AI Governance Board & Charter',           family:'governance',    type:'governance',   auto:'manual',         status:'Implemented', ccmDomain:'GRC', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Establish cross-functional AI governance board with defined charter, accountability structure, escalation paths, and quarterly meeting cadence.' },
+      { code:'CTRL-GRC-002', title:'AI Risk Management Program',               family:'governance',    type:'governance',   auto:'manual',         status:'In Progress', ccmDomain:'GRC', maturity:0,
+        frameworks:['EU AI Act','NIST RMF','ISO 42001'],
+        desc:'Systematic, iterative risk management process covering identification, assessment, mitigation, and monitoring across the full AI system lifecycle.' },
+      { code:'CTRL-GRC-003', title:'AI Policy & Standards Framework',          family:'governance',    type:'governance',   auto:'manual',         status:'Implemented', ccmDomain:'GRC', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Define and maintain organization-wide AI policy, standards, and acceptable-use guidelines covering all AI deployments and business units.' },
+      { code:'CTRL-GRC-004', title:'AI Compliance Register & Obligations Tracker', family:'governance', type:'governance', auto:'semi-automated', status:'In Progress', ccmDomain:'GRC', maturity:0,
+        frameworks:['EU AI Act','ISO 42001'],
+        desc:'Centralized register mapping applicable legal obligations, framework requirements, and internal standards with named owners and due dates.' },
+      // ── DSP: Data Security & Privacy (2 controls) ──────────────────────────
+      { code:'CTRL-DSP-001', title:'AI Training Data Governance',              family:'governance',    type:'preventive',   auto:'semi-automated', status:'In Progress', ccmDomain:'DSP', maturity:0,
+        frameworks:['EU AI Act','ISO 42001','NIST RMF'],
+        desc:'Governance of training, validation, and test datasets including quality standards, bias screening, lineage tracking, and consent verification.' },
+      { code:'CTRL-DSP-002', title:'Personal Data Minimization for AI',        family:'governance',    type:'preventive',   auto:'semi-automated', status:'Planned',     ccmDomain:'DSP', maturity:0,
+        frameworks:['EU AI Act','OECD'],
+        desc:'Ensure AI systems collect and process only the minimum personal data necessary; implement privacy-by-design and data subject rights workflows.' },
+      // ── IAM: Identity & Access Management (2 controls) ─────────────────────
+      { code:'CTRL-IAM-001', title:'AI System Access Controls',                family:'security',      type:'preventive',   auto:'automated',      status:'Implemented', ccmDomain:'IAM', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Role-based access control for AI systems, models, and training data with least-privilege enforcement and quarterly access reviews.' },
+      { code:'CTRL-IAM-002', title:'Non-Human Identity Governance for AI Agents', family:'security',   type:'preventive',   auto:'automated',      status:'Planned',     ccmDomain:'IAM', maturity:0,
+        frameworks:['NIST RMF','ISO 42001'],
+        desc:'Govern credentials, tokens, and delegation chains for AI agents in automated pipelines; prevent credential sprawl and lateral movement across agent boundaries.' },
+      // ── LOG: Logging & Monitoring (2 controls) ─────────────────────────────
+      { code:'CTRL-LOG-001', title:'AI Activity Logging & Traceability',       family:'monitoring',    type:'detective',    auto:'automated',      status:'In Progress', ccmDomain:'LOG', maturity:0,
+        frameworks:['EU AI Act','ISO 42001'],
+        desc:'Tamper-proof audit logging of all AI system inputs, outputs, and decision paths to support traceability, compliance review, and incident investigation.' },
+      { code:'CTRL-LOG-002', title:'AI Performance & Drift Monitoring',        family:'monitoring',    type:'detective',    auto:'automated',      status:'Planned',     ccmDomain:'LOG', maturity:0,
+        frameworks:['NIST RMF','ISO 42001'],
+        desc:'Continuous post-deployment monitoring for model drift, performance degradation, bias emergence, and anomalous output patterns with automated alerting.' },
+      // ── STA: Supply Chain, Transparency & Accountability (3 controls) ───────
+      { code:'CTRL-STA-001', title:'AI Third-Party & Supplier Oversight',      family:'governance',    type:'preventive',   auto:'manual',         status:'In Progress', ccmDomain:'STA', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Assess and continuously monitor upstream AI model, data, and component providers for governance compliance, security posture, and ethical standards.' },
+      { code:'CTRL-STA-002', title:'AI Model Provenance & Documentation',      family:'transparency',  type:'governance',   auto:'manual',         status:'In Progress', ccmDomain:'STA', maturity:0,
+        frameworks:['EU AI Act','ISO 42001','NIST RMF'],
+        desc:'Maintain complete model cards, data sheets, and provenance records for all AI models in production, including version history and known limitations.' },
+      { code:'CTRL-TRN-001', title:'Opening Disclosure Prompt',                family:'transparency',  type:'preventive',   auto:'automated',      status:'In Progress', ccmDomain:'STA', maturity:0,
+        frameworks:['EU AI Act','OECD'],
+        desc:'Enforce AI interaction disclosure at first user contact before any data exchange or workflow access; log disclosure events for audit.' },
+      // ── TVM: Threat & Vulnerability Management (2 controls) ────────────────
+      { code:'CTRL-TVM-001', title:'AI Adversarial Testing & Red-Teaming',    family:'security',      type:'detective',    auto:'manual',         status:'Planned',     ccmDomain:'TVM', maturity:0,
+        frameworks:['NIST RMF','ISO 42001'],
+        desc:'Structured red-team exercises and adversarial testing to identify prompt injection, jailbreak vulnerabilities, and unexpected model behaviors prior to deployment.' },
+      { code:'CTRL-TVM-002', title:'AI Model Vulnerability Assessment',        family:'security',      type:'detective',    auto:'semi-automated', status:'Planned',     ccmDomain:'TVM', maturity:0,
+        frameworks:['NIST RMF','EU AI Act'],
+        desc:'Periodic vulnerability assessments of AI models and infrastructure including dependency scanning, MITRE ATLAS threat mapping, and remediation tracking.' },
+      // ── A&A: Audit & Assurance (2 controls) ────────────────────────────────
+      { code:'CTRL-AA-001',  title:'AI Internal Audit Program',                family:'audit',         type:'detective',    auto:'manual',         status:'Planned',     ccmDomain:'A&A', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Regular internal audits of AI governance controls, risk management effectiveness, and policy compliance with findings tracked to closure.' },
+      { code:'CTRL-AA-002',  title:'AI Third-Party Audit & Attestation',       family:'audit',         type:'detective',    auto:'manual',         status:'Planned',     ccmDomain:'A&A', maturity:0,
+        frameworks:['EU AI Act','ISO 42001'],
+        desc:'Engage independent auditors for conformity assessments of high-risk AI systems; manage attestation records and regulatory notifications.' },
+      // ── HRS: Human Resources Security (2 controls) ─────────────────────────
+      { code:'CTRL-OVR-001', title:'Human Override & Escalation',              family:'oversight',     type:'corrective',   auto:'semi-automated', status:'Planned',     ccmDomain:'HRS', maturity:0,
+        frameworks:['EU AI Act','OECD'],
+        desc:'Implement human override, escalation, and challenge mechanisms for high-risk AI outputs with documented intervention triggers and procedures.' },
+      { code:'CTRL-HRS-001', title:'AI Workforce Competency & Ethics Training', family:'oversight',    type:'preventive',   auto:'manual',         status:'In Progress', ccmDomain:'HRS', maturity:0,
+        frameworks:['ISO 42001','NIST RMF','OECD'],
+        desc:'Role-based AI literacy, ethics, and compliance training for all staff interacting with AI systems; track completion rates and assess competency.' },
+      // ── AIS: Application & Interface Security (1 control) ──────────────────
+      { code:'CTRL-AIS-001', title:'AI API Security & Input Validation',       family:'security',      type:'preventive',   auto:'automated',      status:'In Progress', ccmDomain:'AIS', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Secure API design for AI endpoints including input sanitization, rate limiting, authentication, and output filtering to prevent prompt injection attacks.' },
+      // ── BCR: Business Continuity (1 control) ────────────────────────────────
+      { code:'CTRL-BCR-001', title:'AI System Continuity & Recovery Planning', family:'resilience',    type:'corrective',   auto:'manual',         status:'Planned',     ccmDomain:'BCR', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Business continuity and disaster recovery plans for AI systems including failover procedures, degraded-mode operations, and documented RTO/RPO targets.' },
+      // ── CCC: Change Control & Configuration (1 control) ────────────────────
+      { code:'CTRL-CCC-001', title:'AI Model Change Management',               family:'governance',    type:'preventive',   auto:'semi-automated', status:'In Progress', ccmDomain:'CCC', maturity:0,
+        frameworks:['ISO 42001','EU AI Act'],
+        desc:'Structured change management for AI model updates including risk impact assessment, approval gates, staged rollout, and documented rollback capability.' },
+      // ── CEK: Cryptography & Key Management (1 control) ─────────────────────
+      { code:'CTRL-CEK-001', title:'AI Data Encryption Standards',             family:'security',      type:'preventive',   auto:'automated',      status:'Implemented', ccmDomain:'CEK', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Encryption standards for AI training data, model artifacts, and inference pipelines at rest and in transit; key rotation and HSM procedures.' },
+      // ── DCS: Datacenter Security (1 control) ────────────────────────────────
+      { code:'CTRL-DCS-001', title:'AI Compute Environment Isolation',         family:'security',      type:'preventive',   auto:'automated',      status:'Implemented', ccmDomain:'DCS', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Physical and logical isolation of AI compute infrastructure; network segmentation, GPU/TPU access controls, and environment hardening baselines.' },
+      // ── IPY: Interoperability & Portability (1 control) ─────────────────────
+      { code:'CTRL-IPY-001', title:'AI Model Portability & Interoperability',  family:'governance',    type:'governance',   auto:'manual',         status:'Planned',     ccmDomain:'IPY', maturity:0,
+        frameworks:['ISO 42001','NIST RMF'],
+        desc:'Standards for AI model export, format interoperability, and vendor portability to prevent lock-in and support regulatory data portability requirements.' },
+      // ── SEF: Security Incident Management (1 control) ───────────────────────
+      { code:'CTRL-SEF-001', title:'AI Incident Response & Remediation',       family:'monitoring',    type:'corrective',   auto:'semi-automated', status:'Planned',     ccmDomain:'SEF', maturity:0,
+        frameworks:['NIST RMF','ISO 42001'],
+        desc:'AI-specific incident response procedures including detection, containment, root-cause analysis, stakeholder notification, and systematic remediation loops.' },
+      // ── UEM: Universal Endpoint Management (1 control) ──────────────────────
+      { code:'CTRL-UEM-001', title:'AI Agent Endpoint Registration & Control', family:'governance',    type:'preventive',   auto:'automated',      status:'Planned',     ccmDomain:'UEM', maturity:0,
+        frameworks:['NIST RMF','ISO 42001'],
+        desc:'Register and manage all AI agent endpoints, pipeline nodes, and non-human identity endpoints with enforced security baselines and revocation capability.' },
+    ];
 
-            function renderObligations(filter) {
-                oblBody.innerHTML = '';
-                const filtered = filter === 'all' ? obligations : obligations.filter(o => o.framework === filter);
-                if (filtered.length === 0) {
-                    oblBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text2)">No obligations found for this filter.</td></tr>';
-                    return;
-                }
-                filtered.forEach(o => {
-                    const tr = document.createElement('tr');
-                    const sevClass = o.severity === 'critical' ? 'badge-critical' : o.severity === 'high' ? 'badge-high' : 'badge-recommended';
-                    const typeClass = o.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
-                    const frameworkLabel = o.framework === 'EU' ? 'EU AI Act' : o.framework === 'ISO' ? 'ISO 42001' : o.framework === 'NIST' ? 'NIST RMF' : 'OECD';
-                    tr.innerHTML = `
-                        <td><strong>${o.title}</strong><br><span style="font-size:.72rem;color:var(--text2)">${o.summary}</span></td>
-                        <td><span class="tag tag-framework">${frameworkLabel}</span></td>
-                        <td>${o.topic}</td>
-                        <td><span class="badge ${typeClass}">${o.type}</span></td>
-                        <td>${o.effective}</td>
-                        <td><span class="badge ${sevClass}">${o.severity}</span></td>
-                    `;
-                    oblBody.appendChild(tr);
-                });
+    // ── FRAMEWORK CARDS ──────────────────────────────────────────────────────
+    const fwCards = document.getElementById('fwCards');
+    frameworks.forEach(fw => {
+      const filterKey = fw.slug === 'eu-ai-act' ? 'EU' : fw.slug === 'iso-iec-42001' ? 'ISO' : fw.slug === 'nist-ai-rmf' ? 'NIST' : 'OECD';
+      const card = document.createElement('div');
+      card.className = 'fw-card';
+      card.innerHTML = `
+        <div class="fw-type">${fw.type}</div>
+        <h4>${fw.name}</h4>
+        <div class="fw-meta">
+          <strong>Jurisdiction:</strong> ${fw.jurisdiction}<br>
+          <strong>Version:</strong> ${fw.version}<br>
+          <strong>Coverage depth:</strong> ${fw.coverage}%
+          <p style="margin-top:6px;font-size:.74rem">${fw.summary}</p>
+        </div>
+        <div class="coverage-bar"><div class="coverage-fill" style="width:${fw.coverage}%"></div></div>`;
+      card.addEventListener('click', () => {
+        document.querySelector('#mainNav button[data-section="obligations"]').click();
+        document.querySelector(`#oblFilterRow button[data-filter="${filterKey}"]`).click();
+      });
+      fwCards.appendChild(card);
+    });
+
+    // ── OBLIGATIONS TABLE ────────────────────────────────────────────────────
+    const oblBody = document.getElementById('oblTableBody');
+    let oblFilter = 'all';
+
+    function renderObligations(filter) {
+      oblBody.innerHTML = '';
+      const filtered = filter === 'all' ? obligations : obligations.filter(o => o.framework === filter);
+      if (!filtered.length) {
+        oblBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text2)">No obligations for this filter.</td></tr>';
+        return;
+      }
+      filtered.forEach(o => {
+        const tr = document.createElement('tr');
+        const sev  = o.severity === 'critical' ? 'badge-critical' : o.severity === 'high' ? 'badge-high' : 'badge-recommended';
+        const typ  = o.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
+        const fl   = o.framework === 'EU' ? 'EU AI Act' : o.framework === 'ISO' ? 'ISO 42001' : o.framework === 'NIST' ? 'NIST RMF' : 'OECD';
+        tr.innerHTML = `
+          <td><strong>${o.title}</strong><br><span style="font-size:.71rem;color:var(--text2)">${o.summary}</span></td>
+          <td><span class="tag tag-framework">${fl}</span></td>
+          <td>${o.topic}</td>
+          <td><span class="badge ${typ}">${o.type}</span></td>
+          <td style="font-family:var(--mono);font-size:.76rem">${o.effective}</td>
+          <td><span class="badge ${sev}">${o.severity}</span></td>`;
+        oblBody.appendChild(tr);
+      });
+    }
+    renderObligations('all');
+    document.getElementById('oblFilterRow').addEventListener('click', e => {
+      if (!e.target.classList.contains('tab-btn')) return;
+      document.querySelectorAll('#oblFilterRow .tab-btn').forEach(b => b.classList.remove('active-tab'));
+      e.target.classList.add('active-tab');
+      oblFilter = e.target.dataset.filter;
+      renderObligations(oblFilter);
+    });
+
+    // ── CONTROLS TABLE ───────────────────────────────────────────────────────
+    const ctrlBody = document.getElementById('ctrlTableBody');
+    let ctrlFilter = 'all';
+
+    function buildMaturitySelect(code, cur) {
+      const opts = [0,1,2,3,4,5].map(v =>
+        `<option value="${v}" ${cur===v?'selected':''}>${v===0?'— (Not Assessed)':v+' — '+['','Initial','Managed','Defined','Measured','Optimized'][v]}</option>`
+      ).join('');
+      return `<select class="maturity-select" data-code="${code}">${opts}</select>`;
+    }
+
+    function attachMaturityListeners() {
+      document.querySelectorAll('.maturity-select').forEach(sel => {
+        sel.addEventListener('change', function() {
+          const ctrl = controls.find(c => c.code === this.dataset.code);
+          if (ctrl) { ctrl.maturity = parseInt(this.value, 10); updateMaturityRadar(); updateKpiScored(); }
+        });
+      });
+    }
+
+    function renderControls(filter) {
+      ctrlBody.innerHTML = '';
+      const filtered = filter === 'all' ? controls : controls.filter(c => c.family === filter);
+      if (!filtered.length) {
+        ctrlBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text2)">No controls match this filter.</td></tr>';
+        return;
+      }
+      filtered.forEach(c => {
+        const tr = document.createElement('tr');
+        const sc = c.status === 'Implemented' ? 'badge-active' : c.status === 'In Progress' ? 'badge-upcoming' : 'badge-draft';
+        tr.innerHTML = `
+          <td><strong style="font-family:var(--mono);font-size:.77rem">${c.code}</strong><br><span style="font-size:.65rem;color:var(--text2);font-family:var(--mono)">${c.ccmDomain}</span></td>
+          <td><strong>${c.title}</strong><br><span style="font-size:.71rem;color:var(--text2)">${c.desc}</span>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${c.frameworks.map(f=>`<span class="tag tag-framework">${f}</span>`).join('')}</div></td>
+          <td>${c.family}</td>
+          <td>${c.type}</td>
+          <td>${c.auto}</td>
+          <td><span class="badge ${sc}">${c.status}</span></td>
+          <td>${buildMaturitySelect(c.code, c.maturity)}</td>`;
+        ctrlBody.appendChild(tr);
+      });
+      attachMaturityListeners();
+    }
+
+    function updateKpiScored() {
+      document.getElementById('kpiScored').textContent  = controls.filter(c => c.maturity >= 1).length;
+      document.getElementById('kpiTotal').textContent   = controls.length;
+    }
+
+    renderControls('all');
+    updateKpiScored();
+
+    document.getElementById('ctrlFilterRow').addEventListener('click', e => {
+      if (!e.target.classList.contains('tab-btn')) return;
+      document.querySelectorAll('#ctrlFilterRow .tab-btn').forEach(b => b.classList.remove('active-tab'));
+      e.target.classList.add('active-tab');
+      ctrlFilter = e.target.dataset.filter;
+      renderControls(ctrlFilter);
+    });
+
+    // ── MATURITY RADAR ───────────────────────────────────────────────────────
+    const radarCtx = document.getElementById('maturityRadar').getContext('2d');
+    let maturityRadarChart;
+
+    function computeDomainAverages() {
+      const map = {};
+      controls.forEach(c => {
+        if (!map[c.ccmDomain]) map[c.ccmDomain] = { sum: 0, count: 0 };
+        map[c.ccmDomain].sum   += c.maturity;
+        map[c.ccmDomain].count += 1;
+      });
+      const domains   = Object.keys(map).sort();
+      const averages  = domains.map(d => map[d].count > 0 ? Math.round((map[d].sum / map[d].count) * 10) / 10 : 0);
+      return { domains, averages };
+    }
+
+    function updateMaturityRadar() {
+      const { domains, averages } = computeDomainAverages();
+      const isDark = html.getAttribute('data-theme') !== 'light';
+      const labelColor = isDark ? '#8B949E' : '#656D76';
+      const gridColor  = isDark ? 'rgba(139,148,158,.18)' : 'rgba(101,109,118,.15)';
+      if (maturityRadarChart) {
+        maturityRadarChart.data.labels = domains;
+        maturityRadarChart.data.datasets[0].data = averages;
+        maturityRadarChart.update();
+      } else {
+        maturityRadarChart = new Chart(radarCtx, {
+          type: 'radar',
+          data: {
+            labels: domains,
+            datasets: [{
+              label: 'Avg Maturity (0–5)',
+              data: averages,
+              backgroundColor: 'rgba(56,189,248,.18)',
+              borderColor: '#38BDF8',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: '#38BDF8',
+              pointBorderColor: '#0D1117',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              r: {
+                beginAtZero: true, max: 5,
+                ticks: { stepSize: 1, color: labelColor, backdropColor: 'transparent', font: { family: 'JetBrains Mono', size: 10 } },
+                grid: { color: gridColor },
+                pointLabels: { color: labelColor, font: { size: 10, family: 'JetBrains Mono' } }
+              }
             }
-            renderObligations('all');
-            document.getElementById('oblFilterRow').addEventListener('click', e => {
-                if (e.target.classList.contains('tab-btn')) {
-                    document.querySelectorAll('#oblFilterRow .tab-btn').forEach(b => b.classList.remove('active-tab'));
-                    e.target.classList.add('active-tab');
-                    oblFilter = e.target.dataset.filter;
-                    renderObligations(oblFilter);
-                }
-            });
+          }
+        });
+      }
+    }
+    updateMaturityRadar();
+    themeToggle.addEventListener('click', () => { if (maturityRadarChart) { maturityRadarChart.destroy(); maturityRadarChart = null; } updateMaturityRadar(); });
 
-            // ── CONTROLS TABLE WITH MATURITY SCORING ──
-            const ctrlBody = document.getElementById('ctrlTableBody');
-            let ctrlFilter = 'all';
+    // ── CROSSWALK ────────────────────────────────────────────────────────────
+    const xwalkContent = document.getElementById('xwalkContent');
+    const xwalkData = {
+      coverage: {
+        title: 'Control Coverage Across Frameworks',
+        headers: ['CCM Code', 'Control', 'EU AI Act', 'ISO 42001', 'NIST RMF', 'OECD'],
+        rows: controls.map(c => [
+          `<span style="font-family:var(--mono);font-size:.74rem">${c.code}</span>`,
+          c.title,
+          c.frameworks.includes('EU AI Act') ? '<span style="color:#3FB950;font-weight:700">Yes</span>' : '<span style="color:var(--text2)">—</span>',
+          c.frameworks.includes('ISO 42001') ? '<span style="color:#3FB950;font-weight:700">Yes</span>' : '<span style="color:var(--text2)">—</span>',
+          c.frameworks.includes('NIST RMF')  ? '<span style="color:#3FB950;font-weight:700">Yes</span>' : '<span style="color:var(--text2)">—</span>',
+          c.frameworks.includes('OECD')       ? '<span style="color:#3FB950;font-weight:700">Yes</span>' : '<span style="color:var(--text2)">—</span>',
+        ]),
+      },
+      topics: {
+        title: 'Obligation Topic × Framework Matrix',
+        headers: ['Topic', 'EU AI Act', 'ISO 42001', 'NIST RMF', 'OECD'],
+        rows: [
+          ['Transparency',         'Mandatory (Art 52)',   '—',              '—',                 'Principle 3'],
+          ['Human Oversight',      'Mandatory (Art 14)',   '—',              '—',                 'Principle 5'],
+          ['Risk Management',      'Mandatory (Art 9)',    'Clause 6',       'Govern / Map',      'Principle 5'],
+          ['Documentation',        'Mandatory (Art 11)',   'Clause 7.5',     'Govern',            '—'],
+          ['Data Governance',      'Mandatory (Art 10)',   'Clause 8',       'Map',               '—'],
+          ['Cybersecurity',        'Mandatory (Art 15)',   'Clause 8',       'Measure',           'Principle 4'],
+          ['Monitoring',           'Mandatory (Art 72)',   'Clause 9',       'Manage',            'Principle 5'],
+          ['Incident Response',    'Mandatory (Art 73)',   'Clause 10',      'Manage',            '—'],
+          ['GPAI / Model',         'Mandatory (Title VIII)','—',             'Map',               '—'],
+          ['Prohibited Practices', 'Mandatory (Art 5)',    '—',              '—',                 'Principle 2'],
+        ],
+      },
+      actors: {
+        title: 'Actor Obligations Under EU AI Act',
+        headers: ['Obligation Area', 'Provider', 'Deployer', 'Importer', 'Distributor'],
+        rows: [
+          ['Risk Management',       'Full',     'Oversight',  'Verify',   'Check'],
+          ['Technical Documentation','Maintain', 'Provide',   'Ensure',   '—'],
+          ['Transparency Disclosure','Implement','Display',   'Verify',   'Pass-through'],
+          ['Human Oversight',       'Design',   'Assign',    'Confirm',  '—'],
+          ['Logging & Traceability', 'Build',    'Monitor',   'Review',   '—'],
+          ['Post-Market Monitoring', 'Conduct',  'Report',    'Relay',    'Notify'],
+          ['Incident Reporting',     'Notify',   'Escalate',  'Forward',  'Inform'],
+        ],
+      },
+    };
 
-            function buildMaturitySelect(code, currentMaturity) {
-                const options = [0,1,2,3,4,5].map(v =>
-                    `<option value="${v}" ${currentMaturity === v ? 'selected' : ''}>${v === 0 ? '—' : v}</option>`
-                ).join('');
-                return `<select class="maturity-select" data-control-code="${code}">${options}</select>`;
-            }
+    function renderCrosswalk(key) {
+      const d = xwalkData[key];
+      let h = `<div class="card-title" style="margin-bottom:14px">${d.title}</div><table><thead><tr>`;
+      d.headers.forEach(hdr => h += `<th>${hdr}</th>`);
+      h += '</tr></thead><tbody>';
+      d.rows.forEach(row => {
+        h += '<tr>';
+        row.forEach((cell, i) => h += i <= 1 ? `<td>${cell}</td>` : `<td style="text-align:center">${cell}</td>`);
+        h += '</tr>';
+      });
+      h += '</tbody></table>';
+      xwalkContent.innerHTML = h;
+    }
+    renderCrosswalk('coverage');
+    document.getElementById('xwalkTabs').addEventListener('click', e => {
+      if (!e.target.classList.contains('tab-btn')) return;
+      document.querySelectorAll('#xwalkTabs .tab-btn').forEach(b => b.classList.remove('active-tab'));
+      e.target.classList.add('active-tab');
+      renderCrosswalk(e.target.dataset.xwalk);
+    });
 
-            function attachMaturityListeners() {
-                document.querySelectorAll('.maturity-select').forEach(select => {
-                    select.addEventListener('change', function() {
-                        const control = controls.find(c => c.code === this.dataset.controlCode);
-                        if (control) {
-                            control.maturity = parseInt(this.value, 10);
-                            updateMaturityRadar();
-                            updateKpiScored();
-                        }
-                    });
-                });
-            }
+    // ── TIMELINE ─────────────────────────────────────────────────────────────
+    const timelineContainer = document.getElementById('timelineContainer');
+    [
+      { date:'2024-08-01', label:'EU AI Act entered into force',              status:'past',    detail:'Regulation (EU) 2024/1689 published and in force.' },
+      { date:'2025-02-02', label:'Prohibited practices & AI literacy',        status:'past',    detail:'8 banned practices enforced; AI literacy obligations for providers begin.' },
+      { date:'2025-08-02', label:'GPAI governance rules applicable',          status:'past',    detail:'General-purpose AI model obligations, Code of Practice, training-data summary template.' },
+      { date:'2026-08-02', label:'Transparency rules applicable',             status:'current', detail:'Disclosure for chatbots, AI-generated content labeling.' },
+      { date:'2027-12-02', label:'High-risk area systems applicable',         status:'upcoming',detail:'Certain high-risk AI systems must comply after 2026 simplification agreement.' },
+      { date:'2028-08-02', label:'Product-integrated AI systems applicable',  status:'upcoming',detail:'AI systems integrated into regulated products must fully comply.' },
+    ].forEach(ev => {
+      const div = document.createElement('div');
+      div.className = `timeline-item ${ev.status}`;
+      const isCurrent = ev.status === 'current';
+      div.innerHTML = `
+        <span class="timeline-date">${ev.date}</span>
+        <div>
+          <strong>${ev.label}</strong>${isCurrent ? ` <span class="countdown-badge">${days}d remaining</span>` : ''}
+          <div style="font-size:.77rem;color:var(--text2);margin-top:3px">${ev.detail}</div>
+        </div>`;
+      timelineContainer.appendChild(div);
+    });
 
-            function renderControls(filter) {
-                ctrlBody.innerHTML = '';
-                const filtered = filter === 'all' ? controls : controls.filter(c => c.family === filter);
-                if (filtered.length === 0) {
-                    ctrlBody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text2)">No controls found for this family.</td></tr>';
-                    return;
-                }
-                filtered.forEach(c => {
-                    const tr = document.createElement('tr');
-                    const statusClass = c.status === 'Implemented' ? 'badge-active' : c.status === 'In Progress' ? 'badge-upcoming' : 'badge-draft';
-                    tr.innerHTML = `
-                        <td><strong style="font-family:monospace">${c.code}</strong></td>
-                        <td><strong>${c.title}</strong><br><span style="font-size:.72rem;color:var(--text2)">${c.desc}</span></td>
-                        <td>${c.family}</td>
-                        <td>${c.type}</td>
-                        <td>${c.auto}</td>
-                        <td><span class="badge ${statusClass}">${c.status}</span></td>
-                        <td>${buildMaturitySelect(c.code, c.maturity)}</td>
-                    `;
-                    ctrlBody.appendChild(tr);
-                });
-                attachMaturityListeners();
-            }
+    // ── HEATMAP ───────────────────────────────────────────────────────────────
+    const heatmapGrid   = document.getElementById('heatmapGrid');
+    const heatmapDetail = document.getElementById('heatmapDetail');
+    const likelihoods   = ['Rare','Unlikely','Possible','Likely','Almost Certain'];
+    const impacts       = ['Negligible','Minor','Moderate','Significant','Severe'];
+    const riskCells     = [
+      {l:0,i:0,level:'cool',label:'GPAI disclosure gap',       obl:'obl7'},
+      {l:0,i:1,level:'cool',label:'Doc retention lapse',        obl:'obl9'},
+      {l:0,i:2,level:'mild',label:'Minor drift undetected',     obl:'obl14'},
+      {l:0,i:3,level:'mild',label:'Supplier doc missing',       obl:'obl8'},
+      {l:0,i:4,level:'warm',label:'Undisclosed AI in product',  obl:'obl1'},
+      {l:1,i:0,level:'cool',label:'Stale inventory record',     obl:'obl13'},
+      {l:1,i:1,level:'mild',label:'Incomplete audit trail',     obl:'obl3'},
+      {l:1,i:2,level:'mild',label:'Weak monitoring config',     obl:'obl12'},
+      {l:1,i:3,level:'warm',label:'Third-party model risk',     obl:'obl5'},
+      {l:1,i:4,level:'hot', label:'Transparency violation',     obl:'obl1'},
+      {l:2,i:0,level:'mild',label:'Policy not updated',         obl:'obl11'},
+      {l:2,i:1,level:'mild',label:'Logs not retained',          obl:'obl3'},
+      {l:2,i:2,level:'warm',label:'Drift in high-risk system',  obl:'obl4'},
+      {l:2,i:3,level:'warm',label:'Oversight bypassed',         obl:'obl2'},
+      {l:2,i:4,level:'hot', label:'High-risk non-compliance',   obl:'obl4'},
+      {l:3,i:0,level:'mild',label:'Review cycle missed',        obl:'obl12'},
+      {l:3,i:1,level:'warm',label:'Incident unreported',        obl:'obl8'},
+      {l:3,i:2,level:'warm',label:'Data quality failure',       obl:'obl5'},
+      {l:3,i:3,level:'hot', label:'Human override failure',     obl:'obl2'},
+      {l:3,i:4,level:'hot', label:'Systemic bias detected',     obl:'obl16'},
+      {l:4,i:0,level:'warm',label:'Audit finding overdue',      obl:'obl12'},
+      {l:4,i:1,level:'warm',label:'Security breach',            obl:'obl16'},
+      {l:4,i:2,level:'hot', label:'Prohibited practice',        obl:'obl8'},
+      {l:4,i:3,level:'hot', label:'Critical oversight gap',     obl:'obl2'},
+      {l:4,i:4,level:'hot', label:'Catastrophic failure',       obl:'obl4'},
+    ];
 
-            function updateKpiScored() {
-                document.getElementById('kpiScored').textContent = controls.filter(c => c.maturity >= 1).length;
-            }
+    let gridHTML = '<div class="heatmap-cell header-cell"></div>';
+    impacts.forEach(i => gridHTML += `<div class="heatmap-cell header-cell">${i}</div>`);
+    likelihoods.forEach((l, li) => {
+      gridHTML += `<div class="heatmap-cell header-cell" style="text-align:right;padding-right:8px">${l}</div>`;
+      impacts.forEach((_, ii) => {
+        const cell = riskCells.find(c => c.l === li && c.i === ii);
+        if (cell) {
+          gridHTML += `<div class="heatmap-cell ${cell.level}" data-l="${li}" data-i="${ii}" data-obl="${cell.obl}">${cell.label}</div>`;
+        } else {
+          gridHTML += `<div class="heatmap-cell cool" data-l="${li}" data-i="${ii}">—</div>`;
+        }
+      });
+    });
+    heatmapGrid.innerHTML = gridHTML;
 
-            renderControls('all');
-            updateKpiScored();
-            document.getElementById('ctrlFilterRow').addEventListener('click', e => {
-                if (e.target.classList.contains('tab-btn')) {
-                    document.querySelectorAll('#ctrlFilterRow .tab-btn').forEach(b => b.classList.remove('active-tab'));
-                    e.target.classList.add('active-tab');
-                    ctrlFilter = e.target.dataset.filter;
-                    renderControls(ctrlFilter);
-                }
-            });
+    heatmapGrid.addEventListener('click', e => {
+      const cell = e.target.closest('.heatmap-cell');
+      if (!cell || cell.classList.contains('header-cell')) return;
+      const obl = obligations.find(o => o.id === cell.dataset.obl);
+      heatmapDetail.classList.add('open');
+      if (obl) {
+        const sev = obl.severity === 'critical' ? 'badge-critical' : obl.severity === 'high' ? 'badge-high' : 'badge-recommended';
+        const typ = obl.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
+        heatmapDetail.innerHTML = `
+          <strong>Risk Detail:</strong> ${likelihoods[+cell.dataset.l]} likelihood &times; ${impacts[+cell.dataset.i]} impact
+          <hr style="border-color:var(--border);margin:10px 0">
+          <strong>${obl.title}</strong>
+          <p style="font-size:.79rem;color:var(--text2);margin:5px 0 8px">${obl.summary}</p>
+          <span class="badge ${typ}">${obl.type}</span>
+          <span class="badge ${sev}">${obl.severity}</span>
+          <span style="font-size:.77rem;color:var(--text2);margin-left:8px">Effective: ${obl.effective}</span>`;
+      } else {
+        heatmapDetail.innerHTML = `<strong>No direct obligation mapped</strong><p style="font-size:.79rem;color:var(--text2);margin-top:4px">This cell represents a potential risk area without a specific mapped obligation.</p>`;
+      }
+    });
 
-            // ── LIVE MATURITY RADAR CHART ───────────
-            const radarCtx = document.getElementById('maturityRadar').getContext('2d');
-            let maturityRadarChart;
+    // ── GLOBAL SEARCH ─────────────────────────────────────────────────────────
+    document.getElementById('globalSearch').addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      if (!q) { renderObligations(oblFilter); renderControls(ctrlFilter); return; }
+      const fo = obligations.filter(o => o.title.toLowerCase().includes(q) || o.summary.toLowerCase().includes(q) || o.topic.toLowerCase().includes(q));
+      oblBody.innerHTML = '';
+      fo.forEach(o => {
+        const tr = document.createElement('tr');
+        const sev = o.severity === 'critical' ? 'badge-critical' : o.severity === 'high' ? 'badge-high' : 'badge-recommended';
+        const typ = o.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
+        const fl  = o.framework === 'EU' ? 'EU AI Act' : o.framework === 'ISO' ? 'ISO 42001' : o.framework === 'NIST' ? 'NIST RMF' : 'OECD';
+        tr.innerHTML = `<td><strong>${o.title}</strong><br><span style="font-size:.71rem;color:var(--text2)">${o.summary}</span></td>
+          <td><span class="tag tag-framework">${fl}</span></td><td>${o.topic}</td>
+          <td><span class="badge ${typ}">${o.type}</span></td>
+          <td style="font-family:var(--mono);font-size:.76rem">${o.effective}</td>
+          <td><span class="badge ${sev}">${o.severity}</span></td>`;
+        oblBody.appendChild(tr);
+      });
+      const fc = controls.filter(c => c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.code.toLowerCase().includes(q) || c.family.toLowerCase().includes(q));
+      ctrlBody.innerHTML = '';
+      fc.forEach(c => {
+        const tr = document.createElement('tr');
+        const sc = c.status === 'Implemented' ? 'badge-active' : c.status === 'In Progress' ? 'badge-upcoming' : 'badge-draft';
+        tr.innerHTML = `<td><strong style="font-family:var(--mono);font-size:.77rem">${c.code}</strong></td>
+          <td><strong>${c.title}</strong><br><span style="font-size:.71rem;color:var(--text2)">${c.desc}</span></td>
+          <td>${c.family}</td><td>${c.type}</td><td>${c.auto}</td>
+          <td><span class="badge ${sc}">${c.status}</span></td>
+          <td>${buildMaturitySelect(c.code, c.maturity)}</td>`;
+        ctrlBody.appendChild(tr);
+      });
+      attachMaturityListeners();
+      document.querySelector('#mainNav button[data-section="obligations"]').click();
+    });
 
-            function computeDomainAverages() {
-                const domainMap = {};
-                controls.forEach(c => {
-                    if (!domainMap[c.ccmDomain]) domainMap[c.ccmDomain] = { sum: 0, count: 0 };
-                    domainMap[c.ccmDomain].sum += c.maturity;
-                    domainMap[c.ccmDomain].count += 1;
-                });
-                const domains = Object.keys(domainMap).sort();
-                const averages = domains.map(d => {
-                    const { sum, count } = domainMap[d];
-                    return count > 0 ? Math.round((sum / count) * 10) / 10 : 0;
-                });
-                return { domains, averages };
-            }
-
-            function updateMaturityRadar() {
-                const { domains, averages } = computeDomainAverages();
-                if (maturityRadarChart) {
-                    maturityRadarChart.data.labels = domains;
-                    maturityRadarChart.data.datasets[0].data = averages;
-                    maturityRadarChart.update();
-                } else {
-                    maturityRadarChart = new Chart(radarCtx, {
-                        type: 'radar',
-                        data: {
-                            labels: domains,
-                            datasets: [{
-                                label: 'Average Maturity (1-5)',
-                                data: averages,
-                                backgroundColor: 'rgba(56,189,248,0.2)',
-                                borderColor: '#38bdf8',
-                                borderWidth: 2,
-                                pointRadius: 4,
-                                pointBackgroundColor: '#38bdf8',
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                r: {
-                                    beginAtZero: true,
-                                    max: 5,
-                                    ticks: { stepSize: 1, color: '#94a3b8', backdropColor: 'transparent' },
-                                    grid: { color: 'rgba(148,163,184,0.2)' },
-                                    pointLabels: { color: '#e2e8f0', font: { size: 11 } }
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-            updateMaturityRadar();
-
-            // ── CROSSWALK ───────────────────────────
-            const xwalkContent = document.getElementById('xwalkContent');
-            const xwalkData = {
-                coverage: {
-                    title: '📋 Control Coverage Across Frameworks',
-                    headers: ['Control', 'EU AI Act', 'ISO 42001', 'NIST RMF', 'OECD'],
-                    rows: controls.map(c => [
-                        `<strong>${c.code}</strong> ${c.title}`,
-                        c.frameworks.includes('EU AI Act') ? '✅' : '—',
-                        c.frameworks.includes('ISO 42001') ? '✅' : '—',
-                        c.frameworks.includes('NIST RMF') ? '✅' : '—',
-                        c.frameworks.includes('OECD') ? '✅' : '—',
-                    ]),
-                },
-                topics: {
-                    title: '🏷️ Obligation Topic × Framework Matrix',
-                    headers: ['Topic', 'EU AI Act', 'ISO 42001', 'NIST RMF', 'OECD'],
-                    rows: [
-                        ['Transparency', '✅ Mandatory', '—', '—', '✅ Principle 3'],
-                        ['Human Oversight', '✅ Mandatory', '—', '—', '✅ Principle 5'],
-                        ['Risk Management', '✅ Mandatory', '✅ Clause 6', '✅ Govern/Map', '✅ Principle 5'],
-                        ['Documentation', '✅ Mandatory', '✅ Clause 7.5', '✅ Govern', '—'],
-                        ['Data Governance', '✅ Mandatory', '✅ Clause 8', '✅ Map', '—'],
-                        ['Cybersecurity', '✅ Mandatory', '✅ Clause 8', '✅ Measure', '✅ Principle 4'],
-                        ['Monitoring', '✅ Mandatory', '✅ Clause 9', '✅ Manage', '✅ Principle 5'],
-                        ['Incident Response', '✅ Mandatory', '✅ Clause 10', '✅ Manage', '—'],
-                        ['GPAI / Model', '✅ Mandatory', '—', '✅ Map', '—'],
-                        ['Prohibited Practices', '✅ Mandatory', '—', '—', '✅ Principle 2'],
-                    ],
-                },
-                actors: {
-                    title: '👥 Actor Obligations Under EU AI Act',
-                    headers: ['Obligation Area', 'Provider', 'Deployer', 'Importer', 'Distributor'],
-                    rows: [
-                        ['Risk Management', '✅ Full', '✅ Oversight', '✅ Verify', '✅ Check'],
-                        ['Technical Documentation', '✅ Maintain', '✅ Provide', '✅ Ensure', '—'],
-                        ['Transparency Disclosure', '✅ Implement', '✅ Display', '✅ Verify', '✅ Pass-through'],
-                        ['Human Oversight', '✅ Design', '✅ Assign', '✅ Confirm', '—'],
-                        ['Logging & Traceability', '✅ Build', '✅ Monitor', '✅ Review', '—'],
-                        ['Post-Market Monitoring', '✅ Conduct', '✅ Report', '✅ Relay', '✅ Notify'],
-                        ['Incident Reporting', '✅ Notify', '✅ Escalate', '✅ Forward', '✅ Inform'],
-                    ],
-                },
-            };
-
-            function renderCrosswalk(key) {
-                const d = xwalkData[key];
-                let html = `<h3 style="margin-bottom:12px">${d.title}</h3><table><thead><tr>`;
-                d.headers.forEach(h => html += `<th>${h}</th>`);
-                html += '</tr></thead><tbody>';
-                d.rows.forEach(row => {
-                    html += '<tr>';
-                    row.forEach((cell, i) => html += i === 0 ? `<td>${cell}</td>` : `<td style="text-align:center">${cell}</td>`);
-                    html += '</tr>';
-                });
-                html += '</tbody></table>';
-                xwalkContent.innerHTML = html;
-            }
-            renderCrosswalk('coverage');
-            document.getElementById('xwalkTabs').addEventListener('click', e => {
-                if (e.target.classList.contains('tab-btn')) {
-                    document.querySelectorAll('#xwalkTabs .tab-btn').forEach(b => b.classList.remove('active-tab'));
-                    e.target.classList.add('active-tab');
-                    renderCrosswalk(e.target.dataset.xwalk);
-                }
-            });
-
-            // ── TIMELINE ────────────────────────────
-            const timelineContainer = document.getElementById('timelineContainer');
-            const timelineEvents = [
-                { date: '2024-08-01', label: 'EU AI Act entered into force', status: 'past',
-                    detail: 'Regulation (EU) 2024/1689 published and in force.' },
-                { date: '2025-02-02', label: 'Prohibited practices & AI literacy applicable', status: 'past',
-                    detail: '8 banned practices enforced; AI literacy obligations begin.' },
-                { date: '2025-08-02', label: 'GPAI governance rules applicable', status: 'past',
-                    detail: 'General-purpose AI model obligations, Code of Practice, training-data summary template.' },
-                { date: '2026-08-02', label: 'Transparency rules applicable ⚡', status: 'current',
-                    detail: 'Disclosure for chatbots, AI-generated content labeling — 59 days remaining.' },
-                { date: '2027-12-02', label: 'High-risk area systems applicable', status: 'upcoming',
-                    detail: 'Certain high-risk AI systems must comply after 2026 simplification agreement.' },
-                { date: '2028-08-02', label: 'Product-integrated AI systems applicable', status: 'upcoming',
-                    detail: 'AI systems integrated into regulated products must fully comply.' },
-            ];
-            timelineEvents.forEach(ev => {
-                const div = document.createElement('div');
-                div.className = `timeline-item ${ev.status}`;
-                const isCurrent = ev.status === 'current';
-                div.innerHTML = `
-                    <span class="timeline-date">${ev.date}</span>
-                    <div>
-                        <strong>${ev.label}</strong>${isCurrent ? ' <span class="countdown-badge">59 days</span>' : ''}
-                        <div style="font-size:.78rem;color:var(--text2);margin-top:3px">${ev.detail}</div>
-                    </div>`;
-                timelineContainer.appendChild(div);
-            });
-
-            // ── HEATMAP ─────────────────────────────
-            const heatmapGrid = document.getElementById('heatmapGrid');
-            const heatmapDetail = document.getElementById('heatmapDetail');
-            const likelihoods = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
-            const impacts = ['Negligible', 'Minor', 'Moderate', 'Significant', 'Severe'];
-            const riskCells = [
-                { l: 0, i: 0, level: 'cool', label: 'GPAI disclosure gap', obl: 'obl7' },
-                { l: 0, i: 1, level: 'cool', label: 'Doc retention lapse', obl: 'obl9' },
-                { l: 0, i: 2, level: 'mild', label: 'Minor drift undetected', obl: 'obl14' },
-                { l: 0, i: 3, level: 'mild', label: 'Supplier doc missing', obl: 'obl8' },
-                { l: 0, i: 4, level: 'warm', label: 'Undisclosed AI in product', obl: 'obl1' },
-                { l: 1, i: 0, level: 'cool', label: 'Stale inventory record', obl: 'obl13' },
-                { l: 1, i: 1, level: 'mild', label: 'Incomplete audit trail', obl: 'obl3' },
-                { l: 1, i: 2, level: 'mild', label: 'Weak monitoring config', obl: 'obl12' },
-                { l: 1, i: 3, level: 'warm', label: 'Third-party model risk', obl: 'obl5' },
-                { l: 1, i: 4, level: 'hot', label: 'Transparency violation', obl: 'obl1' },
-                { l: 2, i: 0, level: 'mild', label: 'Policy not updated', obl: 'obl11' },
-                { l: 2, i: 1, level: 'mild', label: 'Logs not retained', obl: 'obl3' },
-                { l: 2, i: 2, level: 'warm', label: 'Drift in high-risk system', obl: 'obl4' },
-                { l: 2, i: 3, level: 'warm', label: 'Oversight bypassed', obl: 'obl2' },
-                { l: 2, i: 4, level: 'hot', label: 'High-risk non-compliance', obl: 'obl4' },
-                { l: 3, i: 0, level: 'mild', label: 'Review cycle missed', obl: 'obl12' },
-                { l: 3, i: 1, level: 'warm', label: 'Incident unreported', obl: 'obl8' },
-                { l: 3, i: 2, level: 'warm', label: 'Data quality failure', obl: 'obl5' },
-                { l: 3, i: 3, level: 'hot', label: 'Human override failure', obl: 'obl2' },
-                { l: 3, i: 4, level: 'hot', label: 'Systemic bias detected', obl: 'obl16' },
-                { l: 4, i: 0, level: 'warm', label: 'Audit finding overdue', obl: 'obl12' },
-                { l: 4, i: 1, level: 'warm', label: 'Security breach', obl: 'obl16' },
-                { l: 4, i: 2, level: 'hot', label: 'Prohibited practice', obl: 'obl8' },
-                { l: 4, i: 3, level: 'hot', label: 'Critical oversight gap', obl: 'obl2' },
-                { l: 4, i: 4, level: 'hot', label: 'Catastrophic failure', obl: 'obl4' },
-            ];
-
-            let gridHTML = '<div class="heatmap-cell header-cell"></div>';
-            impacts.forEach(i => gridHTML += `<div class="heatmap-cell header-cell" style="font-size:.7rem">${i}</div>`);
-            likelihoods.forEach((l, li) => {
-                gridHTML += `<div class="heatmap-cell header-cell" style="font-size:.7rem;text-align:right;padding-right:8px">${l}</div>`;
-                impacts.forEach((_, ii) => {
-                    const cell = riskCells.find(c => c.l === li && c.i === ii);
-                    if (cell) {
-                        gridHTML += `<div class="heatmap-cell ${cell.level}" data-l="${li}" data-i="${ii}" data-obl="${cell.obl}" title="${cell.label}">${cell.label}</div>`;
-                    } else {
-                        gridHTML += `<div class="heatmap-cell cool" data-l="${li}" data-i="${ii}">—</div>`;
-                    }
-                });
-            });
-            heatmapGrid.innerHTML = gridHTML;
-
-            heatmapGrid.addEventListener('click', e => {
-                const cell = e.target.closest('.heatmap-cell');
-                if (!cell || cell.classList.contains('header-cell')) return;
-                const obl = obligations.find(o => o.id === cell.dataset.obl);
-                heatmapDetail.classList.add('open');
-                if (obl) {
-                    const sevClass = obl.severity === 'critical' ? 'badge-critical' : obl.severity === 'high' ? 'badge-high' : 'badge-recommended';
-                    const typeClass = obl.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
-                    heatmapDetail.innerHTML = `
-                        <strong>🔍 Risk Detail:</strong> ${likelihoods[parseInt(cell.dataset.l)]} likelihood × ${impacts[parseInt(cell.dataset.i)]} impact
-                        <hr style="border-color:var(--border);margin:8px 0">
-                        <strong>${obl.title}</strong>
-                        <p style="font-size:.8rem;color:var(--text2);margin:4px 0">${obl.summary}</p>
-                        <span class="badge ${typeClass}">${obl.type}</span>
-                        <span class="badge ${sevClass}">${obl.severity}</span>
-                        <span style="font-size:.78rem;color:var(--text2);margin-left:8px">Effective: ${obl.effective}</span>
-                    `;
-                } else {
-                    heatmapDetail.innerHTML = `<strong>📍 No direct obligation mapped</strong><p style="font-size:.8rem;color:var(--text2)">This cell represents a potential risk area without a specific mapped obligation.</p>`;
-                }
-            });
-
-            // ── GLOBAL SEARCH ───────────────────────
-            document.getElementById('globalSearch').addEventListener('input', function() {
-                const q = this.value.toLowerCase().trim();
-                if (!q) {
-                    renderObligations(oblFilter);
-                    renderControls(ctrlFilter);
-                    return;
-                }
-                const filteredObl = obligations.filter(o =>
-                    o.title.toLowerCase().includes(q) || o.summary.toLowerCase().includes(q) ||
-                    o.topic.toLowerCase().includes(q) || o.framework.toLowerCase().includes(q));
-                oblBody.innerHTML = '';
-                filteredObl.forEach(o => {
-                    const tr = document.createElement('tr');
-                    const sevClass = o.severity === 'critical' ? 'badge-critical' : o.severity === 'high' ? 'badge-high' : 'badge-recommended';
-                    const typeClass = o.type === 'mandatory' ? 'badge-mandatory' : 'badge-recommended';
-                    const fl = o.framework === 'EU' ? 'EU AI Act' : o.framework === 'ISO' ? 'ISO 42001' : o.framework === 'NIST' ? 'NIST RMF' : 'OECD';
-                    tr.innerHTML = `
-                        <td><strong>${o.title}</strong><br><span style="font-size:.72rem;color:var(--text2)">${o.summary}</span></td>
-                        <td><span class="tag tag-framework">${fl}</span></td><td>${o.topic}</td>
-                        <td><span class="badge ${typeClass}">${o.type}</span></td><td>${o.effective}</td>
-                        <td><span class="badge ${sevClass}">${o.severity}</span></td>`;
-                    oblBody.appendChild(tr);
-                });
-                const filteredCtrl = controls.filter(c =>
-                    c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) ||
-                    c.code.toLowerCase().includes(q) || c.family.toLowerCase().includes(q));
-                ctrlBody.innerHTML = '';
-                filteredCtrl.forEach(c => {
-                    const tr = document.createElement('tr');
-                    const sc = c.status === 'Implemented' ? 'badge-active' : c.status === 'In Progress' ? 'badge-upcoming' : 'badge-draft';
-                    tr.innerHTML = `
-                        <td><strong style="font-family:monospace">${c.code}</strong></td>
-                        <td><strong>${c.title}</strong><br><span style="font-size:.72rem;color:var(--text2)">${c.desc}</span></td>
-                        <td>${c.family}</td><td>${c.type}</td><td>${c.auto}</td>
-                        <td><span class="badge ${sc}">${c.status}</span></td>
-                        <td>${buildMaturitySelect(c.code, c.maturity)}</td>`;
-                    ctrlBody.appendChild(tr);
-                });
-                attachMaturityListeners();
-                document.querySelector('#mainNav button[data-section="obligations"]').click();
-            });
-
-        })();
-    </script>
+  })();
+  </script>
 </body>
 </html>
