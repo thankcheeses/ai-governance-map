@@ -11,8 +11,9 @@ export default function GapAnalysis() {
     {
       id: 1,
       framework: 'EU AI Act',
-      control: 'AI Model Transparency',
-      currentMaturity: 2,
+      control: 'CTRL-STA-003 · AI System Disclosure & Transparency Notice',
+      description: 'User-facing disclosure and AI labeling not deployed on all touchpoints. Art 50 requires disclosure at point of interaction.',
+      currentMaturity: 1,
       targetMaturity: 4,
       effort: 'High',
       timeline: '3-4 months',
@@ -20,18 +21,20 @@ export default function GapAnalysis() {
     },
     {
       id: 2,
-      framework: 'GDPR',
-      control: 'Data Subject Rights',
-      currentMaturity: 3,
-      targetMaturity: 5,
+      framework: 'NIST AI RMF',
+      control: 'CTRL-GRC-002 · AI Risk Management Program',
+      description: 'AI Risk Register exists but lacks quarterly review cadence and formal escalation path to Governance Board.',
+      currentMaturity: 2,
+      targetMaturity: 4,
       effort: 'Medium',
       timeline: '2 months',
-      priority: 'High',
+      priority: 'Critical',
     },
     {
       id: 3,
-      framework: 'NIST AI RMF',
-      control: 'Risk Assessment Process',
+      framework: 'ISO/IEC 42001',
+      control: 'CTRL-DSP-001 · AI Training Data Governance',
+      description: 'Data cards not consistently maintained for all production training datasets. Consent basis undocumented for 40% of datasets.',
       currentMaturity: 1,
       targetMaturity: 4,
       effort: 'High',
@@ -40,12 +43,57 @@ export default function GapAnalysis() {
     },
     {
       id: 4,
-      framework: 'ISO 42001',
-      control: 'Bias Mitigation',
+      framework: 'EU AI Act',
+      control: 'CTRL-TVM-001 · AI Adversarial Testing & Red-Teaming',
+      description: 'No structured red-team program for high-risk AI systems. Art 9 requires pre-deployment adversarial testing.',
+      currentMaturity: 0,
+      targetMaturity: 4,
+      effort: 'High',
+      timeline: '4-6 months',
+      priority: 'Critical',
+    },
+    {
+      id: 5,
+      framework: 'NIST AI RMF',
+      control: 'CTRL-LOG-002 · AI Performance & Drift Monitoring',
+      description: 'Drift monitoring alerts configured but response SLAs undefined. No documented escalation when thresholds breach.',
       currentMaturity: 2,
       targetMaturity: 4,
       effort: 'Medium',
-      timeline: '3 months',
+      timeline: '2-3 months',
+      priority: 'High',
+    },
+    {
+      id: 6,
+      framework: 'ISO/IEC 42001',
+      control: 'CTRL-IAM-002 · Non-Human Identity Governance for AI Agents',
+      description: 'Machine identities for AI agents not inventoried. Orphaned service accounts exceed 5% threshold.',
+      currentMaturity: 1,
+      targetMaturity: 3,
+      effort: 'Medium',
+      timeline: '2 months',
+      priority: 'High',
+    },
+    {
+      id: 7,
+      framework: 'EU AI Act',
+      control: 'CTRL-AA-002 · AI Third-Party Audit & Attestation',
+      description: 'No external attestation obtained for high-risk AI systems. Art 43 conformity assessment required before market placement.',
+      currentMaturity: 0,
+      targetMaturity: 4,
+      effort: 'High',
+      timeline: '6-9 months',
+      priority: 'High',
+    },
+    {
+      id: 8,
+      framework: 'NIST AI RMF',
+      control: 'CTRL-HRS-001 · Human Override & Escalation Protocols',
+      description: 'Override procedures documented but not tested in 18+ months. GOV 2.2 requires periodic validation of intervention mechanisms.',
+      currentMaturity: 2,
+      targetMaturity: 4,
+      effort: 'Low',
+      timeline: '1 month',
       priority: 'High',
     },
   ];
@@ -100,22 +148,28 @@ export default function GapAnalysis() {
       <main className="p-6 lg:p-8">
         {/* Summary Cards */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card className="border-border bg-card">
+          <Card className="border-border bg-card relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(90deg, #0E7490, #38BDF8)' }} />
             <CardContent className="pt-6">
-              <p className="text-body-sm text-muted-foreground">Total Gaps Identified</p>
-              <p className="mt-2 text-3xl font-bold text-foreground">12</p>
+              <p className="text-body-sm text-muted-foreground">Gaps Identified</p>
+              <p className="mt-2 text-3xl font-bold text-foreground">{gaps.length}</p>
+              <p className="text-body-sm text-muted-foreground mt-1">CCM v4.1.0 controls</p>
             </CardContent>
           </Card>
-          <Card className="border-border bg-card">
+          <Card className="border-border bg-card relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-red-500" />
             <CardContent className="pt-6">
               <p className="text-body-sm text-muted-foreground">Critical Priority</p>
-              <p className="mt-2 text-3xl font-bold text-red-600">4</p>
+              <p className="mt-2 text-3xl font-bold text-red-600">{gaps.filter(g => g.priority === 'Critical').length}</p>
+              <p className="text-body-sm text-muted-foreground mt-1">Require immediate action</p>
             </CardContent>
           </Card>
-          <Card className="border-border bg-card">
+          <Card className="border-border bg-card relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-amber-500" />
             <CardContent className="pt-6">
-              <p className="text-body-sm text-muted-foreground">Est. Timeline</p>
-              <p className="mt-2 text-3xl font-bold text-foreground">12-15 months</p>
+              <p className="text-body-sm text-muted-foreground">Est. Max Timeline</p>
+              <p className="mt-2 text-3xl font-bold text-foreground">9 months</p>
+              <p className="text-body-sm text-muted-foreground mt-1">To full remediation</p>
             </CardContent>
           </Card>
         </div>
@@ -137,18 +191,19 @@ export default function GapAnalysis() {
                 >
                   <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex-1">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <h3 className="text-heading-md font-semibold text-foreground">
+                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm font-semibold text-foreground">
                           {gap.control}
                         </h3>
                         <Badge className={getPriorityColor(gap.priority)}>
                           {gap.priority}
                         </Badge>
                       </div>
-                      <p className="text-body-sm text-muted-foreground">{gap.framework}</p>
+                      <p className="text-body-sm text-muted-foreground mb-1">{gap.framework}</p>
+                      {'description' in gap && <p className="text-xs text-muted-foreground/80">{(gap as any).description}</p>}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline">Effort: <span className={getEffortColor(gap.effort)}>{gap.effort}</span></Badge>
+                    <div className="flex flex-wrap gap-2 flex-shrink-0">
+                      <Badge variant="outline">Effort: <span className={getEffortColor(gap.effort)}>&nbsp;{gap.effort}</span></Badge>
                       <Badge variant="outline">Timeline: {gap.timeline}</Badge>
                     </div>
                   </div>

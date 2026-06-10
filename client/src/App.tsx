@@ -9,6 +9,7 @@ import Analytics from "./pages/Analytics";
 import GapAnalysis from "./pages/GapAnalysis";
 import ComplianceMatrix from "./pages/ComplianceMatrix";
 import FrameworkDetail from "./pages/FrameworkDetail";
+import GovernanceMap from "./pages/GovernanceMap";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/gap-analysis" component={GapAnalysis} />
       <Route path="/compliance-matrix" component={ComplianceMatrix} />
+      <Route path="/governance-map" component={GovernanceMap} />
       <Route path="/frameworks/:id" component={FrameworkDetail} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}

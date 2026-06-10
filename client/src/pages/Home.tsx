@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Shield, TrendingUp, Activity, Search, Download, Settings, Menu, X, Loader2 } from 'lucide-react';
+import { BarChart3, Shield, TrendingUp, Activity, Search, Download, Settings, Menu, X, Loader2, Map } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/NotificationCenter';
@@ -175,6 +175,7 @@ export default function Home() {
           <aside className="hidden w-64 border-r border-border bg-card lg:block">
             <nav className="space-y-1 p-4">
               <NavItem icon={Shield} label="Controls" active />
+              <NavItem icon={Map} label="Governance Map" onClick={() => navigate('/governance-map')} />
               <NavItem icon={BarChart3} label="Analytics" onClick={() => navigate('/analytics')} />
               <NavItem icon={Activity} label="Gap Analysis" onClick={() => navigate('/gap-analysis')} />
               <NavItem icon={TrendingUp} label="Compliance Matrix" onClick={() => navigate('/compliance-matrix')} />
@@ -186,18 +187,18 @@ export default function Home() {
         <main className="flex-1 p-6 lg:p-8">
           {/* Hero Section with Background */}
           <div
-            className="mb-8 rounded-xl bg-cover bg-center p-8 text-white shadow-lg"
-            style={{
-              backgroundImage:
-                'url(https://d2xsxph8kpxj0f.cloudfront.net/310519663636277123/SLVWA7aXQr8mqWTV4aJYPN/hero-governance-dashboard-iQEzGCjGxCvpf8Cncz3UhQ.webp)',
-              backgroundColor: '#0F172A',
-            }}
+            className="mb-8 rounded-xl p-8 text-white shadow-lg relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #0F172A 0%, #0E7490 50%, #0F172A 100%)' }}
           >
-            <div className="max-w-2xl">
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: 'radial-gradient(circle at 20% 50%, #38BDF8 0%, transparent 50%), radial-gradient(circle at 80% 20%, #0891B2 0%, transparent 40%)'
+            }} />
+            <div className="relative max-w-2xl">
+              <p className="text-xs font-mono uppercase tracking-widest text-cyan-300/80 mb-2">AI Governance Map v2.5 · CCM v4.1.0</p>
               <h2 className="mb-2 text-4xl font-bold">Governance at Scale</h2>
               <p className="text-lg opacity-90">
                 Assess, monitor, and improve your AI governance posture across all frameworks and
-                jurisdictions.
+                jurisdictions — NIST AI RMF, EU AI Act, ISO/IEC 42001.
               </p>
             </div>
           </div>
@@ -207,7 +208,8 @@ export default function Home() {
             {stats.map((stat, idx) => {
               const Icon = stat.icon;
               return (
-                <Card key={idx} className="border-border bg-card">
+                <Card key={idx} className="border-border bg-card relative overflow-hidden hover:border-primary/30 transition-colors">
+                  <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(90deg, #0E7490, #38BDF8)' }} />
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between">
                       <div>
