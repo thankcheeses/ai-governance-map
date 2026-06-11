@@ -23,4 +23,4 @@ in B2B healthcare administrative workflows. The AI Governance Map is a companion
 
 ## Status
 
-Open reference tool. Maintained alongside NHID-Clinical v1.3.
+Open reference tool. **v2 Launch** (June 2026): Integrated NHID-Clinical v2 cryptographic authorization (AUTH-01), live deadline countdown, and Layer 3 security controls. Maintained alongside NHID-Clinical v2.
