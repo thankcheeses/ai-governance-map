@@ -1096,10 +1096,11 @@
       const div = document.createElement('div');
       div.className = `timeline-item ${ev.status}`;
       const isCurrent = ev.status === 'current';
+      const daysLeft = Math.ceil((new Date(ev.date) - new Date()) / 86400000);
       div.innerHTML = `
         <span class="timeline-date">${ev.date}</span>
         <div>
-          <strong>${ev.label}</strong>${isCurrent ? ` <span class="countdown-badge">${days}d remaining</span>` : ''}
+          <strong>${ev.label}</strong>${isCurrent && daysLeft > 0 ? ` <span class="countdown-badge">${daysLeft}d remaining</span>` : ''}
           <div style="font-size:.77rem;color:var(--text2);margin-top:3px">${ev.detail}</div>
         </div>`;
       timelineContainer.appendChild(div);
