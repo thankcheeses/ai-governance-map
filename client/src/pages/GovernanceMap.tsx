@@ -327,7 +327,7 @@ const GovernanceMap = () => {
             <div className="flex items-baseline gap-2.5">
               <span className="text-lg font-bold text-foreground">AI Governance Map</span>
               <span className="hidden sm:inline font-mono text-[0.65rem] text-muted-foreground bg-secondary border border-border px-1.5 py-0.5 rounded">
-                v2.5 · CCM v4.1.0
+                v2 · CCM v4.1.0
               </span>
             </div>
           </div>
