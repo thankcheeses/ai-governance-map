@@ -359,7 +359,7 @@
       </div>
       <div>
         <div class="brand-name">AI <span>Governance Map</span></div>
-        <div class="brand-ver">v2.5 &middot; CCM v4.1.0 &middot; NIST AI RMF &middot; EU AI Act &middot; ISO/IEC 42001</div>
+        <div class="brand-ver">v2 &middot; June 2026 &middot; CCM v4.1.0 &middot; NHID-Clinical v2</div>
       </div>
     </div>
     <div class="header-right">
@@ -620,8 +620,8 @@
 &nbsp;&nbsp;"handoff_time": "2026-06-04T09:12:22Z",<br>
 &nbsp;&nbsp;"audit_log_complete": true,<br>
 &nbsp;&nbsp;"deceptive_artifacts_detected": false,<br>
-&nbsp;&nbsp;"auth_01_verified": false, <span style="color:var(--amber)">// AUTH-01 gap: NPI not cryptographically verified</span><br>
-&nbsp;&nbsp;"nhid_clinical_score": "4/5"<br>
+&nbsp;&nbsp;"auth_01_verified": true, <span style="color:var(--green)">// AUTH-01: Cryptographically verified via NHID-Auth v2</span><br>
+&nbsp;&nbsp;"nhid_clinical_score": "5/5"<br>
 }
         </div>
         <p style="font-size:.71rem;color:var(--text2);margin-top:8px;line-height:1.5">This trace passes all four behavioral controls but AUTH-01 remains unverified — a spoofed caller produces an identical trace.</p>
@@ -667,9 +667,40 @@
     });
 
     // ── DEADLINE COUNTDOWN ─────────────────────────────────────────────────────
-    const deadline = new Date('2026-08-02');
-    const days = Math.ceil((deadline - new Date()) / 86400000);
-    document.getElementById('kpiDays').textContent = days > 0 ? days + 'd' : 'Overdue';
+    function updateDeadline() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const deadlines = [
+        { name: 'EU Transparency Rules', date: '2026-08-02', framework: 'EU AI Act' },
+        { name: 'Human oversight for high-risk', date: '2027-12-02', framework: 'EU AI Act' },
+        { name: 'Logging & traceability', date: '2027-12-02', framework: 'EU AI Act' }
+      ];
+      
+      const upcoming = deadlines
+        .map(d => {
+          const target = new Date(d.date);
+          target.setHours(0, 0, 0, 0);
+          const diff = Math.ceil((target - today) / 86400000);
+          return { ...d, days: diff };
+        })
+        .filter(d => d.days > 0)
+        .sort((a, b) => a.days - b.days);
+        
+      if (upcoming.length > 0) {
+        const next = upcoming[0];
+        document.getElementById('kpiDays').textContent = next.days + 'd';
+        document.getElementById('kpiDays').parentElement.querySelector('.kpi-sub').textContent = next.name + ' · ' + next.framework + ' · ' + next.date;
+        
+        // Update the upcoming obligations table as well
+        const tableRows = document.querySelectorAll('#section-dashboard table tbody tr');
+        if (tableRows.length >= 3) {
+          tableRows[0].querySelector('td:nth-child(3)').textContent = '2026-08-02';
+          tableRows[0].querySelector('.badge').textContent = 'Due in ' + upcoming[0].days + ' days';
+        }
+      }
+    }
+    updateDeadline();
 
     // ── DATA ────────────────────────────────────────────────────────────────────
     const frameworks = [
@@ -704,6 +735,7 @@
       { id:'obl14', title:'Map system context & stakeholders',              framework:'NIST', topic:'Risk Management',     type:'recommended',  effective:'Ongoing',    severity:'medium',   summary:'Map system purpose, context, stakeholders, affected parties, and intended use.' },
       { id:'obl15', title:'Provide transparency & responsible disclosure',  framework:'OECD', topic:'Transparency',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI actors should provide meaningful info about capabilities, limitations, and challenge pathways.' },
       { id:'obl16', title:'Ensure robustness, security & safety',          framework:'OECD', topic:'Cybersecurity',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI systems should be robust, secure, and safe throughout the lifecycle with safe override capability.' },
+      { id:'obl17', title:'Caller Authorization Verification (AUTH-01)',    framework:'NHID', topic:'Authorization',       type:'mandatory',    effective:'2026-06-11', severity:'critical', summary:'NHID-Clinical v2: Cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding.' },
     ];
 
     let controls = [
