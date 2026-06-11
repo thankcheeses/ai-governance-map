@@ -8,91 +8,72 @@ export default function ComplianceMatrix() {
   const [, navigate] = useLocation();
 
   const frameworks = [
-    'ISO 42001',
+    'ISO/IEC 42001',
     'EU AI Act',
-    'GDPR',
-    'CCPA',
     'NIST AI RMF',
-    'SOC 2',
+    'GDPR',
+    'CCM v4.1.0',
   ];
 
   const controls = [
-    { name: 'AI Model Transparency', category: 'Transparency' },
-    { name: 'Data Privacy Controls', category: 'Privacy' },
-    { name: 'Bias Detection & Mitigation', category: 'Fairness' },
-    { name: 'Model Monitoring & Auditing', category: 'Monitoring' },
-    { name: 'Incident Response Plan', category: 'Security' },
-    { name: 'Governance Structure', category: 'Governance' },
-    { name: 'Risk Assessment', category: 'Risk Management' },
-    { name: 'Data Subject Rights', category: 'Privacy' },
+    { code: 'CTRL-GRC-001', name: 'AI Governance Board & Charter', domain: 'GRC' },
+    { code: 'CTRL-GRC-002', name: 'AI Risk Management Program', domain: 'GRC' },
+    { code: 'CTRL-GRC-003', name: 'AI Policy & Standards Framework', domain: 'GRC' },
+    { code: 'CTRL-GRC-004', name: 'AI Compliance Obligations Tracker', domain: 'GRC' },
+    { code: 'CTRL-DSP-001', name: 'AI Training Data Governance', domain: 'DSP' },
+    { code: 'CTRL-DSP-002', name: 'Personal Data Minimization for AI', domain: 'DSP' },
+    { code: 'CTRL-IAM-001', name: 'AI System Access Controls', domain: 'IAM' },
+    { code: 'CTRL-IAM-002', name: 'Non-Human Identity Governance', domain: 'IAM' },
+    { code: 'CTRL-LOG-001', name: 'AI Activity Logging & Traceability', domain: 'LOG' },
+    { code: 'CTRL-LOG-002', name: 'AI Performance & Drift Monitoring', domain: 'LOG' },
+    { code: 'CTRL-STA-001', name: 'AI Third-Party & Supplier Oversight', domain: 'STA' },
+    { code: 'CTRL-STA-002', name: 'AI Model Provenance & Documentation', domain: 'STA' },
+    { code: 'CTRL-STA-003', name: 'AI Disclosure & Transparency Notice', domain: 'STA' },
+    { code: 'CTRL-TVM-001', name: 'AI Adversarial Testing & Red-Teaming', domain: 'TVM' },
+    { code: 'CTRL-TVM-002', name: 'AI Model Vulnerability Assessment', domain: 'TVM' },
+    { code: 'CTRL-AA-001',  name: 'AI Internal Audit Program', domain: 'A&A' },
+    { code: 'CTRL-AA-002',  name: 'AI Third-Party Audit & Attestation', domain: 'A&A' },
+    { code: 'CTRL-HRS-001', name: 'Human Override & Escalation Protocols', domain: 'HRS' },
+    { code: 'CTRL-HRS-002', name: 'AI Workforce Competency & Ethics Training', domain: 'HRS' },
+    { code: 'CTRL-AIS-001', name: 'AI API Security & Input Validation', domain: 'AIS' },
+    { code: 'CTRL-BCR-001', name: 'AI System Continuity & Recovery', domain: 'BCR' },
+    { code: 'CTRL-CCC-001', name: 'AI Model Change Management', domain: 'CCC' },
+    { code: 'CTRL-CEK-001', name: 'AI Data Encryption & Key Management', domain: 'CEK' },
+    { code: 'CTRL-DCS-001', name: 'AI Compute Environment Isolation', domain: 'DCS' },
+    { code: 'CTRL-IPY-001', name: 'AI Model Portability & Interoperability', domain: 'IPY' },
+    { code: 'CTRL-SEF-001', name: 'AI Security Incident Response', domain: 'SEF' },
+    { code: 'CTRL-UEM-001', name: 'AI Agent Endpoint Registration', domain: 'UEM' },
   ];
 
-  // Sample compliance matrix data
-  const complianceMatrix: Record<string, Record<string, 'full' | 'partial' | 'none'>> = {
-    'AI Model Transparency': {
-      'ISO 42001': 'full',
-      'EU AI Act': 'full',
-      'GDPR': 'partial',
-      'CCPA': 'none',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'partial',
-    },
-    'Data Privacy Controls': {
-      'ISO 42001': 'partial',
-      'EU AI Act': 'partial',
-      'GDPR': 'full',
-      'CCPA': 'full',
-      'NIST AI RMF': 'partial',
-      'SOC 2': 'full',
-    },
-    'Bias Detection & Mitigation': {
-      'ISO 42001': 'full',
-      'EU AI Act': 'full',
-      'GDPR': 'partial',
-      'CCPA': 'partial',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'none',
-    },
-    'Model Monitoring & Auditing': {
-      'ISO 42001': 'full',
-      'EU AI Act': 'full',
-      'GDPR': 'full',
-      'CCPA': 'partial',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'full',
-    },
-    'Incident Response Plan': {
-      'ISO 42001': 'partial',
-      'EU AI Act': 'partial',
-      'GDPR': 'full',
-      'CCPA': 'full',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'full',
-    },
-    'Governance Structure': {
-      'ISO 42001': 'full',
-      'EU AI Act': 'full',
-      'GDPR': 'partial',
-      'CCPA': 'partial',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'partial',
-    },
-    'Risk Assessment': {
-      'ISO 42001': 'full',
-      'EU AI Act': 'full',
-      'GDPR': 'full',
-      'CCPA': 'partial',
-      'NIST AI RMF': 'full',
-      'SOC 2': 'partial',
-    },
-    'Data Subject Rights': {
-      'ISO 42001': 'partial',
-      'EU AI Act': 'partial',
-      'GDPR': 'full',
-      'CCPA': 'full',
-      'NIST AI RMF': 'none',
-      'SOC 2': 'none',
-    },
+  type CoverageStatus = 'full' | 'partial' | 'none';
+  const complianceMatrix: Record<string, Record<string, CoverageStatus>> = {
+    'CTRL-GRC-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-GRC-002': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-GRC-003': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-GRC-004': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'partial', 'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-DSP-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'full',    'CCM v4.1.0': 'full' },
+    'CTRL-DSP-002': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'partial', 'NIST AI RMF': 'partial', 'GDPR': 'full',    'CCM v4.1.0': 'full' },
+    'CTRL-IAM-001': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-IAM-002': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-LOG-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-LOG-002': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-STA-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-STA-002': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-STA-003': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'full',    'NIST AI RMF': 'partial', 'GDPR': 'full',    'CCM v4.1.0': 'full' },
+    'CTRL-TVM-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-TVM-002': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-AA-001':  { 'ISO/IEC 42001': 'full',    'EU AI Act': 'partial', 'NIST AI RMF': 'partial', 'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-AA-002':  { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'full',    'NIST AI RMF': 'partial', 'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-HRS-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-HRS-002': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-AIS-001': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-BCR-001': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'none',    'NIST AI RMF': 'partial', 'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-CCC-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'partial', 'NIST AI RMF': 'full',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-CEK-001': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'none',    'NIST AI RMF': 'partial', 'GDPR': 'partial', 'CCM v4.1.0': 'full' },
+    'CTRL-DCS-001': { 'ISO/IEC 42001': 'none',    'EU AI Act': 'none',    'NIST AI RMF': 'partial', 'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-IPY-001': { 'ISO/IEC 42001': 'partial', 'EU AI Act': 'partial', 'NIST AI RMF': 'none',    'GDPR': 'none',    'CCM v4.1.0': 'full' },
+    'CTRL-SEF-001': { 'ISO/IEC 42001': 'full',    'EU AI Act': 'full',    'NIST AI RMF': 'full',    'GDPR': 'full',    'CCM v4.1.0': 'full' },
+    'CTRL-UEM-001': { 'ISO/IEC 42001': 'none',    'EU AI Act': 'none',    'NIST AI RMF': 'partial', 'GDPR': 'none',    'CCM v4.1.0': 'full' },
   };
 
   const getComplianceColor = (status: 'full' | 'partial' | 'none') => {
@@ -197,19 +178,18 @@ export default function ComplianceMatrix() {
                 </thead>
                 <tbody>
                   {controls.map((control) => (
-                    <tr key={control.name} className="border-b border-border hover:bg-secondary/50">
+                    <tr key={control.code} className="border-b border-border hover:bg-secondary/50">
                       <td className="px-4 py-3">
                         <div>
-                          <p className="text-body-sm font-medium text-foreground">
-                            {control.name}
-                          </p>
-                          <p className="text-body-xs text-muted-foreground">{control.category}</p>
+                          <p className="text-[0.6rem] font-mono text-muted-foreground mb-0.5">{control.code}</p>
+                          <p className="text-xs font-medium text-foreground">{control.name}</p>
+                          <p className="text-[0.6rem] text-muted-foreground font-mono">{(control as any).domain}</p>
                         </div>
                       </td>
                       {frameworks.map((fw) => {
-                        const status = complianceMatrix[control.name]?.[fw] || 'none';
+                        const status = complianceMatrix[control.code]?.[fw] || 'none';
                         return (
-                          <td key={`${control.name}-${fw}`} className="px-4 py-3 text-center">
+                          <td key={`${control.code}-${fw}`} className="px-4 py-3 text-center">
                             <Badge className={getComplianceColor(status)}>
                               {getComplianceLabel(status)}
                             </Badge>
@@ -228,10 +208,10 @@ export default function ComplianceMatrix() {
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {frameworks.map((fw) => {
             const fullCount = controls.filter(
-              (c) => complianceMatrix[c.name]?.[fw] === 'full'
+              (c) => complianceMatrix[c.code]?.[fw] === 'full'
             ).length;
             const partialCount = controls.filter(
-              (c) => complianceMatrix[c.name]?.[fw] === 'partial'
+              (c) => complianceMatrix[c.code]?.[fw] === 'partial'
             ).length;
             const coverage = Math.round(
               ((fullCount + partialCount / 2) / controls.length) * 100
