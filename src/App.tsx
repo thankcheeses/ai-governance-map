@@ -1,7 +1,8 @@
-// AI Governance Map v2.5 — Enterprise Cloud-AI Edition
+// AI Governance Map v2 — Enterprise Cloud-AI Edition
 // New dep: npm install recharts
 // CCM v4.1.0 — verified against CCMv4_1_0-generated_at_2026_01_13.xlsx (CSA official release, Jan 2026)
 // AIS-08 (API Security) confirmed new in v4.1 (Nov 2025 upgrade). CAIQ questions AIS-08.1 + AIS-08.2 confirmed.
+// NHID-Clinical v2: AUTH-01 cryptographic authorization layer integrated. Layer 3+ enforcement active.
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
@@ -337,15 +338,17 @@ const CITATIONS: Record<string, string> = {
 // Note: Infrastructure & Virtualization Security domain code is 'I&S' in v4.1 (not 'IVS')
 const CCM_DOMAINS = ['A&A','AIS','BCR','CCC','CEK','DCS','DSP','GRC','HRS','IAM','IPY','I&S','LOG','SEF','STA','TVM','UEM'];
 
-// ─── NHID Manifest ────────────────────────────────────────────────────────────
+// ─── NHID Manifest (v2 — Behavioral + Cryptographic Authorization) ─────────────────
+// v1.3 Behavioral Controls (Layer 2) + v2 Cryptographic Authorization (Layer 3)
 const NHID_MANIFEST = [
-  { concept: "Human Oversight", notes: "NHID-Clinical: Turing Boundary — AI must yield to human operator on request" },
-  { concept: "Agentic Action Boundaries", notes: "NHID-Clinical: Pre-Data Gate — non-human identity must be disclosed before PHI exchange" },
-  { concept: "Explainability", notes: "NHID-Clinical: AI agent must state its purpose and data needs when asked" },
-  { concept: "Privacy Assessment", notes: "NHID-Clinical: PHI disclosure controls required for all agentic payer interactions" },
-  { concept: "Vendor Risk", notes: "NHID-Clinical: Third-party AI voice agents must meet NHID-Clinical disclosure standards" },
-  { concept: "Data Governance", notes: "NHID-Clinical: PHI must not be transmitted before Pre-Data Gate passes" },
-  { concept: "Adversarial Testing", notes: "NHID-Clinical: Safe Failover — agent must gracefully transfer to human on failure" },
+  { concept: "Human Oversight", notes: "NHID-Clinical v2: Turing Boundary — AI must yield to human operator on request (Layer 2 Behavioral)" },
+  { concept: "Agentic Action Boundaries", notes: "NHID-Clinical v2: Pre-Data Gate — non-human identity must be disclosed before PHI exchange (Layer 2 Behavioral)" },
+  { concept: "Explainability", notes: "NHID-Clinical v2: AI agent must state its purpose and data needs when asked (Layer 2 Behavioral)" },
+  { concept: "Privacy Assessment", notes: "NHID-Clinical v2: PHI disclosure controls required for all agentic payer interactions (Layer 2 Behavioral)" },
+  { concept: "Vendor Risk", notes: "NHID-Clinical v2: Third-party AI voice agents must meet NHID-Clinical disclosure standards (Layer 2 Behavioral)" },
+  { concept: "Data Governance", notes: "NHID-Clinical v2: PHI must not be transmitted before Pre-Data Gate passes (Layer 2 Behavioral)" },
+  { concept: "Adversarial Testing", notes: "NHID-Clinical v2: Safe Failover — agent must gracefully transfer to human on failure (Layer 2 Behavioral)" },
+  { concept: "Caller Authorization Verification (AUTH-01)", notes: "NHID-Clinical v2: Cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding (Layer 3 Security). Prevents NPI spoofing attacks." },
 ];
 
 const maturityLevels = [
@@ -562,6 +565,15 @@ const complianceData = [
     indicator: { name: "API Scoped Token Authorization Rate", method: "Agent API calls using least-privilege scoped tokens / total agent API calls. Derived from API gateway logs.", slo: "≥99% scoped; 0 unauthorized" },
     implementation: "Implement HITL confirmation triggers for any action exceeding a defined financial or system-impact threshold. Use scoped API tokens with least-privilege access. Per CCM v4.1 AIS-08: review and update at least annually or upon significant system changes. For healthcare agentic deployments, apply NHID-Clinical controls: Pre-Data Gate disclosure, Turing Boundary enforcement, and Safe Failover to human operators."
   },
+  {
+    id: 22, concept: "Caller Authorization Verification (AUTH-01)", riskTier: "Autonomous Agents", priority: "Critical",
+    ccmDomain: "IAM", ownership: "Shared",
+    description: "Cryptographic verification that AI agents are authorized by the provider they claim to represent. Closes the Layer 3 security gap via NHID-Auth v2 Ed25519 delegation chains and DPoP call-nonce binding.",
+    ccmMappings: { "IAM-16": "Authorization Mechanisms", "IAM-05": "Least Privilege", "LOG-11": "Transaction/Activity Logging" },
+    mappings: { "NHID-Clinical": ["AUTH-01"], "NIST AI RMF": ["GV-2.1"], "ISO/IEC 42001": ["A.10.1"], "EU AI Act": ["Art 14"] },
+    indicator: { name: "Cryptographic Authorization Verification Rate", method: "Voice agent calls with valid Ed25519 delegation chain + DPoP nonce binding / total agent calls. Derived from Layer 3 verification logs.", slo: "100% of production calls" },
+    implementation: "Implement NHID-Auth v2 reference layer: Provider-issued Ed25519-signed agent credentials with NPI binding, scoped delegation (max 3 hops), time-limited TTL, and real-time revocation. Bind each call with DPoP proof-of-possession nonce. Verify signature, NPI, expiry, revocation status, scope narrowing, and nonce before allowing data exchange. Layer 3 enforcement prevents NPI spoofing attacks. Integrate with Layer 4 FHIR AuditEvent logging to capture credential ID in every transaction."
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -632,6 +644,16 @@ const AIGovernancePlatform = () => {
     return new Date(d) < new Date() && getMaturity(id) < 5;
   };
 
+  const calculateDaysRemaining = (targetDate: string): number => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(targetDate);
+    deadline.setHours(0, 0, 0, 0);
+    const diffTime = deadline.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
   const overallScore = useMemo(() => {
     const total = Object.values(controlState).reduce((a, c) => a + (c.maturity || 0), 0);
     return Math.round((total / (complianceData.length * 5)) * 100);
@@ -655,6 +677,19 @@ const AIGovernancePlatform = () => {
       return { domain, maturity: Math.round(avg * 10) / 10, hasControls: vals.length > 0 };
     });
   }, [controlState]);
+
+  const nextDeadline = useMemo(() => {
+    const deadlines = [
+      { name: 'EU Transparency Rules', date: '2026-08-02', framework: 'EU AI Act' },
+      { name: 'Human oversight for high-risk', date: '2027-12-02', framework: 'EU AI Act' },
+      { name: 'Logging & traceability', date: '2027-12-02', framework: 'EU AI Act' },
+    ];
+    const upcoming = deadlines
+      .map(d => ({ ...d, daysRemaining: calculateDaysRemaining(d.date) }))
+      .filter(d => d.daysRemaining > 0)
+      .sort((a, b) => a.daysRemaining - b.daysRemaining);
+    return upcoming.length > 0 ? upcoming[0] : null;
+  }, []);
 
   const frameworkCoverage = useMemo(() =>
     frameworks.map(fw => {
@@ -685,7 +720,7 @@ const AIGovernancePlatform = () => {
         return [item.id, `"${item.concept}"`, item.riskTier, item.priority, item.ccmDomain, item.ownership, mat, maturityLevels[mat].label, `"${getOwner(item.id)}"`, getDueDate(item.id), getFlagged(item.id) ? 'Yes' : 'No', getLastModified(item.id), `"${getRemediation(item.id).replace(/"/g,'""')}"`, `"${Object.keys(item.mappings).join(', ')}"`, `"${ccmIds}"`].join(',');
       })
     ].join('\n');
-    triggerDownload(new Blob([rows], { type: 'text/csv' }), 'ai-governance-assessment-v24.csv');
+    triggerDownload(new Blob([rows], { type: 'text/csv' }), 'ai-governance-assessment-v2.csv');
   };
 
   const saveProgress = () => {
@@ -742,7 +777,7 @@ const AIGovernancePlatform = () => {
           <div className="header-inner">
             <div className="header-brand">
               <span className="header-title">AI Governance Map</span>
-              <span className="header-version">v2.5 · CCM v4.1.0</span>
+              <span className="header-version">v2 · June 2026 · CCM v4.1.0 + NHID-Clinical v2</span>
             </div>
             <nav className="header-nav desktop-nav">
               {[
@@ -775,9 +810,10 @@ const AIGovernancePlatform = () => {
         <main className="main">
           <div className="stats-bar">
             <div className="stat-card"><div className="stat-label">Frameworks</div><div className="stat-value">27</div><div className="stat-sub">Global jurisdictions</div></div>
-            <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">21</div><div className="stat-sub">CMMI + CCM v4.1.0</div></div>
+            <div className="stat-card"><div className="stat-label">Controls</div><div className="stat-value">22</div><div className="stat-sub">CMMI + CCM v4.1.0 + NHID</div></div>
             <div className="stat-card"><div className="stat-label">Critical</div><div className="stat-value">{criticalCount}</div><div className="stat-sub">High-priority controls</div></div>
             <div className="stat-card"><div className="stat-label">Assessed</div><div className="stat-value">{assessedCount}</div><div className="stat-sub">of {complianceData.length} controls</div></div>
+            {nextDeadline && <div className="stat-card deadline-card"><div className="stat-label">Next Deadline</div><div className="stat-value">{nextDeadline.daysRemaining}d</div><div className="stat-sub">{nextDeadline.name} - {nextDeadline.framework}</div></div>}
           </div>
 
           {/* ── Controls Tab ─────────────────────────────────────────────────── */}
