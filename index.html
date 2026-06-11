@@ -667,23 +667,23 @@
     });
 
     // ── DEADLINE COUNTDOWN ─────────────────────────────────────────────────────
+    // Parse YYYY-MM-DD as local midnight (avoids UTC-parse → timezone shift bug)
+    function daysUntil(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const target = new Date(y, m - 1, d);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      return Math.ceil((target - today) / 86400000);
+    }
+
     function updateDeadline() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
       const deadlines = [
         { name: 'EU Transparency Rules', date: '2026-08-02', framework: 'EU AI Act' },
         { name: 'Human oversight for high-risk', date: '2027-12-02', framework: 'EU AI Act' },
         { name: 'Logging & traceability', date: '2027-12-02', framework: 'EU AI Act' }
       ];
-      
+
       const upcoming = deadlines
-        .map(d => {
-          const target = new Date(d.date);
-          target.setHours(0, 0, 0, 0);
-          const diff = Math.ceil((target - today) / 86400000);
-          return { ...d, days: diff };
-        })
+        .map(d => ({ ...d, days: daysUntil(d.date) }))
         .filter(d => d.days > 0)
         .sort((a, b) => a.days - b.days);
         
@@ -1096,7 +1096,7 @@
       const div = document.createElement('div');
       div.className = `timeline-item ${ev.status}`;
       const isCurrent = ev.status === 'current';
-      const daysLeft = Math.ceil((new Date(ev.date) - new Date()) / 86400000);
+      const daysLeft = daysUntil(ev.date);
       div.innerHTML = `
         <span class="timeline-date">${ev.date}</span>
         <div>
