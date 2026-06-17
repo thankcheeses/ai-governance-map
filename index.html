@@ -359,7 +359,7 @@
       </div>
       <div>
         <div class="brand-name">AI <span>Governance Map</span></div>
-        <div class="brand-ver">v2 &middot; June 2026 &middot; CCM v4.1.0 &middot; NHID-Clinical v2</div>
+        <div class="brand-ver">v2 &middot; June 2026 &middot; CCM v4.1.0 &middot; NHID-Clinical v1.3 + NHID-Auth v2</div>
       </div>
     </div>
     <div class="header-right">
@@ -552,7 +552,7 @@
       <div class="card">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          NHID-Clinical v2 — Voice Agent Conformance
+          NHID-Clinical v1.3 — Voice Agent Conformance
         </div>
         <p style="font-size:.81rem;color:var(--text2);margin-bottom:16px;line-height:1.6">
           Voluntary framework for AI voice agents in B2B healthcare payer-provider workflows.
@@ -561,24 +561,23 @@
         <table>
           <thead><tr><th>Control</th><th>Requirement</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td><strong style="font-family:var(--mono)">DISC-01</strong></td><td>Disclose AI identity before any data exchange</td><td><span class="badge badge-active">Conformant</span></td></tr>
-            <tr><td><strong style="font-family:var(--mono)">MIME-01</strong></td><td>No human voice mimicry or impersonation</td><td><span class="badge badge-active">Conformant</span></td></tr>
-            <tr><td><strong style="font-family:var(--mono)">HAND-01</strong></td><td>Offer human handoff on request</td><td><span class="badge badge-active">Conformant</span></td></tr>
-            <tr><td><strong style="font-family:var(--mono)">LOG-01</strong></td><td>Minimal audit log of call and disclosures</td><td><span class="badge badge-active">Conformant</span></td></tr>
-            <tr><td><strong style="font-family:var(--mono)">AUTH-01</strong></td><td>Verify caller authorization / NPI delegation</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">IDG-01</strong></td><td>Disclose AI identity before any data exchange</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">DBC-01</strong></td><td>No human voice mimicry or impersonation</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">EIT-01</strong></td><td>Offer human handoff on request</td><td><span class="badge badge-active">Conformant</span></td></tr>
+            <tr><td><strong style="font-family:var(--mono)">ATR-01</strong></td><td>Minimal audit log of call and disclosures</td><td><span class="badge badge-active">Conformant</span></td></tr>
           </tbody>
         </table>
         <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
           <span style="font-size:.88rem;font-weight:700">Conformance Score:</span>
-          <span class="badge badge-active" style="font-size:.84rem">5 / 5 controls</span>
+          <span class="badge badge-active" style="font-size:.84rem">4 / 4 controls</span>
         </div>
         <p style="font-size:.75rem;color:var(--accent);margin-top:12px;padding:10px 14px;background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.2);border-radius:var(--radius-sm);line-height:1.5">
-          <strong>AUTH-01 closed in v2:</strong> Cryptographic NPI delegation verification via Ed25519 + DPoP call-nonce binding. All 5 controls now conformant.
+          <strong>NHID-Auth v2 (Layer 3):</strong> Cryptographic NPI delegation verification via Ed25519 + DPoP call-nonce binding, layered on top of the four Layer 2 behavioral controls above. Reference implementation, not a Layer 2 conformance requirement.
         </p>
         <div style="margin-top:20px;text-align:center">
           <a href="https://nhid-clinical.org/gov-sim.html?scenario=spoofed-identity" target="_blank" rel="noopener" class="btn btn-primary">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-            Test the AUTH-01 Gap — Open Spoofed Identity Simulator
+            Test the Spoofed-Identity Gap — Open Simulator
           </a>
           <p style="font-size:.71rem;color:var(--text2);margin-top:8px">Interactively demonstrate why disclosure alone cannot prevent spoofed-identity attacks in B2B healthcare voice channels.</p>
         </div>
@@ -594,13 +593,13 @@
           <tbody>
             <tr><td><strong>Layer 0</strong></td><td>NPI Registry — no delegation proof, no call-time authorization</td></tr>
             <tr><td><strong>Layer 1</strong></td><td>STIR/SHAKEN — carrier attestation (A/B/C levels), verifies phone number origin only</td></tr>
-            <tr style="background:rgba(56,189,248,.08)"><td style="color:var(--accent)"><strong>Layer 2 &#9733;</strong></td><td style="color:var(--accent)"><strong>NHID-Clinical v2 — Behavioral Baseline + AUTH-01</strong> (disclosure, no mimicry, handoff, audit log, NPI delegation verification)</td></tr>
-            <tr><td><strong>Layer 3</strong></td><td>NHID-Auth v1.4 — Ed25519 delegation chain + DPoP call-nonce binding (AUTH-01 reference implementation)</td></tr>
+            <tr style="background:rgba(56,189,248,.08)"><td style="color:var(--accent)"><strong>Layer 2 &#9733;</strong></td><td style="color:var(--accent)"><strong>NHID-Clinical v1.3 — Behavioral Baseline</strong> (disclosure, no mimicry, handoff, audit log)</td></tr>
+            <tr><td><strong>Layer 3</strong></td><td>NHID-Auth v2 — Cryptographic authorization layer: Ed25519 delegation chain + DPoP call-nonce binding (reference implementation, CC BY 4.0)</td></tr>
             <tr><td><strong>Layer 4</strong></td><td>FHIR AuditEvent R4 / IHE BALP — healthcare-native structured logging</td></tr>
             <tr><td><strong>Layer 5</strong></td><td>OpenTelemetry spans &rarr; SIEM / enterprise observability pipeline</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:10px;font-size:.7rem;color:var(--text2)">&#9733; NHID-Clinical v2 closes AUTH-01 at Layer 2 — cryptographic NPI delegation is now a baseline behavioral requirement, not a Layer 3 add-on.</p>
+        <p style="margin-top:10px;font-size:.7rem;color:var(--text2)">&#9733; NHID-Clinical v1.3 is the behavioral baseline at Layer 2. Cryptographic NPI delegation verification lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer, not folded into Layer 2 conformance.</p>
       </div>
 
       <div class="card">
@@ -620,11 +619,11 @@
 &nbsp;&nbsp;"handoff_time": "2026-06-04T09:12:22Z",<br>
 &nbsp;&nbsp;"audit_log_complete": true,<br>
 &nbsp;&nbsp;"deceptive_artifacts_detected": false,<br>
-&nbsp;&nbsp;"auth_01_verified": true, <span style="color:var(--green)">// AUTH-01: Cryptographically verified via NHID-Auth v2</span><br>
-&nbsp;&nbsp;"nhid_clinical_score": "5/5"<br>
+&nbsp;&nbsp;"npi_delegation_verified": true, <span style="color:var(--green)">// NHID-Auth v2 (Layer 3): cryptographically verified, separate from Layer 2 scoring</span><br>
+&nbsp;&nbsp;"nhid_clinical_score": "4/4"<br>
 }
         </div>
-        <p style="font-size:.71rem;color:var(--text2);margin-top:8px;line-height:1.5">This trace passes all five controls including AUTH-01 — NPI delegation is cryptographically verified and a spoofed caller cannot produce a valid token.</p>
+        <p style="font-size:.71rem;color:var(--text2);margin-top:8px;line-height:1.5">This trace passes all four NHID-Clinical v1.3 controls (Layer 2) and additionally verifies NPI delegation cryptographically via NHID-Auth v2 (Layer 3) — a spoofed caller cannot produce a valid token.</p>
       </div>
     </section>
   </main>
@@ -735,7 +734,7 @@
       { id:'obl14', title:'Map system context & stakeholders',              framework:'NIST', topic:'Risk Management',     type:'recommended',  effective:'Ongoing',    severity:'medium',   summary:'Map system purpose, context, stakeholders, affected parties, and intended use.' },
       { id:'obl15', title:'Provide transparency & responsible disclosure',  framework:'OECD', topic:'Transparency',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI actors should provide meaningful info about capabilities, limitations, and challenge pathways.' },
       { id:'obl16', title:'Ensure robustness, security & safety',          framework:'OECD', topic:'Cybersecurity',        type:'recommended',  effective:'Ongoing',    severity:'high',     summary:'AI systems should be robust, secure, and safe throughout the lifecycle with safe override capability.' },
-      { id:'obl17', title:'Caller Authorization Verification (AUTH-01)',    framework:'NHID', topic:'Authorization',       type:'mandatory',    effective:'2026-06-11', severity:'critical', summary:'NHID-Clinical v2: Cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding.' },
+      { id:'obl17', title:'Caller Authorization Verification (NHID-Auth v2)',    framework:'NHID', topic:'Authorization',       type:'mandatory',    effective:'2026-06-11', severity:'critical', summary:'NHID-Auth v2 (Layer 3): Cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding, separate from NHID-Clinical v1.3 Layer 2 conformance.' },
     ];
 
     let controls = [
