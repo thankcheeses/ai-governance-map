@@ -194,7 +194,7 @@ export default function Home() {
               backgroundImage: 'radial-gradient(circle at 20% 50%, #38BDF8 0%, transparent 50%), radial-gradient(circle at 80% 20%, #0891B2 0%, transparent 40%)'
             }} />
             <div className="relative max-w-2xl">
-              <p className="text-xs font-mono uppercase tracking-widest text-cyan-300/80 mb-2">AI Governance Map v2.5 · CCM v4.1.0</p>
+              <p className="text-xs font-mono uppercase tracking-widest text-cyan-300/80 mb-2">AI Governance Map v2 · CCM v4.1.0</p>
               <h2 className="mb-2 text-4xl font-bold">Governance at Scale</h2>
               <p className="text-lg opacity-90">
                 Assess, monitor, and improve your AI governance posture across all frameworks and
