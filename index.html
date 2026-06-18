@@ -595,7 +595,7 @@
             <tr><td><strong>Layer 1</strong></td><td>STIR/SHAKEN — carrier attestation (A/B/C levels), verifies phone number origin only</td></tr>
             <tr style="background:rgba(56,189,248,.08)"><td style="color:var(--accent)"><strong>Layer 2 &#9733;</strong></td><td style="color:var(--accent)"><strong>NHID-Clinical v1.3 — Behavioral Baseline</strong> (disclosure, no mimicry, handoff, audit log)</td></tr>
             <tr><td><strong>Layer 3</strong></td><td>NHID-Auth v2 — Cryptographic authorization layer: Ed25519 delegation chain + DPoP call-nonce binding (reference implementation, CC BY 4.0)</td></tr>
-            <tr><td><strong>Layer 4</strong></td><td>FHIR AuditEvent R4 / IHE BALP — healthcare-native structured logging</td></tr>
+            <tr><td><strong>Layer 4</strong></td><td>FHIR AuditEvent R4 (HL7 base spec v4.0.1) — healthcare-native structured logging; no named Implementation Guide (e.g. IHE BALP) conformance claimed</td></tr>
             <tr><td><strong>Layer 5</strong></td><td>OpenTelemetry spans &rarr; SIEM / enterprise observability pipeline</td></tr>
           </tbody>
         </table>
