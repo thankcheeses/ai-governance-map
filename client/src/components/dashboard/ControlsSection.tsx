@@ -45,6 +45,7 @@ export default function ControlsSection() {
     <section id="controls" className="scroll-mt-24">
       <SectionHeader
         icon={<ListChecks size={18} />}
+        eyebrow="Module 04 · Control Registry"
         title="Controls — CCM v4.1.0"
         subtitle="Score maturity, capture evidence, and map each control to its governing frameworks"
       />

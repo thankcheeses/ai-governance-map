@@ -21,6 +21,7 @@ export default function NhidTrustStack() {
     <section id="nhid" className="scroll-mt-24">
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
+        eyebrow="Module 03 · Trust Stack"
         title="NHID-Clinical v1.3 — Voice Agent Conformance"
         subtitle="5-layer trust stack for B2B healthcare voice channels"
       />

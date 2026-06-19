@@ -33,6 +33,7 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
     <section id="timeline" className="scroll-mt-24">
       <SectionHeader
         icon={<CalendarClock size={18} />}
+        eyebrow="Module 06 · Obligations Timeline"
         title="Obligations Timeline"
         subtitle="EU AI Act phase-in schedule plus obligations across all tracked frameworks"
       />

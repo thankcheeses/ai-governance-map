@@ -20,6 +20,7 @@ export default function FrameworksSection({ frameworkFilter, onFrameworkFilterCh
     <section id="frameworks" className="scroll-mt-24">
       <SectionHeader
         icon={<BookOpenCheck size={18} />}
+        eyebrow="Module 08 · Frameworks"
         title="Frameworks"
         subtitle="Click a framework to filter the heatmap and obligations timeline"
       />

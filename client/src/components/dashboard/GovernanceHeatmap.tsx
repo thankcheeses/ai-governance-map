@@ -52,34 +52,48 @@ export default function GovernanceHeatmap({ frameworkFilter, onFrameworkFilterCh
     <section id="heatmap" className="scroll-mt-24">
       <SectionHeader
         icon={<Flame size={18} />}
+        eyebrow="Module 02 · Risk Radar"
         title="Governance Risk Heatmap"
         subtitle="Likelihood × Impact — hover to preview, click a cell to inspect the mapped obligation"
         action={
-          <div className="flex gap-1.5 flex-wrap">
-            <button
-              onClick={() => onFrameworkFilterChange('all')}
-              className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
-                frameworkFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
-              }`}
-            >
-              All
-            </button>
-            {FRAMEWORKS.slice(0, 4).map((fw) => (
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+              </span>
+              <span className="text-[0.6rem] font-mono font-bold uppercase tracking-wider text-primary">Live Risk Feed</span>
+            </span>
+            <div className="flex gap-1.5 flex-wrap">
               <button
-                key={fw.shortCode}
-                onClick={() => onFrameworkFilterChange(fw.shortCode)}
+                onClick={() => onFrameworkFilterChange('all')}
                 className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
-                  frameworkFilter === fw.shortCode ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
+                  frameworkFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
                 }`}
               >
-                {fw.shortCode}
+                All
               </button>
-            ))}
+              {FRAMEWORKS.slice(0, 4).map((fw) => (
+                <button
+                  key={fw.shortCode}
+                  onClick={() => onFrameworkFilterChange(fw.shortCode)}
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+                    frameworkFilter === fw.shortCode ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
+                  }`}
+                >
+                  {fw.shortCode}
+                </button>
+              ))}
+            </div>
           </div>
         }
       />
 
-      <div className="card-elevated p-5">
+      <div className="card-elevated p-5 relative">
+        <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#0F172A]/30 rounded-tl-md pointer-events-none" />
+        <span className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#0F172A]/30 rounded-tr-md pointer-events-none" />
+        <span className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#0F172A]/30 rounded-bl-md pointer-events-none" />
+        <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#0F172A]/30 rounded-br-md pointer-events-none" />
         <div className="overflow-x-auto">
           <div
             className="grid gap-1.5 min-w-[480px]"

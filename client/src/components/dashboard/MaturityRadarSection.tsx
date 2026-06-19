@@ -39,6 +39,7 @@ export default function MaturityRadarSection() {
     <section id="maturity" className="scroll-mt-24">
       <SectionHeader
         icon={<RadarNodeIcon className="w-5 h-5" />}
+        eyebrow="Module 05 · Maturity &amp; Trend"
         title="Maturity &amp; Trend"
         subtitle="Average maturity per CCM v4.1.0 domain — score controls to populate"
         action={
