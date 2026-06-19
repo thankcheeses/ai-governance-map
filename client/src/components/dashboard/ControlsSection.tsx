@@ -6,6 +6,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { CONTROLS, MATURITY_LEVELS } from '@/data/governance';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
+import SectionHeader from './SectionHeader';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 const ALL_TIERS = ['All', 'High-Risk', 'All Systems'];
 
@@ -40,15 +43,11 @@ export default function ControlsSection() {
 
   return (
     <section id="controls" className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <ListChecks size={18} />
-        </div>
-        <div>
-          <h2 className="text-heading-lg text-foreground">Controls — CCM v4.1.0</h2>
-          <p className="text-body-sm text-muted-foreground">Score maturity, capture evidence, and map each control to its governing frameworks</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<ListChecks size={18} />}
+        title="Controls — CCM v4.1.0"
+        subtitle="Score maturity, capture evidence, and map each control to its governing frameworks"
+      />
 
       <div className="card-elevated p-5">
         <div className="relative mb-4">
@@ -93,12 +92,12 @@ export default function ControlsSection() {
             return (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ delay: Math.min(i, 8) * 0.03, duration: 0.25 }}
-                className={`bg-card border rounded-xl overflow-hidden transition-all ${
-                  isOpen ? 'border-primary/40 shadow-md shadow-primary/5' : 'border-border hover:border-primary/25'
+                transition={{ delay: Math.min(i, 8) * 0.035, duration: 0.35, ease: EASE }}
+                className={`bg-card border rounded-xl overflow-hidden transition-all duration-200 ${
+                  isOpen ? 'border-[#0F172A]/30 shadow-md shadow-primary/5' : 'border-border hover:border-primary/25'
                 }`}
               >
                 <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => toggleRow(item.id)}>

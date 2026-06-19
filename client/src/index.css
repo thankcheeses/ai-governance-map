@@ -125,6 +125,10 @@
     font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     line-height: 1.6;
+    background-image:
+      radial-gradient(60rem 30rem at 100% -10%, rgba(20,184,166,0.07), transparent 60%),
+      radial-gradient(50rem 26rem at -10% 0%, rgba(15,23,42,0.05), transparent 60%);
+    background-attachment: fixed;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -221,13 +225,17 @@
 
   .card-elevated {
     @apply bg-card border border-border rounded-xl shadow-sm;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.05);
+    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .card-elevated:hover {
-    box-shadow: 0 4px 20px rgba(20,184,166,0.14);
-    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(15,23,42,0.06), 0 12px 32px rgba(20,184,166,0.16);
+    transform: translateY(-2px);
     border-color: rgba(20,184,166,0.35);
+  }
+
+  .section-accent-rule {
+    background: linear-gradient(90deg, #0F172A 0%, #14B8A6 60%, #67E8F9 100%);
   }
 
   .gradient-border {
@@ -253,8 +261,8 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #14B8A6, #67E8F9);
+    height: 3px;
+    background: linear-gradient(90deg, #0F172A, #14B8A6, #67E8F9);
   }
 
   @media (min-width: 640px) {

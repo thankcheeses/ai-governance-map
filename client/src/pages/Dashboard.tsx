@@ -30,7 +30,7 @@ export default function Dashboard() {
           onPrintSnapshot={printPostureSnapshot}
           onStartDemo={() => setDemoActive(true)}
         />
-        <main className="flex flex-col gap-10 p-4 lg:p-8 max-w-[1400px] w-full mx-auto">
+        <main className="flex flex-col gap-12 p-4 sm:p-6 lg:p-10 max-w-[1400px] w-full mx-auto">
           <HeroKpis overallScore={overallScore} assessedCount={assessedCount} />
           <GovernanceHeatmap frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
           <NhidTrustStack />
@@ -40,7 +40,7 @@ export default function Dashboard() {
           <CrosswalkSection />
           <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
         </main>
-        <footer className="border-t border-border py-6 px-4 lg:px-8 text-center text-xs text-muted-foreground">
+        <footer className="gradient-border border-t border-border py-6 px-4 lg:px-8 text-center text-xs text-muted-foreground">
           AI Governance Map · v2 · Local-only reference — no data leaves your browser.
         </footer>
       </SidebarInset>

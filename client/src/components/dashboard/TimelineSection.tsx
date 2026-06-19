@@ -2,6 +2,9 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CalendarClock, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { OBLIGATIONS, TIMELINE_EVENTS, FRAMEWORKS, daysUntil } from '@/data/governance';
+import SectionHeader from './SectionHeader';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 const STATUS_STYLES: Record<string, string> = {
   past: 'bg-muted text-muted-foreground border-border',
@@ -28,15 +31,11 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
 
   return (
     <section id="timeline" className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <CalendarClock size={18} />
-        </div>
-        <div>
-          <h2 className="text-heading-lg text-foreground">Obligations Timeline</h2>
-          <p className="text-body-sm text-muted-foreground">EU AI Act phase-in schedule plus obligations across all tracked frameworks</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<CalendarClock size={18} />}
+        title="Obligations Timeline"
+        subtitle="EU AI Act phase-in schedule plus obligations across all tracked frameworks"
+      />
 
       <div className="card-elevated p-5 mb-5">
         <div className="relative pl-6 border-l-2 border-border ml-2">
@@ -45,15 +44,15 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
             return (
               <motion.div
                 key={ev.date}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -14 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.3 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ delay: i * 0.07, duration: 0.4, ease: EASE }}
                 className="relative pb-6 last:pb-0"
               >
                 <span
                   className={`absolute -left-[1.97rem] top-0.5 w-3.5 h-3.5 rounded-full border-2 ${
-                    ev.status === 'past' ? 'bg-muted border-border' : ev.status === 'current' ? 'bg-amber-400 border-amber-500' : 'bg-card border-primary'
+                    ev.status === 'past' ? 'bg-muted border-border' : ev.status === 'current' ? 'bg-amber-400 border-amber-500' : 'bg-card border-[#0F172A]'
                   }`}
                 />
                 <div className="flex items-center gap-2 flex-wrap mb-1">

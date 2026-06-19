@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ShieldCheck, ListChecks, AlertOctagon, Gauge } from 'lucide-react';
 import { CONTROLS, FRAMEWORKS } from '@/data/governance';
+import SectionHeader from './SectionHeader';
 
 interface HeroKpisProps {
   overallScore: number;
@@ -25,7 +26,7 @@ function ProgressRing({ value, size = 64, stroke = 6 }: { value: number; size?: 
         strokeDasharray={circumference}
         initial={{ strokeDashoffset: circumference }}
         animate={{ strokeDashoffset: offset }}
-        transition={{ duration: 1, ease: 'easeOut' }}
+        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
       />
     </svg>
   );
@@ -43,26 +44,28 @@ export default function HeroKpis({ overallScore, assessedCount }: HeroKpisProps)
 
   return (
     <section id="overview" className="scroll-mt-24">
-      <div className="mb-4">
-        <h2 className="text-heading-lg text-foreground">Governance Posture Overview</h2>
-        <p className="text-body-sm text-muted-foreground">Multi-framework AI governance reference — local-only, no data leaves your browser</p>
-      </div>
+      <SectionHeader
+        icon={<ShieldCheck size={18} />}
+        title="Governance Posture Overview"
+        subtitle="Multi-framework AI governance reference — local-only, no data leaves your browser"
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
           <motion.div
             key={kpi.label}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
-            className="card-elevated p-5 flex items-center gap-4"
+            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: '-40px' }}
+            whileHover={{ y: -3 }}
+            transition={{ delay: i * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="stat-accent card-elevated p-5 flex items-center gap-4"
           >
             <div className="relative flex-shrink-0 w-16 h-16 flex items-center justify-center">
               <ProgressRing value={kpi.ring} />
               <kpi.icon size={18} className="absolute text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-1">{kpi.label}</p>
+              <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{kpi.label}</p>
               <p className="text-2xl font-bold text-foreground leading-none font-mono">{kpi.value}</p>
               <p className="text-xs text-muted-foreground mt-1 truncate">{kpi.sub}</p>
             </div>
