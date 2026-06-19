@@ -64,7 +64,21 @@ export default function MaturityRadarSection() {
               Score at least one control in the Controls section to populate the radar.
             </div>
           ) : (
-            <div style={{ height: 360 }}>
+            <div className="relative overflow-hidden rounded-lg" style={{ height: 360 }}>
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'repeating-radial-gradient(circle at 50% 50%, transparent, transparent 37px, rgba(20,184,166,0.07) 38px, rgba(20,184,166,0.07) 39px)',
+                }}
+              />
+              <motion.div
+                className="absolute inset-0 pointer-events-none origin-center"
+                style={{
+                  background: 'conic-gradient(from 0deg, rgba(103,232,249,0.16), transparent 18%)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 9, ease: 'linear' }}
+              />
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
                   <PolarGrid strokeDasharray="3 3" stroke="var(--border)" />
