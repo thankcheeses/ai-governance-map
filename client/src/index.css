@@ -43,76 +43,77 @@
 }
 
 :root {
-  /* Enterprise Dashboard Modernism - Teal & Slate Palette */
-  --primary: #0891B2; /* Vibrant Teal */
-  --primary-foreground: #F0F9FA;
-  --sidebar-primary: #0E7490; /* Darker Teal */
-  --sidebar-primary-foreground: #F0F9FA;
-  --chart-1: #06B6D4;
-  --chart-2: #0891B2;
-  --chart-3: #0E7490;
-  --chart-4: #164E63;
-  --chart-5: #0F172A;
-  --radius: 0.5rem;
-  --background: #F8FAFC; /* Warm Light Gray */
-  --foreground: #0F172A; /* Deep Slate */
+  /* Regulatory Map — Navy / Teal / Cyan. Navy is an ACCENT color only; it
+     never fills a background surface (sidebar, hero, cards all stay light). */
+  --primary: #14B8A6; /* Teal */
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #14B8A6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --chart-1: #14B8A6;
+  --chart-2: #67E8F9;
+  --chart-3: #0F172A;
+  --chart-4: #0E7490;
+  --chart-5: #94A3B8;
+  --radius: 0.625rem;
+  --background: #F8FAFC; /* Off-white */
+  --foreground: #0F172A; /* Navy text */
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --secondary: #E2E8F0; /* Light Gray */
-  --secondary-foreground: #1E293B;
-  --muted: #CBD5E1; /* Medium Gray */
-  --muted-foreground: #64748B; /* Slate */
-  --accent: #0891B2; /* Teal Accent */
-  --accent-foreground: #FFFFFF;
-  --destructive: #DC2626; /* Red */
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #E2E8F0;
+  --muted-foreground: #64748B;
+  --accent: #67E8F9; /* Soft cyan accent */
+  --accent-foreground: #0F172A;
+  --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
   --border: #E2E8F0;
   --input: #FFFFFF;
-  --ring: #0891B2;
-  --sidebar: #0F172A; /* Deep Slate */
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-accent: #0891B2;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #1E293B;
-  --sidebar-ring: #0891B2;
+  --ring: #14B8A6;
+  --sidebar: #FFFFFF; /* Light sidebar — never navy */
+  --sidebar-foreground: #0F172A;
+  --sidebar-accent: #F0FDFA;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #14B8A6;
 }
 
 .dark {
-  /* Dark mode maintains teal accent but with darker backgrounds */
-  --primary: #06B6D4;
+  /* Optional dark mode: deep slate surfaces, teal/cyan accents retained */
+  --primary: #2DD4BF;
   --primary-foreground: #0F172A;
-  --sidebar-primary: #0891B2;
-  --sidebar-primary-foreground: #F0F9FA;
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-  --secondary: #334155;
+  --sidebar-primary: #2DD4BF;
+  --sidebar-primary-foreground: #0F172A;
+  --background: #0B1220;
+  --foreground: #F1F5F9;
+  --card: #111B2E;
+  --card-foreground: #F1F5F9;
+  --popover: #111B2E;
+  --popover-foreground: #F1F5F9;
+  --secondary: #1E293B;
   --secondary-foreground: #E2E8F0;
-  --muted: #475569;
-  --muted-foreground: #CBD5E1;
-  --accent: #06B6D4;
-  --accent-foreground: #0F172A;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #67E8F9;
+  --accent-foreground: #0B1220;
   --destructive: #EF4444;
-  --destructive-foreground: #0F172A;
-  --border: #334155;
-  --input: #1E293B;
-  --ring: #06B6D4;
-  --chart-1: #06B6D4;
-  --chart-2: #0891B2;
-  --chart-3: #0E7490;
-  --chart-4: #164E63;
-  --chart-5: #0F172A;
-  --sidebar: #0F172A;
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-accent: #06B6D4;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #334155;
-  --sidebar-ring: #06B6D4;
+  --destructive-foreground: #0B1220;
+  --border: #1E293B;
+  --input: #111B2E;
+  --ring: #2DD4BF;
+  --chart-1: #2DD4BF;
+  --chart-2: #67E8F9;
+  --chart-3: #94A3B8;
+  --chart-4: #0E7490;
+  --chart-5: #F1F5F9;
+  --sidebar: #0B1220;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #2DD4BF;
 }
 
 @layer base {
@@ -121,12 +122,12 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     line-height: 1.6;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
     line-height: 1.2;
   }
@@ -224,9 +225,9 @@
     transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
   .card-elevated:hover {
-    box-shadow: 0 4px 20px rgba(8,145,178,0.12);
+    box-shadow: 0 4px 20px rgba(20,184,166,0.14);
     transform: translateY(-1px);
-    border-color: rgba(8,145,178,0.3);
+    border-color: rgba(20,184,166,0.35);
   }
 
   .gradient-border {
@@ -240,7 +241,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #0E7490, #38BDF8, #06B6D4);
+    background: linear-gradient(90deg, #0F172A, #14B8A6, #67E8F9);
   }
 
   .stat-accent {
@@ -253,7 +254,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, #0E7490, #38BDF8);
+    background: linear-gradient(90deg, #14B8A6, #67E8F9);
   }
 
   @media (min-width: 640px) {
