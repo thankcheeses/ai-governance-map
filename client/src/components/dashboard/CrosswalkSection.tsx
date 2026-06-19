@@ -14,6 +14,7 @@ export default function CrosswalkSection() {
     <section id="crosswalk" className="scroll-mt-24">
       <SectionHeader
         icon={<Network size={18} />}
+        eyebrow="Module 07 · Crosswalk"
         title="Crosswalk"
         subtitle="How obligations, topics, and actor duties line up across frameworks"
       />

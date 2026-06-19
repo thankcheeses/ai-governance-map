@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 
 interface SectionHeaderProps {
   icon: ReactNode;
+  eyebrow?: string;
   title: string;
   subtitle: string;
   action?: ReactNode;
 }
 
-export default function SectionHeader({ icon, title, subtitle, action }: SectionHeaderProps) {
+export default function SectionHeader({ icon, eyebrow, title, subtitle, action }: SectionHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -22,6 +23,11 @@ export default function SectionHeader({ icon, title, subtitle, action }: Section
           {icon}
         </div>
         <div>
+          {eyebrow && (
+            <span className="block text-[0.6rem] font-mono font-bold tracking-[0.18em] uppercase text-[#0F172A]/60 mb-0.5">
+              {eyebrow}
+            </span>
+          )}
           <h2 className="text-heading-lg text-foreground leading-tight">{title}</h2>
           <span className="block w-8 h-[3px] rounded-full section-accent-rule my-1" />
           <p className="text-body-sm text-muted-foreground">{subtitle}</p>
