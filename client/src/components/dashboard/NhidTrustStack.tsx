@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ExternalLink, Star } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
 import {
@@ -8,8 +8,10 @@ import {
   NHID_LAYERS,
   NHID_SIMULATOR_URL,
 } from '@/data/governance';
+import SectionHeader from './SectionHeader';
 
 const LAYER_WIDTHS = [100, 92, 84, 76, 68, 60];
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function NhidTrustStack() {
   const [activeLayer, setActiveLayer] = useState(2);
@@ -17,15 +19,11 @@ export default function NhidTrustStack() {
 
   return (
     <section id="nhid" className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <ShieldWaveformIcon className="w-5 h-5" />
-        </div>
-        <div>
-          <h2 className="text-heading-lg text-foreground">NHID-Clinical v1.3 — Voice Agent Conformance</h2>
-          <p className="text-body-sm text-muted-foreground">5-layer trust stack for B2B healthcare voice channels</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<ShieldWaveformIcon className="w-5 h-5" />}
+        title="NHID-Clinical v1.3 — Voice Agent Conformance"
+        subtitle="5-layer trust stack for B2B healthcare voice channels"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-5">
         {/* Layered stack diagram */}
@@ -39,18 +37,27 @@ export default function NhidTrustStack() {
                 key={layer.layer}
                 initial={{ opacity: 0, scaleX: 0.6 }}
                 whileInView={{ opacity: 1, scaleX: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.09, duration: 0.4, ease: 'easeOut' }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ delay: idx * 0.08, duration: 0.45, ease: EASE }}
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
                 onClick={() => setActiveLayer(idx)}
                 style={{ width: `${LAYER_WIDTHS[idx]}%` }}
-                className={`relative rounded-lg border px-4 py-3 text-left transition-all ${
+                className={`relative rounded-lg border px-4 py-3 text-left transition-colors duration-200 ${
                   layer.isCore
                     ? 'bg-primary/10 border-primary text-primary shadow-sm'
                     : activeLayer === idx
-                      ? 'bg-secondary border-primary/40 text-foreground'
+                      ? 'bg-secondary border-[#0F172A]/30 text-foreground'
                       : 'bg-card border-border text-muted-foreground hover:border-primary/30'
                 }`}
               >
+                {activeLayer === idx && (
+                  <motion.span
+                    layoutId="nhid-active-indicator"
+                    className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg bg-[#0F172A]"
+                    transition={{ duration: 0.3, ease: EASE }}
+                  />
+                )}
                 <span className="flex items-center gap-1.5 text-[0.7rem] font-bold">
                   Layer {layer.layer}
                   {layer.isCore && <Star size={11} className="fill-primary text-primary" />}
@@ -67,17 +74,20 @@ export default function NhidTrustStack() {
 
         {/* Active layer detail + conformance */}
         <div className="flex flex-col gap-5">
-          <motion.div
-            key={active.layer}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="card-elevated p-5"
-          >
-            <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-primary mb-1">Layer {active.layer}</p>
-            <h3 className="text-heading-sm text-foreground mb-1.5">{active.title}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">{active.scope}</p>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active.layer}
+              initial={{ opacity: 0, y: 10, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.3, ease: EASE }}
+              className="card-elevated p-5 border-l-2 border-l-[#0F172A]"
+            >
+              <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-primary mb-1">Layer {active.layer}</p>
+              <h3 className="text-heading-sm text-foreground mb-1.5">{active.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{active.scope}</p>
+            </motion.div>
+          </AnimatePresence>
 
           <div className="card-elevated p-5">
             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Layer 2 Conformance — 4 / 4 Controls</p>
@@ -85,10 +95,10 @@ export default function NhidTrustStack() {
               {NHID_CONFORMANCE_CONTROLS.map((c, i) => (
                 <motion.div
                   key={c.code}
-                  initial={{ opacity: 0, x: -8 }}
+                  initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
+                  viewport={{ once: true, margin: '-20px' }}
+                  transition={{ delay: i * 0.07, duration: 0.35, ease: EASE }}
                   className="flex items-center gap-2.5 text-xs bg-secondary/50 border border-border rounded-md px-3 py-2"
                 >
                   <CheckCircle2 size={14} className="text-primary flex-shrink-0" />
@@ -97,15 +107,17 @@ export default function NhidTrustStack() {
                 </motion.div>
               ))}
             </div>
-            <a
+            <motion.a
               href={NHID_SIMULATOR_URL}
               target="_blank"
               rel="noopener noreferrer"
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg py-2.5 hover:opacity-90 transition-opacity"
             >
               Test the Spoofed-Identity Gap — Open Simulator
               <ExternalLink size={13} />
-            </a>
+            </motion.a>
           </div>
         </div>
       </div>

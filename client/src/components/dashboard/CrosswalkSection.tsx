@@ -3,6 +3,7 @@ import { Network } from 'lucide-react';
 import { ProvenanceChainIcon } from './icons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CONTROLS, CCM_DOMAINS, CROSSWALK_ACTORS, CROSSWALK_TOPICS } from '@/data/governance';
+import SectionHeader from './SectionHeader';
 
 const CORE_FRAMEWORKS = ['NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'CCM v4.1.0'];
 
@@ -11,15 +12,11 @@ export default function CrosswalkSection() {
 
   return (
     <section id="crosswalk" className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <Network size={18} />
-        </div>
-        <div>
-          <h2 className="text-heading-lg text-foreground">Crosswalk</h2>
-          <p className="text-body-sm text-muted-foreground">How obligations, topics, and actor duties line up across frameworks</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<Network size={18} />}
+        title="Crosswalk"
+        subtitle="How obligations, topics, and actor duties line up across frameworks"
+      />
 
       <div className="card-elevated overflow-hidden">
         <Tabs value={tab} onValueChange={setTab}>

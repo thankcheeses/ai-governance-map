@@ -3,10 +3,12 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip,
   LineChart, Line, XAxis, YAxis, CartesianGrid,
 } from 'recharts';
+import { motion } from 'framer-motion';
 import { Radio, History, Camera } from 'lucide-react';
 import { RadarNodeIcon } from './icons';
 import { CCM_DOMAINS, CONTROLS } from '@/data/governance';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
+import SectionHeader from './SectionHeader';
 
 export default function MaturityRadarSection() {
   const { controlState, overallScore, assessedCount, auditTrail, recordSnapshot } = useGovernanceState();
@@ -35,23 +37,21 @@ export default function MaturityRadarSection() {
 
   return (
     <section id="maturity" className="scroll-mt-24">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-            <RadarNodeIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-heading-lg text-foreground">Maturity &amp; Trend</h2>
-            <p className="text-body-sm text-muted-foreground">Average maturity per CCM v4.1.0 domain — score controls to populate</p>
-          </div>
-        </div>
-        <button
-          onClick={recordSnapshot}
-          className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-2 hover:opacity-90 transition-opacity"
-        >
-          <Camera size={13} />Record Snapshot ({overallScore}%)
-        </button>
-      </div>
+      <SectionHeader
+        icon={<RadarNodeIcon className="w-5 h-5" />}
+        title="Maturity &amp; Trend"
+        subtitle="Average maturity per CCM v4.1.0 domain — score controls to populate"
+        action={
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={recordSnapshot}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-2 hover:opacity-90 transition-opacity"
+          >
+            <Camera size={13} />Record Snapshot ({overallScore}%)
+          </motion.button>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 mb-5">
         <div className="card-elevated p-6">

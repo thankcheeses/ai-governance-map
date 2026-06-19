@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
 import { BookOpenCheck, ArrowUpRight } from 'lucide-react';
 import { FRAMEWORKS } from '@/data/governance';
+import SectionHeader from './SectionHeader';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 interface FrameworksSectionProps {
   frameworkFilter: string;
@@ -15,15 +18,11 @@ export default function FrameworksSection({ frameworkFilter, onFrameworkFilterCh
 
   return (
     <section id="frameworks" className="scroll-mt-24">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-          <BookOpenCheck size={18} />
-        </div>
-        <div>
-          <h2 className="text-heading-lg text-foreground">Frameworks</h2>
-          <p className="text-body-sm text-muted-foreground">Click a framework to filter the heatmap and obligations timeline</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<BookOpenCheck size={18} />}
+        title="Frameworks"
+        subtitle="Click a framework to filter the heatmap and obligations timeline"
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {FRAMEWORKS.map((fw, i) => {
@@ -31,13 +30,14 @@ export default function FrameworksSection({ frameworkFilter, onFrameworkFilterCh
           return (
             <motion.button
               key={fw.slug}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: i * 0.05, duration: 0.3 }}
+              whileHover={{ y: -2 }}
+              transition={{ delay: i * 0.06, duration: 0.4, ease: EASE }}
               onClick={() => handleSelect(fw.shortCode)}
-              className={`text-left card-elevated p-5 transition-all ${
-                active ? 'border-primary ring-1 ring-primary/30' : 'hover:border-primary/30'
+              className={`text-left card-elevated p-5 transition-colors duration-200 ${
+                active ? 'border-[#0F172A]/40 ring-1 ring-[#0F172A]/20' : 'hover:border-primary/30'
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
