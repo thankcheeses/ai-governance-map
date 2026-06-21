@@ -26,13 +26,6 @@ export default function TopBar({ overallScore, onExportCSV, onExportJSON, onPrin
         <div className="flex items-center gap-2">
           <SidebarTrigger />
           <span className="hidden sm:inline text-sm font-semibold text-foreground">Dashboard</span>
-          <span className="hidden md:flex items-center gap-1.5 ml-1 px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-            </span>
-            <span className="text-[0.6rem] font-mono font-bold uppercase tracking-wider text-primary">Live</span>
-          </span>
         </div>
 
         <div className="flex items-center gap-2.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md font-mono text-xs font-semibold text-primary">

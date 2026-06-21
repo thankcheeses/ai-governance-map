@@ -46,7 +46,6 @@ export default function HeroKpis({ overallScore, assessedCount }: HeroKpisProps)
     <section id="overview" className="scroll-mt-24">
       <SectionHeader
         icon={<ShieldCheck size={18} />}
-        eyebrow="Module 01 · Mission Overview"
         title="Governance Posture Overview"
         subtitle="Multi-framework AI governance reference — local-only, no data leaves your browser"
       />
