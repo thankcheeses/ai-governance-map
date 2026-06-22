@@ -12,10 +12,10 @@ import {
 import SectionHeader from './SectionHeader';
 
 const LEVEL_STYLES: Record<string, string> = {
-  cool: 'bg-teal-100 border-teal-300 text-teal-900 hover:bg-teal-200 hover:border-teal-400',
-  mild: 'bg-cyan-200 border-cyan-400 text-slate-900 hover:bg-cyan-300 hover:border-cyan-500',
-  warm: 'bg-amber-200 border-amber-400 text-amber-950 hover:bg-amber-300 hover:border-amber-500',
-  hot: 'bg-rose-300 border-rose-500 text-rose-950 hover:bg-rose-400 hover:border-rose-600',
+  cool: 'bg-teal-100 border-teal-300 text-teal-900 hover:bg-teal-200 hover:border-teal-400 hover:brightness-105',
+  mild: 'bg-cyan-200 border-cyan-400 text-slate-900 hover:bg-cyan-300 hover:border-cyan-500 hover:brightness-105',
+  warm: 'bg-amber-200 border-amber-400 text-amber-950 hover:bg-amber-300 hover:border-amber-500 hover:brightness-105',
+  hot: 'bg-rose-300 border-rose-500 text-rose-950 hover:bg-rose-400 hover:border-rose-600 hover:brightness-110',
 };
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -25,6 +25,14 @@ const LEVEL_LABELS: Record<string, string> = {
   hot: 'Critical',
 };
 
+// rgb triples used to build the radiating glow + pulse on hover, matching each level's palette
+const LEVEL_GLOW: Record<string, string> = {
+  cool: '20,184,166',
+  mild: '34,211,238',
+  warm: '245,158,11',
+  hot: '244,63,94',
+};
+
 interface GovernanceHeatmapProps {
   frameworkFilter: string;
   onFrameworkFilterChange: (fw: string) => void;
@@ -32,6 +40,7 @@ interface GovernanceHeatmapProps {
 
 export default function GovernanceHeatmap({ frameworkFilter, onFrameworkFilterChange }: GovernanceHeatmapProps) {
   const [selected, setSelected] = useState<{ l: number; i: number } | null>(null);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
   const cellMap = useMemo(() => {
     const m = new Map<string, typeof HEATMAP_CELLS[number]>();
@@ -100,20 +109,40 @@ export default function GovernanceHeatmap({ frameworkFilter, onFrameworkFilterCh
                   const cell = cellMap.get(`${li}-${ii}`);
                   const dimmed = isDimmed(cell);
                   const isSelected = selected?.l === li && selected?.i === ii;
+                  const cellKey = `${li}-${ii}`;
+                  const isHovered = hoveredKey === cellKey && !!cell && !dimmed;
+                  const glow = cell ? LEVEL_GLOW[cell.level] : '15,23,42';
                   const cellButton = (
                     <motion.button
-                      key={`${li}-${ii}`}
+                      key={cellKey}
                       initial={{ opacity: 0, scale: 0.85 }}
-                      animate={{ opacity: dimmed ? 0.2 : 1, scale: 1 }}
-                      transition={{ delay: (li * 5 + ii) * 0.015, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      whileHover={{ scale: dimmed ? 1 : 1.08, zIndex: 1 }}
+                      animate={{
+                        opacity: dimmed ? 0.2 : 1,
+                        scale: 1,
+                        boxShadow: isHovered
+                          ? `0 0 0 1px rgba(${glow},0.45), 0 0 22px 6px rgba(${glow},0.5)`
+                          : '0 0 0 0 rgba(0,0,0,0)',
+                      }}
+                      transition={{ delay: (li * 5 + ii) * 0.015, duration: 0.3, ease: [0.16, 1, 0.3, 1], boxShadow: { duration: 0.35, ease: 'easeOut' } }}
+                      whileHover={{ scale: dimmed ? 1 : 1.12, zIndex: 2 }}
                       whileTap={{ scale: dimmed ? 1 : 0.94 }}
+                      onMouseEnter={() => cell && !dimmed && setHoveredKey(cellKey)}
+                      onMouseLeave={() => setHoveredKey((k) => (k === cellKey ? null : k))}
                       onClick={() => setSelected({ l: li, i: ii })}
                       className={`relative aspect-square rounded-md border text-[0.6rem] font-semibold leading-tight p-1.5 flex items-center justify-center text-center transition-colors ${
                         cell ? LEVEL_STYLES[cell.level] : 'bg-secondary/40 border-border text-muted-foreground'
                       } ${isSelected ? 'ring-2 ring-[#0F172A] ring-offset-2 ring-offset-card' : ''}`}
                     >
-                      {cell ? cell.label : '—'}
+                      {isHovered && (
+                        <motion.span
+                          className="absolute inset-0 rounded-md pointer-events-none"
+                          style={{ background: `radial-gradient(circle, rgba(${glow},0.55), transparent 70%)` }}
+                          initial={{ opacity: 0, scale: 0.6 }}
+                          animate={{ opacity: [0.55, 0], scale: [0.7, 1.7] }}
+                          transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
+                        />
+                      )}
+                      <span className="relative z-10">{cell ? cell.label : '—'}</span>
                     </motion.button>
                   );
                   return (
