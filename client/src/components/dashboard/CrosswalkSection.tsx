@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CONTROLS, CCM_DOMAINS, CROSSWALK_ACTORS, CROSSWALK_TOPICS } from '@/data/governance';
 import SectionHeader from './SectionHeader';
 
-const CORE_FRAMEWORKS = ['NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'CCM v4.1.0'];
+const CORE_FRAMEWORKS = ['NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'CCM v4.1.0', 'HIPAA'];
 
 export default function CrosswalkSection() {
   const [tab, setTab] = useState('coverage');
@@ -48,6 +48,7 @@ export default function CrosswalkSection() {
                     'ISO/IEC 42001': 'ISO/IEC 42001' in ctrl.mappings,
                     'EU AI Act': 'EU AI Act' in ctrl.mappings,
                     'CCM v4.1.0': !!ctrl.ccmDomain,
+                    'HIPAA': 'HIPAA' in ctrl.mappings,
                   };
                   return (
                     <tr key={ctrl.id} className="border-b border-border hover:bg-secondary/50">

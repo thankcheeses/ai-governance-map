@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA';
   name: string;
   type: string;
   jurisdiction: string;
@@ -52,6 +52,11 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'Colorado, USA', version: 'SB 24-205', coverage: 35,
     summary: 'State-level binding law requiring algorithmic discrimination risk management and consumer notice for high-risk AI systems used in consequential decisions.',
   },
+  {
+    slug: 'hipaa-security-rule', shortCode: 'HIPAA', name: 'HIPAA Security Rule',
+    type: 'Regulation (Binding)', jurisdiction: 'US', version: '45 CFR §164.312 (Technical Safeguards)', coverage: 30,
+    summary: 'Binding US healthcare privacy law. Scoped here to the Technical Safeguards — access control, audit controls, integrity, authentication, and transmission security for systems that touch ePHI.',
+  },
 ];
 
 export interface Obligation {
@@ -89,6 +94,18 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl21', title: 'Map adversarial TTPs to MITRE ATLAS', framework: 'OWASP', topic: 'Threat Modeling', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Use the MITRE ATLAS tactics/techniques matrix to model adversarial ML threats across reconnaissance, staging, and impact phases.' },
   { id: 'obl22', title: 'Algorithmic discrimination risk management program', framework: 'CO', topic: 'Risk Management', type: 'mandatory', effective: '2026-06-30', severity: 'critical', summary: 'Developers and deployers of high-risk AI systems must implement a program to prevent algorithmic discrimination (Colorado AI Act, SB24-205).' },
   { id: 'obl23', title: 'Consumer notice for high-risk AI decisions', framework: 'CO', topic: 'Transparency', type: 'mandatory', effective: '2026-06-30', severity: 'high', summary: 'Deployers must notify consumers when a high-risk AI system is used in a consequential decision and provide a right to correct data and appeal.' },
+  { id: 'obl24', title: 'Implement access control for ePHI systems', framework: 'HIPAA', topic: 'Access Control', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(a)(1): Technical policies and procedures must restrict access to electronic PHI to authorized persons or software programs only.' },
+  { id: 'obl25', title: 'Assign unique user identification', framework: 'HIPAA', topic: 'Access Control', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(a)(2)(i) (required): Assign a unique name or number for identifying and tracking individual user identity for every person and AI agent that accesses ePHI.' },
+  { id: 'obl26', title: 'Define emergency access procedure', framework: 'HIPAA', topic: 'Access Control', type: 'mandatory', effective: '2005-04-21', severity: 'high', summary: '§164.312(a)(2)(ii) (required): Establish procedures for obtaining necessary ePHI access during an emergency, including AI-system failover or outage.' },
+  { id: 'obl27', title: 'Enforce automatic logoff', framework: 'HIPAA', topic: 'Access Control', type: 'mandatory', effective: '2005-04-21', severity: 'medium', summary: '§164.312(a)(2)(iii) (addressable): Terminate an electronic session after a predetermined time of inactivity, or document a reasonable equivalent control.' },
+  { id: 'obl28', title: 'Encrypt and decrypt ePHI at rest', framework: 'HIPAA', topic: 'Encryption', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(a)(2)(iv) (addressable): Implement a mechanism to encrypt and decrypt ePHI. NHID-Auth v2 (Layer 3) cryptographic delegation satisfies this for voice-agent call data.' },
+  { id: 'obl29', title: 'Maintain audit controls', framework: 'HIPAA', topic: 'Audit & Logging', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(b) (required): Implement hardware, software, and procedural mechanisms to record and examine activity in systems that contain or use ePHI.' },
+  { id: 'obl30', title: 'Protect ePHI integrity', framework: 'HIPAA', topic: 'Data Integrity', type: 'mandatory', effective: '2005-04-21', severity: 'high', summary: '§164.312(c)(1): Protect ePHI from improper alteration or destruction.' },
+  { id: 'obl31', title: 'Authenticate ePHI has not been altered', framework: 'HIPAA', topic: 'Data Integrity', type: 'mandatory', effective: '2005-04-21', severity: 'medium', summary: '§164.312(c)(2) (addressable): Implement electronic mechanisms to corroborate that ePHI has not been altered or destroyed in an unauthorized manner.' },
+  { id: 'obl32', title: 'Authenticate persons or entities before ePHI access', framework: 'HIPAA', topic: 'Authentication', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(d) (required): Verify that a person or entity seeking access to ePHI is the one claimed, before granting access.' },
+  { id: 'obl33', title: 'Guard against unauthorized access during transmission', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(e)(1): Implement technical security measures to guard against unauthorized access to ePHI transmitted over a network.' },
+  { id: 'obl34', title: 'Apply transmission integrity controls', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'medium', summary: '§164.312(e)(2)(i) (addressable): Implement security measures to ensure electronically transmitted ePHI is not improperly modified without detection.' },
+  { id: 'obl35', title: 'Encrypt ePHI in transit', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(e)(2)(ii) (addressable): Encrypt ePHI whenever deemed appropriate. NHID-Auth v2 DPoP nonce binding plus TLS 1.3 transport satisfies this for voice-agent call traffic.' },
 ];
 
 export const CCM_DOMAINS = ['A&A', 'AIS', 'BCR', 'CCC', 'CEK', 'DCS', 'DSP', 'GRC', 'HRS', 'IAM', 'IPY', 'LOG', 'SEF', 'STA', 'TVM', 'UEM'];
@@ -156,17 +173,17 @@ export const CONTROLS: Control[] = [
     implementation: 'Apply automated PII scanning to training data pipelines. Enforce retention schedules via data catalog. Document legal basis for each personal data use in AI.' },
   { id: 7, code: 'CTRL-IAM-001', title: 'AI System Access Controls', riskTier: 'All Systems', priority: 'Critical', ccmDomain: 'IAM', status: 'Implemented', automation: 'automated',
     description: 'Role-based access controls (RBAC) enforcing least privilege for AI model endpoints, training infrastructure, and MLOps pipelines.',
-    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'CCM': ['IAM-01', 'IAM-02'] },
+    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'CCM': ['IAM-01', 'IAM-02'], 'HIPAA': ['§164.312(a)(1)', '§164.312(a)(2)(i)', '§164.312(a)(2)(iii)', '§164.312(d)'] },
     indicator: { name: 'Privileged Access Review Completion Rate', method: 'Accounts reviewed on schedule / total privileged accounts', slo: '100% quarterly' },
     implementation: 'Implement RBAC with model-owner, reviewer, deployer, and read-only roles. Enforce MFA on all privileged AI system access. Quarterly access recertification.' },
   { id: 8, code: 'CTRL-IAM-002', title: 'Non-Human Identity Governance for AI Agents', riskTier: 'High-Risk', priority: 'High', ccmDomain: 'IAM', status: 'Planned', automation: 'automated',
     description: 'Lifecycle management of service accounts, API keys, and machine identities used by AI agents and automated pipelines.',
-    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'EU AI Act': ['Art 17'] },
+    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'EU AI Act': ['Art 17'], 'HIPAA': ['§164.312(a)(2)(i)', '§164.312(d)'] },
     indicator: { name: 'Orphaned Machine Identity Rate', method: 'Active machine identities with no owner / total machine identities', slo: '<1%' },
     implementation: 'Register all AI agent identities in PAM solution. Rotate API keys every 90 days. Automatically disable identities when agent is decommissioned.' },
   { id: 9, code: 'CTRL-LOG-001', title: 'AI Activity Logging & Traceability', riskTier: 'All Systems', priority: 'High', ccmDomain: 'LOG', status: 'In Progress', automation: 'automated',
     description: 'Comprehensive, tamper-evident audit logs for AI model inference requests, training runs, and configuration changes.',
-    mappings: { 'NIST AI RMF': ['MEASURE 2.5', 'MANAGE 2.2'], 'ISO/IEC 42001': ['9.1'], 'EU AI Act': ['Art 12', 'Art 19'] },
+    mappings: { 'NIST AI RMF': ['MEASURE 2.5', 'MANAGE 2.2'], 'ISO/IEC 42001': ['9.1'], 'EU AI Act': ['Art 12', 'Art 19'], 'HIPAA': ['§164.312(b)', '§164.312(c)(1)'] },
     indicator: { name: 'Audit Log Coverage Rate', method: 'AI systems with complete audit logs / total production AI systems', slo: '100%' },
     implementation: 'Configure structured logging for all inference calls (inputs, outputs, model version, user/session). Retain logs for minimum 3 years. Protect with WORM storage.' },
   { id: 10, code: 'CTRL-LOG-002', title: 'AI Performance & Drift Monitoring', riskTier: 'High-Risk', priority: 'High', ccmDomain: 'LOG', status: 'Planned', automation: 'automated',
@@ -226,7 +243,7 @@ export const CONTROLS: Control[] = [
     implementation: 'Implement input validation, max token limits, PII output scanning, and rate limiting on all AI API endpoints. Log all requests. Alert on anomalous patterns.' },
   { id: 21, code: 'CTRL-BCR-001', title: 'AI System Continuity & Recovery Planning', riskTier: 'All Systems', priority: 'Medium', ccmDomain: 'BCR', status: 'Planned', automation: 'manual',
     description: 'Business continuity and disaster recovery plans covering AI system outages, model rollback procedures, and fallback to non-AI processes.',
-    mappings: { 'NIST AI RMF': ['MANAGE 4.2'], 'ISO/IEC 42001': ['8.8'], 'CCM': ['BCR-01', 'BCR-02'] },
+    mappings: { 'NIST AI RMF': ['MANAGE 4.2'], 'ISO/IEC 42001': ['8.8'], 'CCM': ['BCR-01', 'BCR-02'], 'HIPAA': ['§164.312(a)(2)(ii)'] },
     indicator: { name: 'AI System RTO Achievement Rate', method: 'AI system recoveries within defined RTO / total recovery events', slo: '≥99% within RTO' },
     implementation: 'Define RTO/RPO for each AI system by criticality. Implement model versioning enabling rapid rollback. Test failover to rule-based fallback for high-risk systems annually.' },
   { id: 22, code: 'CTRL-CCC-001', title: 'AI Model Change Management', riskTier: 'All Systems', priority: 'High', ccmDomain: 'CCC', status: 'In Progress', automation: 'semi-automated',
@@ -236,7 +253,7 @@ export const CONTROLS: Control[] = [
     implementation: 'Gate all model promotions through change advisory board (or automated policy check). Require impact assessment, rollback plan, and post-deployment monitoring for 72 hours.' },
   { id: 23, code: 'CTRL-CEK-001', title: 'AI Data Encryption & Key Management', riskTier: 'All Systems', priority: 'High', ccmDomain: 'CEK', status: 'Implemented', automation: 'automated',
     description: 'Encryption-at-rest and in-transit standards for AI training data, model weights, and inference payloads, with formal key management lifecycle.',
-    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'CCM': ['CEK-01', 'CEK-02', 'CEK-03'] },
+    mappings: { 'NIST AI RMF': ['MANAGE 2.4'], 'ISO/IEC 42001': ['8.5'], 'CCM': ['CEK-01', 'CEK-02', 'CEK-03'], 'HIPAA': ['§164.312(a)(2)(iv)', '§164.312(e)(1)', '§164.312(e)(2)(ii)'] },
     indicator: { name: 'Encryption Standards Compliance Rate', method: 'AI data stores meeting encryption standard / total AI data stores', slo: '100%' },
     implementation: 'Enforce AES-256 at rest, TLS 1.3 in transit for all AI data. Store model weights in encrypted model registry. Rotate encryption keys annually. Audit key access quarterly.' },
   { id: 24, code: 'CTRL-DCS-001', title: 'AI Compute Environment Isolation', riskTier: 'All Systems', priority: 'Medium', ccmDomain: 'DCS', status: 'Implemented', automation: 'automated',
