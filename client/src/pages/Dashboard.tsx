@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/dashboard/AppSidebar';
 import TopBar from '@/components/dashboard/TopBar';
 import HeroKpis from '@/components/dashboard/HeroKpis';
+import IntroBanner from '@/components/dashboard/IntroBanner';
 import GovernanceHeatmap from '@/components/dashboard/GovernanceHeatmap';
 import NhidTrustStack from '@/components/dashboard/NhidTrustStack';
 import ControlsSection from '@/components/dashboard/ControlsSection';
@@ -25,12 +26,14 @@ export default function Dashboard() {
       <SidebarInset>
         <TopBar
           overallScore={overallScore}
+          assessedCount={assessedCount}
           onExportCSV={() => exportControlsCSV(controlState)}
           onExportJSON={() => exportProgressJSON(controlState)}
           onPrintSnapshot={printPostureSnapshot}
           onStartDemo={() => setDemoActive(true)}
         />
         <main className="flex flex-col gap-12 p-4 sm:p-6 lg:p-10 max-w-[1400px] w-full mx-auto">
+          {assessedCount === 0 && <IntroBanner onStartDemo={() => setDemoActive(true)} />}
           <HeroKpis overallScore={overallScore} assessedCount={assessedCount} />
           <GovernanceHeatmap frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
           <NhidTrustStack />

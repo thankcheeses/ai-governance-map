@@ -35,11 +35,19 @@ function ProgressRing({ value, size = 64, stroke = 6 }: { value: number; size?: 
 export default function HeroKpis({ overallScore, assessedCount }: HeroKpisProps) {
   const criticalCount = CONTROLS.filter((c) => c.priority === 'Critical').length;
 
+  const isUnassessed = assessedCount === 0;
+
   const kpis = [
     { label: 'Frameworks', value: FRAMEWORKS.length.toString(), sub: 'Global standards tracked', icon: ShieldCheck, ring: 100 },
     { label: 'Controls', value: CONTROLS.length.toString(), sub: 'CCM v4.1.0 mapped', icon: ListChecks, ring: 100 },
     { label: 'Critical', value: criticalCount.toString(), sub: 'High-priority controls', icon: AlertOctagon, ring: Math.round((criticalCount / CONTROLS.length) * 100) },
-    { label: 'Posture', value: `${overallScore}%`, sub: `${assessedCount} / ${CONTROLS.length} assessed`, icon: Gauge, ring: overallScore },
+    {
+      label: 'Posture',
+      value: isUnassessed ? '—' : `${overallScore}%`,
+      sub: isUnassessed ? 'Not yet assessed' : `${assessedCount} / ${CONTROLS.length} assessed`,
+      icon: Gauge,
+      ring: isUnassessed ? 0 : overallScore,
+    },
   ];
 
   return (

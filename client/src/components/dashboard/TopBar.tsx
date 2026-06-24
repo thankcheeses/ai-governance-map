@@ -11,14 +11,16 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 interface TopBarProps {
   overallScore: number;
+  assessedCount: number;
   onExportCSV: () => void;
   onExportJSON: () => void;
   onPrintSnapshot: () => void;
   onStartDemo: () => void;
 }
 
-export default function TopBar({ overallScore, onExportCSV, onExportJSON, onPrintSnapshot, onStartDemo }: TopBarProps) {
+export default function TopBar({ overallScore, assessedCount, onExportCSV, onExportJSON, onPrintSnapshot, onStartDemo }: TopBarProps) {
   const { theme, toggleTheme, switchable } = useTheme();
+  const isUnassessed = assessedCount === 0;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur-xl">
@@ -29,9 +31,12 @@ export default function TopBar({ overallScore, onExportCSV, onExportJSON, onPrin
         </div>
 
         <div className="flex items-center gap-2.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md font-mono text-xs font-semibold text-primary">
-          <span>Posture {overallScore}%</span>
+          <span>Posture {isUnassessed ? '—' : `${overallScore}%`}</span>
           <div className="w-16 h-1.5 bg-primary/20 rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${overallScore}%` }} />
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500"
+              style={{ width: isUnassessed ? '0%' : `${overallScore}%`, opacity: isUnassessed ? 0.3 : 1 }}
+            />
           </div>
         </div>
 
