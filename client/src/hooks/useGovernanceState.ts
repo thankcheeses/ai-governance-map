@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { CONTROLS } from '@/data/governance';
 
 export interface ControlProgress {
@@ -36,14 +36,28 @@ function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
+// `useGovernanceState` is called independently from several components (Dashboard,
+// ControlsSection, MaturityRadarSection). controlState is kept in a tiny module-level
+// store so an update from one call site is immediately visible to all the others,
+// instead of only after a full reload re-reads localStorage.
+let controlStoreState: ControlState = readJSON(PROGRESS_KEY, {});
+const controlStoreListeners = new Set<() => void>();
+
+function setControlStore(updater: (prev: ControlState) => ControlState) {
+  controlStoreState = updater(controlStoreState);
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(controlStoreState)); } catch { /* storage unavailable */ }
+  controlStoreListeners.forEach((listener) => listener());
+}
+
+function subscribeControlStore(listener: () => void) {
+  controlStoreListeners.add(listener);
+  return () => controlStoreListeners.delete(listener);
+}
+
 export function useGovernanceState() {
-  const [controlState, setControlState] = useState<ControlState>(() => readJSON(PROGRESS_KEY, {}));
+  const controlState = useSyncExternalStore(subscribeControlStore, () => controlStoreState);
   const [auditTrail, setAuditTrail] = useState<AuditSnapshot[]>(() => readJSON(AUDIT_KEY, []));
   const [savedViews, setSavedViews] = useState<SavedView[]>(() => readJSON(VIEWS_KEY, []));
-
-  useEffect(() => {
-    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(controlState)); } catch { /* storage unavailable */ }
-  }, [controlState]);
 
   useEffect(() => {
     try { localStorage.setItem(AUDIT_KEY, JSON.stringify(auditTrail)); } catch { /* storage unavailable */ }
@@ -67,14 +81,11 @@ export function useGovernanceState() {
   const getNotes = (id: number) => controlState[id]?.notes || '';
 
   const updateMaturity = (id: number, level: number) => {
-    setControlState((prev) => {
-      const next = { ...prev, [id]: { ...prev[id], maturity: level } };
-      return next;
-    });
+    setControlStore((prev) => ({ ...prev, [id]: { ...prev[id], maturity: level } }));
   };
 
   const updateNotes = (id: number, notes: string) =>
-    setControlState((prev) => ({ ...prev, [id]: { ...prev[id], notes } }));
+    setControlStore((prev) => ({ ...prev, [id]: { ...prev[id], notes } }));
 
   const recordSnapshot = () => {
     setAuditTrail((prev) => {
@@ -85,8 +96,7 @@ export function useGovernanceState() {
   };
 
   const clearAll = () => {
-    setControlState({});
-    try { localStorage.removeItem(PROGRESS_KEY); } catch { /* storage unavailable */ }
+    setControlStore(() => ({}));
   };
 
   const saveView = (view: Omit<SavedView, 'id' | 'createdAt'>) => {
