@@ -104,8 +104,15 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
         </div>
 
         <div className="flex flex-col gap-2">
-          {filteredObligations.map((obl) => (
-            <div key={obl.id} className="flex items-start gap-3 p-3 bg-background border border-border rounded-lg">
+          {filteredObligations.map((obl, i) => (
+            <motion.div
+              key={obl.id}
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ delay: Math.min(i, 10) * 0.04, duration: 0.3, ease: EASE }}
+              className="flex items-start gap-3 p-3 bg-background border border-border rounded-lg"
+            >
               {obl.severity === 'critical' ? (
                 <AlertTriangle size={15} className="text-rose-600 flex-shrink-0 mt-0.5" />
               ) : (
@@ -126,7 +133,7 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
                   <span className="text-muted-foreground">Effective {obl.effective}</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

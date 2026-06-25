@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ChevronDown, Filter, TrendingUp, Zap, FileText, Globe, Network, CheckCircle2, ListChecks,
 } from 'lucide-react';
@@ -130,7 +130,15 @@ export default function ControlsSection() {
                   </div>
                 </div>
 
-                {isOpen && (
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.28, ease: EASE }}
+                      className="overflow-hidden"
+                    >
                   <div className="border-t border-border p-6 bg-background grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                       <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3 flex items-center gap-1.5">
@@ -209,7 +217,9 @@ export default function ControlsSection() {
                       </div>
                     </div>
                   </div>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             );
           })}

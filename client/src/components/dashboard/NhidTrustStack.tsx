@@ -126,24 +126,34 @@ export default function NhidTrustStack() {
                       <span className="text-foreground flex-1">{c.requirement}</span>
                       <ChevronDown size={13} className={`text-muted-foreground transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    {isOpen && (
-                      <div className="border-t border-border px-3 py-3 bg-background">
-                        <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-muted-foreground mb-2 flex items-center gap-1.5">
-                          <Zap size={10} />Performance Indicator
-                        </p>
-                        <div className="bg-primary/5 border border-dashed border-primary/40 rounded-lg p-3 mb-3">
-                          <p className="text-xs font-semibold text-primary mb-1">{c.indicator.name}</p>
-                          <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">Method</p>
-                          <p className="text-[0.7rem] text-muted-foreground leading-relaxed">{c.indicator.method}</p>
-                          <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">SLO Target</p>
-                          <span className="inline-block mt-0.5 font-mono text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
-                            {c.indicator.slo}
-                          </span>
-                        </div>
-                        <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">Implementation Guidance</p>
-                        <p className="text-[0.7rem] text-muted-foreground leading-relaxed">{c.implementation}</p>
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25, ease: EASE }}
+                          className="overflow-hidden"
+                        >
+                          <div className="border-t border-border px-3 py-3 bg-background">
+                            <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-muted-foreground mb-2 flex items-center gap-1.5">
+                              <Zap size={10} />Performance Indicator
+                            </p>
+                            <div className="bg-primary/5 border border-dashed border-primary/40 rounded-lg p-3 mb-3">
+                              <p className="text-xs font-semibold text-primary mb-1">{c.indicator.name}</p>
+                              <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">Method</p>
+                              <p className="text-[0.7rem] text-muted-foreground leading-relaxed">{c.indicator.method}</p>
+                              <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">SLO Target</p>
+                              <span className="inline-block mt-0.5 font-mono text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
+                                {c.indicator.slo}
+                              </span>
+                            </div>
+                            <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">Implementation Guidance</p>
+                            <p className="text-[0.7rem] text-muted-foreground leading-relaxed">{c.implementation}</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}
