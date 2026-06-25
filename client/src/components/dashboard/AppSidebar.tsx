@@ -19,6 +19,7 @@ import {
   Radar,
   CalendarClock,
   Network,
+  Map,
   BookOpenCheck,
 } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
   { id: 'timeline', label: 'Obligations Timeline', icon: CalendarClock },
   { id: 'crosswalk', label: 'Crosswalk', icon: Network },
+  { id: 'usa-map', label: 'USA Compliance Map', icon: Map },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck },
 ];
 
