@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT';
   name: string;
   type: string;
   jurisdiction: string;
@@ -56,6 +56,31 @@ export const FRAMEWORKS: Framework[] = [
     slug: 'hipaa-security-rule', shortCode: 'HIPAA', name: 'HIPAA Security Rule',
     type: 'Regulation (Binding)', jurisdiction: 'US', version: '45 CFR §164.312 (Technical Safeguards)', coverage: 30,
     summary: 'Binding US healthcare privacy law. Scoped here to the Technical Safeguards — access control, audit controls, integrity, authentication, and transmission security for systems that touch ePHI.',
+  },
+  {
+    slug: 'california-ai-transparency-act', shortCode: 'CA', name: 'California AI Transparency Act (SB 942)',
+    type: 'Regulation (Binding)', jurisdiction: 'California, USA', version: 'SB 942', coverage: 32,
+    summary: 'State-level binding law requiring covered GenAI providers to offer free AI-content detection tools and embed latent/visible disclosures in AI-generated image, video, and audio content.',
+  },
+  {
+    slug: 'illinois-hb3773', shortCode: 'IL', name: 'Illinois HB 3773 (AI in Employment)',
+    type: 'Regulation (Binding)', jurisdiction: 'Illinois, USA', version: 'HB 3773 (amends Human Rights Act)', coverage: 28,
+    summary: 'State-level binding law restricting employer use of AI in employment decisions where it has a discriminatory effect, and requiring notice when AI is used for that purpose.',
+  },
+  {
+    slug: 'nyc-local-law-144', shortCode: 'NY', name: 'NYC Local Law 144 (Automated Employment Decision Tools)',
+    type: 'Regulation (Binding)', jurisdiction: 'New York City, USA', version: 'Local Law 144 of 2021', coverage: 30,
+    summary: 'Binding municipal law requiring an independent bias audit of automated employment decision tools within one year before use, public posting of audit results, and advance candidate notice.',
+  },
+  {
+    slug: 'texas-traiga', shortCode: 'TX', name: 'Texas Responsible AI Governance Act (TRAIGA)',
+    type: 'Regulation (Binding)', jurisdiction: 'Texas, USA', version: 'TRAIGA (HB 149)', coverage: 27,
+    summary: 'State-level binding law prohibiting specified harmful AI uses (e.g. manipulation, unlawful discrimination) and imposing disclosure duties on state agencies and certain AI developers/deployers.',
+  },
+  {
+    slug: 'utah-ai-policy-act', shortCode: 'UT', name: 'Utah Artificial Intelligence Policy Act',
+    type: 'Regulation (Binding)', jurisdiction: 'Utah, USA', version: 'S.B. 149', coverage: 25,
+    summary: 'State-level binding law requiring clear disclosure when generative AI is used in consumer interactions involving regulated professions, with disclosure obligations triggered upon consumer request or proactively in high-risk contexts.',
   },
 ];
 
@@ -106,6 +131,73 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl33', title: 'Guard against unauthorized access during transmission', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(e)(1): Implement technical security measures to guard against unauthorized access to ePHI transmitted over a network.' },
   { id: 'obl34', title: 'Apply transmission integrity controls', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'medium', summary: '§164.312(e)(2)(i) (addressable): Implement security measures to ensure electronically transmitted ePHI is not improperly modified without detection.' },
   { id: 'obl35', title: 'Encrypt ePHI in transit', framework: 'HIPAA', topic: 'Transmission Security', type: 'mandatory', effective: '2005-04-21', severity: 'critical', summary: '§164.312(e)(2)(ii) (addressable): Encrypt ePHI whenever deemed appropriate. NHID-Auth v2 DPoP nonce binding plus TLS 1.3 transport satisfies this for voice-agent call traffic.' },
+  { id: 'obl36', title: 'Latent disclosure in AI-generated media', framework: 'CA', topic: 'Transparency', type: 'mandatory', effective: '2026-01-01', severity: 'high', summary: 'Covered providers must embed latent (and, where feasible, visible) disclosures identifying content as AI-generated, and offer a free AI-detection tool (California AI Transparency Act, SB 942).' },
+  { id: 'obl37', title: 'Notice for AI-driven employment decisions', framework: 'IL', topic: 'Employment', type: 'mandatory', effective: '2026-01-01', severity: 'high', summary: 'Employers using AI in recruitment, hiring, or promotion decisions must notify employees/applicants and may not use AI in a way that has an unlawful discriminatory effect (Illinois HB 3773).' },
+  { id: 'obl38', title: 'Independent bias audit of hiring AI', framework: 'NY', topic: 'Employment', type: 'mandatory', effective: '2023-07-05', severity: 'critical', summary: 'Employers must obtain an independent bias audit of an automated employment decision tool within one year before use, publish a summary of results, and give candidates advance notice and an opt-out (NYC Local Law 144).' },
+  { id: 'obl39', title: 'Prohibited harmful AI uses', framework: 'TX', topic: 'Prohibited Practices', type: 'mandatory', effective: '2026-01-01', severity: 'critical', summary: 'Developers and deployers may not use AI for specified harmful purposes — manipulation inducing self-harm, unlawful discrimination, or biometric identification without consent (Texas TRAIGA).' },
+  { id: 'obl40', title: 'Disclose generative AI in regulated interactions', framework: 'UT', topic: 'Transparency', type: 'mandatory', effective: '2024-05-01', severity: 'high', summary: 'Persons in a regulated occupation must proactively disclose when generative AI is used in a consumer interaction in a high-risk context, or disclose upon request in lower-risk contexts (Utah AI Policy Act).' },
+];
+
+export interface StateAILaw {
+  name: string;
+  postalCode: string;
+  status: 'binding' | 'none';
+  frameworkSlug?: string;
+}
+
+export const STATE_AI_LAWS: StateAILaw[] = [
+  { name: 'Alabama', postalCode: 'AL', status: 'none' },
+  { name: 'Alaska', postalCode: 'AK', status: 'none' },
+  { name: 'Arizona', postalCode: 'AZ', status: 'none' },
+  { name: 'Arkansas', postalCode: 'AR', status: 'none' },
+  { name: 'California', postalCode: 'CA', status: 'binding', frameworkSlug: 'california-ai-transparency-act' },
+  { name: 'Colorado', postalCode: 'CO', status: 'binding', frameworkSlug: 'colorado-ai-act' },
+  { name: 'Connecticut', postalCode: 'CT', status: 'none' },
+  { name: 'Delaware', postalCode: 'DE', status: 'none' },
+  { name: 'District of Columbia', postalCode: 'DC', status: 'none' },
+  { name: 'Florida', postalCode: 'FL', status: 'none' },
+  { name: 'Georgia', postalCode: 'GA', status: 'none' },
+  { name: 'Hawaii', postalCode: 'HI', status: 'none' },
+  { name: 'Idaho', postalCode: 'ID', status: 'none' },
+  { name: 'Illinois', postalCode: 'IL', status: 'binding', frameworkSlug: 'illinois-hb3773' },
+  { name: 'Indiana', postalCode: 'IN', status: 'none' },
+  { name: 'Iowa', postalCode: 'IA', status: 'none' },
+  { name: 'Kansas', postalCode: 'KS', status: 'none' },
+  { name: 'Kentucky', postalCode: 'KY', status: 'none' },
+  { name: 'Louisiana', postalCode: 'LA', status: 'none' },
+  { name: 'Maine', postalCode: 'ME', status: 'none' },
+  { name: 'Maryland', postalCode: 'MD', status: 'none' },
+  { name: 'Massachusetts', postalCode: 'MA', status: 'none' },
+  { name: 'Michigan', postalCode: 'MI', status: 'none' },
+  { name: 'Minnesota', postalCode: 'MN', status: 'none' },
+  { name: 'Mississippi', postalCode: 'MS', status: 'none' },
+  { name: 'Missouri', postalCode: 'MO', status: 'none' },
+  { name: 'Montana', postalCode: 'MT', status: 'none' },
+  { name: 'Nebraska', postalCode: 'NE', status: 'none' },
+  { name: 'Nevada', postalCode: 'NV', status: 'none' },
+  { name: 'New Hampshire', postalCode: 'NH', status: 'none' },
+  { name: 'New Jersey', postalCode: 'NJ', status: 'none' },
+  { name: 'New Mexico', postalCode: 'NM', status: 'none' },
+  { name: 'New York', postalCode: 'NY', status: 'binding', frameworkSlug: 'nyc-local-law-144' },
+  { name: 'North Carolina', postalCode: 'NC', status: 'none' },
+  { name: 'North Dakota', postalCode: 'ND', status: 'none' },
+  { name: 'Ohio', postalCode: 'OH', status: 'none' },
+  { name: 'Oklahoma', postalCode: 'OK', status: 'none' },
+  { name: 'Oregon', postalCode: 'OR', status: 'none' },
+  { name: 'Pennsylvania', postalCode: 'PA', status: 'none' },
+  { name: 'Rhode Island', postalCode: 'RI', status: 'none' },
+  { name: 'South Carolina', postalCode: 'SC', status: 'none' },
+  { name: 'South Dakota', postalCode: 'SD', status: 'none' },
+  { name: 'Tennessee', postalCode: 'TN', status: 'none' },
+  { name: 'Texas', postalCode: 'TX', status: 'binding', frameworkSlug: 'texas-traiga' },
+  { name: 'Utah', postalCode: 'UT', status: 'binding', frameworkSlug: 'utah-ai-policy-act' },
+  { name: 'Vermont', postalCode: 'VT', status: 'none' },
+  { name: 'Virginia', postalCode: 'VA', status: 'none' },
+  { name: 'Washington', postalCode: 'WA', status: 'none' },
+  { name: 'West Virginia', postalCode: 'WV', status: 'none' },
+  { name: 'Wisconsin', postalCode: 'WI', status: 'none' },
+  { name: 'Wyoming', postalCode: 'WY', status: 'none' },
+  { name: 'Puerto Rico', postalCode: 'PR', status: 'none' },
 ];
 
 export const CCM_DOMAINS = ['A&A', 'AIS', 'BCR', 'CCC', 'CEK', 'DCS', 'DSP', 'GRC', 'HRS', 'IAM', 'IPY', 'LOG', 'SEF', 'STA', 'TVM', 'UEM'];
