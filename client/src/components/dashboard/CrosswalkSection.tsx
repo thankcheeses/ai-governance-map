@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Network } from 'lucide-react';
 import { ProvenanceChainIcon } from './icons';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,6 +7,8 @@ import { CONTROLS, CCM_DOMAINS, CROSSWALK_ACTORS, CROSSWALK_TOPICS } from '@/dat
 import SectionHeader from './SectionHeader';
 
 const CORE_FRAMEWORKS = ['NIST AI RMF', 'ISO/IEC 42001', 'EU AI Act', 'CCM v4.1.0', 'HIPAA'];
+const EASE = [0.16, 1, 0.3, 1] as const;
+const rowDelay = (i: number) => Math.min(i, 14) * 0.025;
 
 export default function CrosswalkSection() {
   const [tab, setTab] = useState('coverage');
@@ -29,99 +32,123 @@ export default function CrosswalkSection() {
           </div>
 
           <TabsContent value="coverage" className="p-6 overflow-x-auto">
-            <p className="text-sm text-muted-foreground mb-4">
-              {CONTROLS.length} controls across {CCM_DOMAINS.length} CCM v4.1.0 domains
-            </p>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 pr-6 font-semibold text-muted-foreground font-mono min-w-[200px]">Control</th>
-                  {CORE_FRAMEWORKS.map((fw) => (
-                    <th key={fw} className="text-center px-2 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{fw}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {CONTROLS.map((ctrl) => {
-                  const mapped: Record<string, boolean> = {
-                    'NIST AI RMF': 'NIST AI RMF' in ctrl.mappings,
-                    'ISO/IEC 42001': 'ISO/IEC 42001' in ctrl.mappings,
-                    'EU AI Act': 'EU AI Act' in ctrl.mappings,
-                    'CCM v4.1.0': !!ctrl.ccmDomain,
-                    'HIPAA': 'HIPAA' in ctrl.mappings,
-                  };
-                  return (
-                    <tr key={ctrl.id} className="border-b border-border hover:bg-secondary/50">
-                      <td className="py-2.5 pr-6">
-                        <span className="font-mono text-[0.6rem] text-muted-foreground mr-1.5">{ctrl.code}</span>
-                        <span className="text-foreground">{ctrl.title}</span>
-                      </td>
-                      {CORE_FRAMEWORKS.map((fw) => (
-                        <td key={fw} className="text-center px-2 py-2.5">
-                          {mapped[fw]
-                            ? <span className="inline-block w-5 h-5 rounded-full bg-primary/20 text-primary text-[0.6rem] font-bold leading-5">✓</span>
-                            : <span className="text-border">—</span>}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, ease: EASE }}>
+              <p className="text-sm text-muted-foreground mb-4">
+                {CONTROLS.length} controls across {CCM_DOMAINS.length} CCM v4.1.0 domains
+              </p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 pr-6 font-semibold text-muted-foreground font-mono min-w-[200px]">Control</th>
+                    {CORE_FRAMEWORKS.map((fw) => (
+                      <th key={fw} className="text-center px-2 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{fw}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {CONTROLS.map((ctrl, i) => {
+                    const mapped: Record<string, boolean> = {
+                      'NIST AI RMF': 'NIST AI RMF' in ctrl.mappings,
+                      'ISO/IEC 42001': 'ISO/IEC 42001' in ctrl.mappings,
+                      'EU AI Act': 'EU AI Act' in ctrl.mappings,
+                      'CCM v4.1.0': !!ctrl.ccmDomain,
+                      'HIPAA': 'HIPAA' in ctrl.mappings,
+                    };
+                    return (
+                      <motion.tr
+                        key={ctrl.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: rowDelay(i), duration: 0.3, ease: EASE }}
+                        className="border-b border-border hover:bg-secondary/50"
+                      >
+                        <td className="py-2.5 pr-6">
+                          <span className="font-mono text-[0.6rem] text-muted-foreground mr-1.5">{ctrl.code}</span>
+                          <span className="text-foreground">{ctrl.title}</span>
                         </td>
-                      ))}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <p className="text-xs text-muted-foreground mt-4 leading-relaxed border-l-2 border-l-primary pl-3">
-              NHID-Clinical's 4-layer voice-agent conformance (see the NHID Trust Stack section above) complements this
-              CCM coverage rather than duplicating it — it governs B2B healthcare voice-channel behavior, not CCM domains.
-            </p>
+                        {CORE_FRAMEWORKS.map((fw) => (
+                          <td key={fw} className="text-center px-2 py-2.5">
+                            {mapped[fw]
+                              ? <span className="inline-block w-5 h-5 rounded-full bg-primary/20 text-primary text-[0.6rem] font-bold leading-5">✓</span>
+                              : <span className="text-border">—</span>}
+                          </td>
+                        ))}
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <p className="text-xs text-muted-foreground mt-4 leading-relaxed border-l-2 border-l-primary pl-3">
+                NHID-Clinical's 4-layer voice-agent conformance (see the NHID Trust Stack section above) complements this
+                CCM coverage rather than duplicating it — it governs B2B healthcare voice-channel behavior, not CCM domains.
+              </p>
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="topics" className="p-6 overflow-x-auto">
-            <p className="text-sm text-muted-foreground mb-4 flex items-center gap-1.5">
-              <ProvenanceChainIcon className="w-4 h-4 text-primary" />{CROSSWALK_TOPICS.title}
-            </p>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  {CROSSWALK_TOPICS.headers.map((h) => (
-                    <th key={h} className="text-left px-3 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {CROSSWALK_TOPICS.rows.map((row) => (
-                  <tr key={row[0]} className="border-b border-border hover:bg-secondary/50">
-                    {row.map((cell, ci) => (
-                      <td key={ci} className={`px-3 py-2.5 whitespace-nowrap ${ci === 0 ? 'font-semibold text-foreground' : cell === '—' ? 'text-border' : 'text-muted-foreground'}`}>
-                        {cell}
-                      </td>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, ease: EASE }}>
+              <p className="text-sm text-muted-foreground mb-4 flex items-center gap-1.5">
+                <ProvenanceChainIcon className="w-4 h-4 text-primary" />{CROSSWALK_TOPICS.title}
+              </p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    {CROSSWALK_TOPICS.headers.map((h) => (
+                      <th key={h} className="text-left px-3 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {CROSSWALK_TOPICS.rows.map((row, i) => (
+                    <motion.tr
+                      key={row[0]}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: rowDelay(i), duration: 0.3, ease: EASE }}
+                      className="border-b border-border hover:bg-secondary/50"
+                    >
+                      {row.map((cell, ci) => (
+                        <td key={ci} className={`px-3 py-2.5 whitespace-nowrap ${ci === 0 ? 'font-semibold text-foreground' : cell === '—' ? 'text-border' : 'text-muted-foreground'}`}>
+                          {cell}
+                        </td>
+                      ))}
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="actors" className="p-6 overflow-x-auto">
-            <p className="text-sm text-muted-foreground mb-4">{CROSSWALK_ACTORS.title}</p>
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  {CROSSWALK_ACTORS.headers.map((h) => (
-                    <th key={h} className="text-left px-3 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {CROSSWALK_ACTORS.rows.map((row) => (
-                  <tr key={row[0]} className="border-b border-border hover:bg-secondary/50">
-                    {row.map((cell, ci) => (
-                      <td key={ci} className={`px-3 py-2.5 whitespace-nowrap ${ci === 0 ? 'font-semibold text-foreground' : cell === '—' ? 'text-border' : 'text-muted-foreground'}`}>
-                        {cell}
-                      </td>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, ease: EASE }}>
+              <p className="text-sm text-muted-foreground mb-4">{CROSSWALK_ACTORS.title}</p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border">
+                    {CROSSWALK_ACTORS.headers.map((h) => (
+                      <th key={h} className="text-left px-3 py-3 font-semibold text-muted-foreground font-mono whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {CROSSWALK_ACTORS.rows.map((row, i) => (
+                    <motion.tr
+                      key={row[0]}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: rowDelay(i), duration: 0.3, ease: EASE }}
+                      className="border-b border-border hover:bg-secondary/50"
+                    >
+                      {row.map((cell, ci) => (
+                        <td key={ci} className={`px-3 py-2.5 whitespace-nowrap ${ci === 0 ? 'font-semibold text-foreground' : cell === '—' ? 'text-border' : 'text-muted-foreground'}`}>
+                          {cell}
+                        </td>
+                      ))}
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
           </TabsContent>
         </Tabs>
       </div>

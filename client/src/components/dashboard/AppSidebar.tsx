@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,8 @@ import {
 } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
+
+const EASE = [0.16, 1, 0.3, 1] as const;
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -59,18 +62,36 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Navigate</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton
-                    isActive={activeId === item.id}
-                    onClick={() => scrollTo(item.id)}
-                    tooltip={item.label}
-                  >
-                    <item.icon className="size-4" />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {NAV_ITEMS.map((item, i) => {
+                const isActive = activeId === item.id;
+                return (
+                  <SidebarMenuItem key={item.id}>
+                    {isActive && (
+                      <motion.span
+                        layoutId="sidebar-active-pill"
+                        className="absolute inset-0 rounded-md bg-sidebar-accent"
+                        transition={{ duration: 0.35, ease: EASE }}
+                      />
+                    )}
+                    <motion.div
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05, duration: 0.3, ease: EASE }}
+                      className="relative z-10"
+                    >
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        onClick={() => scrollTo(item.id)}
+                        tooltip={item.label}
+                        className="data-[active=true]:bg-transparent"
+                      >
+                        <item.icon className="size-4" />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </motion.div>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
