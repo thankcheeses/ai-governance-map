@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN';
   name: string;
   type: string;
   jurisdiction: string;
@@ -82,6 +82,16 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'Utah, USA', version: 'S.B. 149', coverage: 25,
     summary: 'State-level binding law requiring clear disclosure when generative AI is used in consumer interactions involving regulated professions, with disclosure obligations triggered upon consumer request or proactively in high-risk contexts.',
   },
+  {
+    slug: 'korea-ai-basic-act', shortCode: 'KR', name: 'South Korea AI Basic Act',
+    type: 'Regulation (Binding)', jurisdiction: 'South Korea', version: 'In effect Jan 22, 2026', coverage: 24,
+    summary: 'Binding national law requiring disclosure for high-impact and generative AI, risk management and human-oversight duties for high-impact AI operators, and a domestic-representative requirement for large foreign providers. A grace period defers most enforcement and fines through 2026 except for serious harms.',
+  },
+  {
+    slug: 'china-genai-interim-measures', shortCode: 'CN', name: 'China Generative AI Services Interim Measures',
+    type: 'Regulation (Binding)', jurisdiction: 'China', version: 'Effective Aug 15, 2023 (2025 labeling & standards additions)', coverage: 26,
+    summary: 'Binding national rules for public-facing generative AI services: algorithm registration and security assessment with the Cyberspace Administration of China, content governance, and — from Sept 1, 2025 — mandatory AI-generated content labeling.',
+  },
 ];
 
 export interface Obligation {
@@ -136,6 +146,11 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl38', title: 'Independent bias audit of hiring AI', framework: 'NY', topic: 'Employment', type: 'mandatory', effective: '2023-07-05', severity: 'critical', summary: 'Employers must obtain an independent bias audit of an automated employment decision tool within one year before use, publish a summary of results, and give candidates advance notice and an opt-out (NYC Local Law 144).' },
   { id: 'obl39', title: 'Prohibited harmful AI uses', framework: 'TX', topic: 'Prohibited Practices', type: 'mandatory', effective: '2026-01-01', severity: 'critical', summary: 'Developers and deployers may not use AI for specified harmful purposes — manipulation inducing self-harm, unlawful discrimination, or biometric identification without consent (Texas TRAIGA).' },
   { id: 'obl40', title: 'Disclose generative AI in regulated interactions', framework: 'UT', topic: 'Transparency', type: 'mandatory', effective: '2024-05-01', severity: 'high', summary: 'Persons in a regulated occupation must proactively disclose when generative AI is used in a consumer interaction in a high-risk context, or disclose upon request in lower-risk contexts (Utah AI Policy Act).' },
+  { id: 'obl41', title: 'Disclose high-impact or generative AI use', framework: 'KR', topic: 'Transparency', type: 'mandatory', effective: '2026-01-22', severity: 'high', summary: 'Providers and operators of high-impact or generative AI systems must proactively disclose AI involvement to users before or during the interaction (AI Basic Act).' },
+  { id: 'obl42', title: 'Risk management & human oversight for high-impact AI', framework: 'KR', topic: 'Risk Management', type: 'mandatory', effective: '2026-01-22', severity: 'critical', summary: 'Operators of high-impact AI systems must implement a risk management plan, ensure human oversight, and maintain technical documentation. A grace period defers most fines through 2026 except for serious harms.' },
+  { id: 'obl43', title: 'Appoint a domestic representative', framework: 'KR', topic: 'Governance', type: 'mandatory', effective: '2026-01-22', severity: 'medium', summary: 'Foreign AI providers exceeding revenue or user thresholds (KRW 1T total revenue, KRW 10B AI revenue, or 1M+ daily Korean users) must appoint a Korea-based representative.' },
+  { id: 'obl44', title: 'Register generative AI algorithms with the CAC', framework: 'CN', topic: 'Governance', type: 'mandatory', effective: '2023-08-15', severity: 'critical', summary: 'Public-facing generative AI services must complete algorithm registration with the Cyberspace Administration of China and pass a security assessment before launch.' },
+  { id: 'obl45', title: 'Label AI-generated content', framework: 'CN', topic: 'Transparency', type: 'mandatory', effective: '2025-09-01', severity: 'high', summary: 'Generative AI content must carry a visible and/or embedded label identifying it as AI-generated, per the 2025 content-labeling rules.' },
 ];
 
 export interface StateAILaw {
@@ -198,6 +213,53 @@ export const STATE_AI_LAWS: StateAILaw[] = [
   { name: 'Wisconsin', postalCode: 'WI', status: 'none' },
   { name: 'Wyoming', postalCode: 'WY', status: 'none' },
   { name: 'Puerto Rico', postalCode: 'PR', status: 'none' },
+];
+
+// Country names match world-atlas/countries-110m.json's properties.name (Natural Earth).
+// Coverage here is intentionally limited to countries with a verified status — every other
+// country renders as 'unresearched' rather than guessing at a 'none' that hasn't been checked.
+export interface CountryAILaw {
+  name: string;
+  status: 'binding' | 'none';
+  frameworkSlug?: string;
+}
+
+export const COUNTRY_AI_LAWS: CountryAILaw[] = [
+  // EU AI Act (Regulation (EU) 2024/1689) binds all member states.
+  { name: 'Austria', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Belgium', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Bulgaria', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Croatia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Cyprus', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Czechia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Denmark', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Estonia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Finland', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'France', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Germany', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Greece', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Hungary', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Ireland', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Italy', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Latvia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Lithuania', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Luxembourg', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Netherlands', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Poland', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Portugal', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Romania', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Slovakia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Slovenia', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Spain', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  { name: 'Sweden', status: 'binding', frameworkSlug: 'eu-ai-act' },
+  // Countries with their own verified, binding AI-specific national law.
+  { name: 'South Korea', status: 'binding', frameworkSlug: 'korea-ai-basic-act' },
+  { name: 'China', status: 'binding', frameworkSlug: 'china-genai-interim-measures' },
+  // Researched and confirmed to have no binding AI-specific law as of mid-2026.
+  { name: 'United Kingdom', status: 'none' },
+  { name: 'Canada', status: 'none' },
+  { name: 'Brazil', status: 'none' },
+  { name: 'United States of America', status: 'none' },
 ];
 
 export const CCM_DOMAINS = ['A&A', 'AIS', 'BCR', 'CCC', 'CEK', 'DCS', 'DSP', 'GRC', 'HRS', 'IAM', 'IPY', 'LOG', 'SEF', 'STA', 'TVM', 'UEM'];
