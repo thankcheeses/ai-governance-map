@@ -11,7 +11,7 @@ import MaturityRadarSection from '@/components/dashboard/MaturityRadarSection';
 import TimelineSection from '@/components/dashboard/TimelineSection';
 import CrosswalkSection from '@/components/dashboard/CrosswalkSection';
 import USAComplianceMapSection from '@/components/dashboard/USAComplianceMapSection';
-import GlobalComplianceMapSection from '@/components/dashboard/GlobalComplianceMapSection';
+import GlobalGlobeVisualization from '@/components/dashboard/GlobalGlobeVisualization';
 import FrameworksSection from '@/components/dashboard/FrameworksSection';
 import DemoModeOverlay from '@/components/dashboard/DemoModeOverlay';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
@@ -43,7 +43,7 @@ export default function Dashboard() {
           <MaturityRadarSection />
           <TimelineSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
           <CrosswalkSection />
-          <GlobalComplianceMapSection />
+          <GlobalGlobeVisualization />
           <USAComplianceMapSection />
           <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
         </main>
