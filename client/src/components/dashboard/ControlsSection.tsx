@@ -6,6 +6,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { CONTROLS, MATURITY_LEVELS } from '@/data/governance';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
+import { ShieldWaveformIcon } from './icons';
 import SectionHeader from './SectionHeader';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -198,7 +199,8 @@ export default function ControlsSection() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(item.mappings).map(([fw, codes]) => (
-                          <span key={fw} className="text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
+                          <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
+                            {fw === 'NHID-Clinical' && <ShieldWaveformIcon className="w-3 h-3 flex-shrink-0" />}
                             {fw}: {codes.join(', ')}
                           </span>
                         ))}
