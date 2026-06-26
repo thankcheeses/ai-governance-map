@@ -20,6 +20,7 @@ import {
   CalendarClock,
   Network,
   Map,
+  Globe,
   BookOpenCheck,
 } from 'lucide-react';
 import { GovernanceLatticeIcon, ShieldWaveformIcon } from './icons';
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { id: 'timeline', label: 'Obligations Timeline', icon: CalendarClock },
   { id: 'crosswalk', label: 'Crosswalk', icon: Network },
   { id: 'usa-map', label: 'USA Compliance Map', icon: Map },
+  { id: 'global-map', label: 'Global Compliance Map', icon: Globe },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck },
 ];
 

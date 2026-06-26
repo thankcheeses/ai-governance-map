@@ -62,6 +62,7 @@
     "topojson-client": "^3.1.0",
     "us-atlas": "^3.0.1",
     "vaul": "^1.1.2",
+    "world-atlas": "2.0.2",
     "wouter": "^3.3.5",
     "zod": "^4.1.12"
   },
