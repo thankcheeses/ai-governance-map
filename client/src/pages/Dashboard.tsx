@@ -43,8 +43,8 @@ export default function Dashboard() {
           <MaturityRadarSection />
           <TimelineSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
           <CrosswalkSection />
-          <USAComplianceMapSection />
           <GlobalComplianceMapSection />
+          <USAComplianceMapSection />
           <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
         </main>
         <footer className="gradient-border border-t border-border py-6 px-4 lg:px-8 text-center text-xs text-muted-foreground">
