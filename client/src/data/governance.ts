@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN';
   name: string;
   type: string;
   jurisdiction: string;
@@ -92,6 +92,11 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'China', version: 'Effective Aug 15, 2023 (2025 labeling & standards additions)', coverage: 26,
     summary: 'Binding national rules for public-facing generative AI services: algorithm registration and security assessment with the Cyberspace Administration of China, content governance, and — from Sept 1, 2025 — mandatory AI-generated content labeling.',
   },
+  {
+    slug: 'india-it-rules-synthetic-media', shortCode: 'IN', name: 'India IT Rules Amendment, 2026 (Synthetic Media)',
+    type: 'Regulation (Binding)', jurisdiction: 'India', version: 'G.S.R. 120(E), in force Feb 20, 2026', coverage: 20,
+    summary: 'Binding amendment to the IT Rules 2021 (delegated under the IT Act, 2000) targeting AI-generated/synthetic content: mandatory labelling and provenance metadata, a 3-hour takedown duty for unlabeled synthetic media, and loss of intermediary safe-harbor for noncompliance.',
+  },
 ];
 
 export interface Obligation {
@@ -151,6 +156,8 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl43', title: 'Appoint a domestic representative', framework: 'KR', topic: 'Governance', type: 'mandatory', effective: '2026-01-22', severity: 'medium', summary: 'Foreign AI providers exceeding revenue or user thresholds (KRW 1T total revenue, KRW 10B AI revenue, or 1M+ daily Korean users) must appoint a Korea-based representative.' },
   { id: 'obl44', title: 'Register generative AI algorithms with the CAC', framework: 'CN', topic: 'Governance', type: 'mandatory', effective: '2023-08-15', severity: 'critical', summary: 'Public-facing generative AI services must complete algorithm registration with the Cyberspace Administration of China and pass a security assessment before launch.' },
   { id: 'obl45', title: 'Label AI-generated content', framework: 'CN', topic: 'Transparency', type: 'mandatory', effective: '2025-09-01', severity: 'high', summary: 'Generative AI content must carry a visible and/or embedded label identifying it as AI-generated, per the 2025 content-labeling rules.' },
+  { id: 'obl46', title: 'Label and embed provenance metadata for synthetic media', framework: 'IN', topic: 'Transparency', type: 'mandatory', effective: '2026-02-20', severity: 'high', summary: 'Intermediaries must require visible labelling and embedded provenance metadata for AI-generated/synthetic content under the amended IT Rules.' },
+  { id: 'obl47', title: 'Takedown unlabeled synthetic content within 3 hours', framework: 'IN', topic: 'Content Moderation', type: 'mandatory', effective: '2026-02-20', severity: 'critical', summary: 'Intermediaries must act on actionable knowledge to remove or disable unlabeled AI-generated content within 3 hours, or lose safe-harbor protection under the IT Act.' },
 ];
 
 export interface StateAILaw {
@@ -255,11 +262,16 @@ export const COUNTRY_AI_LAWS: CountryAILaw[] = [
   // Countries with their own verified, binding AI-specific national law.
   { name: 'South Korea', status: 'binding', frameworkSlug: 'korea-ai-basic-act' },
   { name: 'China', status: 'binding', frameworkSlug: 'china-genai-interim-measures' },
+  { name: 'India', status: 'binding', frameworkSlug: 'india-it-rules-synthetic-media' },
   // Researched and confirmed to have no binding AI-specific law as of mid-2026.
   { name: 'United Kingdom', status: 'none' },
   { name: 'Canada', status: 'none' },
   { name: 'Brazil', status: 'none' },
   { name: 'United States of America', status: 'none' },
+  // Singapore: IMDA's Model AI Governance Framework (incl. its 2026 Agentic AI edition) and MAS AI risk guidelines are voluntary/supervisory, not legislation.
+  { name: 'Singapore', status: 'none' },
+  // Japan: the 2025 AI Promotion Act is enacted but explicitly soft-law — no fines or penalties, only advisory/disclosure measures.
+  { name: 'Japan', status: 'none' },
 ];
 
 export const CCM_DOMAINS = ['A&A', 'AIS', 'BCR', 'CCC', 'CEK', 'DCS', 'DSP', 'GRC', 'HRS', 'IAM', 'IPY', 'LOG', 'SEF', 'STA', 'TVM', 'UEM'];
