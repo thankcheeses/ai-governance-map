@@ -33,6 +33,49 @@ const LEVEL_GLOW: Record<string, string> = {
   hot: '244,63,94',
 };
 
+// Hover particles: rising embers for hot/warm (fire), drifting petals for cool/mild (foliage).
+// Particle count + speed scale with risk level — more, faster embers for hot than warm, and so on.
+const EMBER_OFFSETS = [-10, 6, -4, 12, -14, 2];
+const PETAL_OFFSETS = [-12, 10, -6];
+
+function HeatParticles({ level }: { level: 'cool' | 'mild' | 'warm' | 'hot' }) {
+  const color = LEVEL_GLOW[level];
+  if (level === 'hot' || level === 'warm') {
+    const offsets = EMBER_OFFSETS.slice(0, level === 'hot' ? 6 : 4);
+    const duration = level === 'hot' ? 1.0 : 1.4;
+    return (
+      <>
+        {offsets.map((x, idx) => (
+          <motion.span
+            key={idx}
+            className="absolute rounded-full pointer-events-none"
+            style={{ left: '50%', bottom: '15%', width: 4, height: 4, marginLeft: -2, background: `rgb(${color})`, boxShadow: `0 0 6px 1px rgba(${color},0.85)` }}
+            initial={{ opacity: 0, x, y: 0, scale: 0.5 }}
+            animate={{ opacity: [0, 1, 0.7, 0], y: [0, -10, -18, -27], x: [x, x - 3, x + 3, x], scale: [0.5, 1, 0.8, 0.3] }}
+            transition={{ duration, repeat: Infinity, delay: idx * (duration / offsets.length), ease: 'easeOut' }}
+          />
+        ))}
+      </>
+    );
+  }
+  const offsets = PETAL_OFFSETS.slice(0, level === 'mild' ? 3 : 2);
+  const duration = level === 'mild' ? 1.9 : 2.4;
+  return (
+    <>
+      {offsets.map((x, idx) => (
+        <motion.span
+          key={idx}
+          className="absolute rounded-full pointer-events-none"
+          style={{ left: '50%', top: '40%', width: 5, height: 5, marginLeft: -2.5, background: `rgba(${color},0.85)` }}
+          initial={{ opacity: 0, x, y: 0, rotate: 0 }}
+          animate={{ opacity: [0, 0.9, 0.9, 0], x: [x, x + 8, x - 6, x + 4], y: [0, -4, 4, -2], rotate: [0, 25, -15, 10] }}
+          transition={{ duration, repeat: Infinity, delay: idx * (duration / offsets.length), ease: 'easeInOut' }}
+        />
+      ))}
+    </>
+  );
+}
+
 interface GovernanceHeatmapProps {
   frameworkFilter: string;
   onFrameworkFilterChange: (fw: string) => void;
@@ -142,6 +185,7 @@ export default function GovernanceHeatmap({ frameworkFilter, onFrameworkFilterCh
                           transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
                         />
                       )}
+                      {isHovered && cell && <HeatParticles level={cell.level} />}
                       <span className="relative z-10">{cell ? cell.label : '—'}</span>
                     </motion.button>
                   );
