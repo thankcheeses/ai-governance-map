@@ -5,196 +5,193 @@ import { Globe } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 import GlobeDetailsPanel from './GlobeDetailsPanel';
 import GlobeParticles from './particles/GlobeParticles';
-import { COUNTRY_AI_LAWS } from '@/data/governance';
 import { useGlobeData } from '@/hooks/useGlobeData';
+
+// Soft ocean / atmosphere palette — light, calm, operational (no dark "space" look).
+const OCEAN = '#EEF2F7';
+const ATMOSPHERE = '#dbe6f0';
 
 export default function GlobalGlobeVisualization() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<number | null>(null);
+  const interactingRef = useRef(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const globeData = useGlobeData();
-  const particlesContainer = useRef<HTMLDivElement>(null);
 
-  // Initialize map
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Create base style using free OSM raster tiles
     const style: maplibregl.StyleSpecification = {
       version: 8,
+      // No external tile sources — only the bundled vector country polygons.
       sources: {
-        'osm': {
-          type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: '© OpenStreetMap contributors',
+        countries: {
+          type: 'geojson',
+          data: globeData as never,
+          generateId: true,
         },
       },
       layers: [
+        // Ocean / globe sphere base
+        { id: 'ocean', type: 'background', paint: { 'background-color': OCEAN } },
+        // Country fills by compliance status
         {
-          id: 'osm',
-          type: 'raster',
-          source: 'osm',
+          id: 'country-fill',
+          type: 'fill',
+          source: 'countries',
           paint: {
-            'raster-brightness-min': -0.2,
-            'raster-brightness-max': 0.8,
-            'raster-saturation': -0.5,
+            'fill-color': ['get', 'fillColor'],
+            'fill-opacity': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              0.95,
+              0.8,
+            ],
           },
-        } as any,
+        },
+        // Country outlines for crisp separation
+        {
+          id: 'country-outline',
+          type: 'line',
+          source: 'countries',
+          paint: {
+            'line-color': '#FFFFFF',
+            'line-width': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              1.4,
+              0.5,
+            ],
+          },
+        },
       ],
     };
 
-    map.current = new maplibregl.Map({
+    const m = new maplibregl.Map({
       container: mapContainer.current,
       style,
-      center: [20, 0],
-      zoom: 1.5,
-      pitch: 30,
-      bearing: 0,
+      center: [10, 25],
+      zoom: 1.1,
+      minZoom: 0.5,
+      maxZoom: 4,
+      renderWorldCopies: false,
+      attributionControl: false,
     });
+    map.current = m;
 
-    // Add country data layer
-    map.current.on('load', () => {
-      if (!map.current) return;
-
-      // Add source for country data
-      map.current.addSource('countries', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: globeData.features,
-        } as any,
-      });
-
-      // Add layer to render country circles
-      map.current.addLayer({
-        id: 'country-circles',
-        type: 'circle',
-        source: 'countries',
-        paint: {
-          'circle-radius': 8,
-          'circle-color': ['get', 'color'],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#0F172A', '#E2E8F0'],
-          'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.7],
-        },
-      });
-
-      // Add layer for country labels
-      map.current.addLayer({
-        id: 'country-labels',
-        type: 'symbol',
-        source: 'countries',
-        layout: {
-          'text-field': ['get', 'name'],
-          'text-size': 11,
-          'text-offset': [0, 1.5],
-          'text-anchor': 'top',
-        },
-        paint: {
-          'text-color': '#0F172A',
-          'text-halo-color': '#FFFFFF',
-          'text-halo-width': 1,
-          'text-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.5],
-        },
-      });
-
-      // Interaction: hover
-      map.current.on('mousemove', 'country-circles', (e) => {
-        if (!map.current) return;
-
-        if (e.features && e.features[0]) {
-          const countryName = e.features[0].properties.name;
-          setHoveredCountry(countryName);
-
-          if (map.current.isSourceLoaded('countries')) {
-            const data = map.current.querySourceFeatures('countries');
-            data.forEach((feature) => {
-              if (feature.properties.name === countryName) {
-                map.current?.setFeatureState(
-                  { source: 'countries', id: feature.id },
-                  { hover: true }
-                );
-              }
-            });
-          }
-        }
-      });
-
-      // Interaction: unhover
-      map.current.on('mouseleave', 'country-circles', () => {
-        if (!map.current) return;
-        setHoveredCountry(null);
-
-        if (map.current.isSourceLoaded('countries')) {
-          const data = map.current.querySourceFeatures('countries');
-          data.forEach((feature) => {
-            map.current?.setFeatureState(
-              { source: 'countries', id: feature.id },
-              { hover: false }
-            );
-          });
-        }
-      });
-
-      // Interaction: click
-      map.current.on('click', 'country-circles', (e) => {
-        if (e.features && e.features[0]) {
-          const countryName = e.features[0].properties.name;
-          setSelectedCountry((prev) => (prev === countryName ? null : countryName));
-        }
-      });
-
-      // Change cursor on hover
-      map.current.on('mouseenter', 'country-circles', () => {
-        if (map.current) map.current.getCanvas().style.cursor = 'pointer';
-      });
-      map.current.on('mouseleave', 'country-circles', () => {
-        if (map.current) map.current.getCanvas().style.cursor = '';
+    // Globe projection + soft light atmosphere.
+    m.on('style.load', () => {
+      m.setProjection({ type: 'globe' });
+      m.setSky({
+        'sky-color': ATMOSPHERE,
+        'sky-horizon-blend': 0.6,
+        'horizon-color': '#ffffff',
+        'horizon-fog-blend': 0.6,
+        'fog-color': '#ffffff',
+        'fog-ground-blend': 0.3,
+        'atmosphere-blend': 0.7,
       });
     });
 
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+    let hoveredId: number | string | undefined;
+    const clearHover = () => {
+      if (hoveredId !== undefined) {
+        m.setFeatureState({ source: 'countries', id: hoveredId }, { hover: false });
+        hoveredId = undefined;
       }
     };
+
+    m.on('mousemove', 'country-fill', (e) => {
+      if (!e.features?.length) return;
+      const f = e.features[0];
+      if (f.id === hoveredId) return;
+      clearHover();
+      hoveredId = f.id;
+      m.setFeatureState({ source: 'countries', id: hoveredId }, { hover: true });
+      m.getCanvas().style.cursor = 'pointer';
+    });
+
+    m.on('mouseleave', 'country-fill', () => {
+      clearHover();
+      m.getCanvas().style.cursor = '';
+    });
+
+    m.on('click', 'country-fill', (e) => {
+      if (!e.features?.length) return;
+      const name = e.features[0].properties?.name as string;
+      setSelectedCountry((prev) => (prev === name ? null : name));
+    });
+
+    // Subtle auto-rotation that pauses while the user interacts.
+    const SPIN_DEG_PER_FRAME = 0.02;
+    const spin = () => {
+      if (!interactingRef.current && map.current) {
+        const c = map.current.getCenter();
+        c.lng = ((c.lng + SPIN_DEG_PER_FRAME + 180) % 360) - 180;
+        map.current.setCenter(c);
+      }
+      spinRef.current = requestAnimationFrame(spin);
+    };
+    const pause = () => {
+      interactingRef.current = true;
+    };
+    const resume = () => {
+      interactingRef.current = false;
+    };
+    m.on('mousedown', pause);
+    m.on('touchstart', pause);
+    m.on('dragstart', pause);
+    m.getCanvas().addEventListener('mouseenter', pause);
+    m.getCanvas().addEventListener('mouseleave', resume);
+    spinRef.current = requestAnimationFrame(spin);
+
+    return () => {
+      if (spinRef.current) cancelAnimationFrame(spinRef.current);
+      m.remove();
+      map.current = null;
+    };
   }, [globeData]);
+
+  // Pause rotation whenever a country detail panel is open.
+  useEffect(() => {
+    interactingRef.current = selectedCountry !== null;
+  }, [selectedCountry]);
 
   return (
     <section id="global-map" className="scroll-mt-24">
       <SectionHeader
         icon={<Globe size={18} />}
         title="Global Compliance Map"
-        subtitle="Country-level AI regulation — click for details"
+        subtitle="Country-level AI regulation — drag to rotate, click a country for detail"
       />
 
-      <div className="card-elevated relative overflow-hidden" ref={particlesContainer}>
+      <div className="card-elevated relative overflow-hidden" ref={frameRef}>
         <div
           ref={mapContainer}
-          className="w-full h-96 bg-slate-50"
-          style={{
-            position: 'relative',
-          }}
+          className="w-full h-[460px]"
+          style={{ background: OCEAN }}
         />
-        <GlobeParticles
-          selectedCountry={selectedCountry}
-          containerElement={particlesContainer.current}
-        />
+        <GlobeParticles active={selectedCountry !== null} containerElement={frameRef.current} />
         <GlobeDetailsPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} />
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex gap-6 text-xs px-5">
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs px-1">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary"></div>
-          <span className="text-muted-foreground">Binding AI law</span>
+          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#14B8A6' }} />
+          <span className="text-muted-foreground">Binding AI law in effect</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-secondary"></div>
-          <span className="text-muted-foreground">Researched — no law</span>
+          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#94A3B8' }} />
+          <span className="text-muted-foreground">Researched — no binding law</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-3 h-3 rounded-sm" style={{ background: '#E2E8F0' }} />
+          <span className="text-muted-foreground">Not yet researched</span>
         </div>
       </div>
     </section>

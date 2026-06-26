@@ -28,7 +28,8 @@ export default function GlobeDetailsPanel({ country, onClose }: GlobePanelProps)
                 <h3 className="text-lg font-semibold text-foreground">{country}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   {law?.status === 'binding' && '✓ AI-specific law in effect'}
-                  {law?.status === 'none' && '○ No AI-specific law'}
+                  {law?.status === 'none' && '○ Researched — no binding AI law'}
+                  {!law && '· Not yet researched'}
                 </p>
               </div>
               {onClose && (
@@ -85,9 +86,22 @@ export default function GlobeDetailsPanel({ country, onClose }: GlobePanelProps)
               </div>
             )}
 
-            {!framework && (
-              <div className="card-elevated p-3 bg-secondary/5 text-xs text-muted-foreground">
-                <p>No specific AI framework found. Research status: {law?.status}</p>
+            {law?.status === 'none' && (
+              <div className="card-elevated p-3 text-xs text-muted-foreground leading-relaxed">
+                <p>
+                  Researched and confirmed to have no binding AI-specific law as of mid-2026.
+                  {country === 'United States of America' &&
+                    ' See the USA Compliance Map below for state-level detail.'}
+                </p>
+              </div>
+            )}
+
+            {!law && (
+              <div className="card-elevated p-3 text-xs text-muted-foreground leading-relaxed">
+                <p>
+                  This country is not yet part of the researched set. The map shows a curated
+                  starting set of jurisdictions, not an exhaustive global survey.
+                </p>
               </div>
             )}
           </div>
