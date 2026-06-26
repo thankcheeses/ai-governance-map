@@ -1,78 +1,72 @@
 import { useEffect, useRef } from 'react';
 
 interface GlobeParticlesProps {
-  selectedCountry: string | null;
+  /** When true, a soft NHID-teal focus glow pulses over the globe. */
+  active: boolean;
   containerElement: HTMLDivElement | null;
 }
 
-export default function GlobeParticles({ selectedCountry, containerElement }: GlobeParticlesProps) {
+/**
+ * A restrained canvas overlay: a slow teal halo that pulses when a country is
+ * selected. Deliberately subtle — operational, not a fireworks display.
+ */
+export default function GlobeParticles({ active, containerElement }: GlobeParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeRef = useRef(active);
+  activeRef.current = active;
 
   useEffect(() => {
     if (!canvasRef.current || !containerElement) return;
-
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size to match container
     const updateSize = () => {
-      canvas.width = containerElement.offsetWidth;
-      canvas.height = containerElement.offsetHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = containerElement.offsetWidth * dpr;
+      canvas.height = containerElement.offsetHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     updateSize();
     window.addEventListener('resize', updateSize);
 
-    // Simple particle animation loop
-    let animationId: number;
-    let time = 0;
+    let raf = 0;
+    let t = 0;
+    const render = () => {
+      t += 0.016;
+      const w = containerElement.offsetWidth;
+      const h = containerElement.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
 
-    const animate = () => {
-      time += 0.016;
-
-      // Clear canvas
-      ctx.fillStyle = 'rgba(255, 255, 255, 0)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw glow effect if country selected
-      if (selectedCountry) {
-        // Pulse glow in center
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const pulseScale = 1 + Math.sin(time * 2) * 0.2;
-
-        const gradient = ctx.createRadialGradient(
-          centerX,
-          centerY,
-          0,
-          centerX,
-          centerY,
-          150 * pulseScale
-        );
-        gradient.addColorStop(0, 'rgba(20, 184, 166, 0.3)'); // Teal with opacity
-        gradient.addColorStop(0.5, 'rgba(20, 184, 166, 0.1)');
-        gradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (activeRef.current) {
+        const cx = w / 2;
+        const cy = h / 2;
+        const pulse = 1 + Math.sin(t * 1.6) * 0.12;
+        const r = Math.min(w, h) * 0.42 * pulse;
+        const g = ctx.createRadialGradient(cx, cy, r * 0.55, cx, cy, r);
+        g.addColorStop(0, 'rgba(20, 184, 166, 0)');
+        g.addColorStop(0.85, 'rgba(20, 184, 166, 0.10)');
+        g.addColorStop(1, 'rgba(20, 184, 166, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
       }
-
-      animationId = requestAnimationFrame(animate);
+      raf = requestAnimationFrame(render);
     };
-
-    animate();
+    render();
 
     return () => {
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(raf);
       window.removeEventListener('resize', updateSize);
     };
-  }, [selectedCountry, containerElement]);
+  }, [containerElement]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full rounded-lg pointer-events-none"
-      style={{ zIndex: 10 }}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 5 }}
     />
   );
 }
