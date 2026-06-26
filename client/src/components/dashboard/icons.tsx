@@ -1,6 +1,48 @@
 // Hand-crafted inline SVG marks for concepts that don't map to a generic
-// icon-library glyph (shield+waveform fusion, layered trust stack,
-// provenance chain links, radar control nodes, prohibition glyph).
+// icon-library glyph (governance lattice brand mark, shield+waveform fusion,
+// layered trust stack, provenance chain links, radar control nodes,
+// prohibition glyph).
+
+export function GovernanceLatticeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M24 5 L40.5 14.5 V33.5 L24 43 L7.5 33.5 V14.5 Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.5"
+      />
+      <path
+        d="M24 13 L35 31 H13 Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.85"
+      />
+      <path
+        d="M24 13 L24 24 M35 31 L24 24 M13 31 L24 24"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <circle cx="24" cy="13" r="2.75" fill="currentColor" />
+      <circle cx="35" cy="31" r="2.75" fill="currentColor" />
+      <circle cx="13" cy="31" r="2.75" fill="currentColor" />
+      <circle cx="24" cy="24" r="6.5" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path
+        d="M20.8 24.3 L23.1 26.6 L27.2 21.4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
 
 export function ShieldWaveformIcon({ className }: { className?: string }) {
   return (
