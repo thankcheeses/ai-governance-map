@@ -542,8 +542,12 @@ export interface TimelineEvent {
 
 export const TIMELINE_EVENTS: TimelineEvent[] = [
   { date: '2024-08-01', label: 'EU AI Act entered into force', status: 'past', detail: 'Regulation (EU) 2024/1689 published and in force.' },
+  { date: '2025-01-20', label: 'US: EO 14110 revoked', status: 'past', detail: 'Federal policy (non-binding on private deployers): the 2023 Safe, Secure & Trustworthy AI executive order was rescinded, ending its model safety-reporting and agency Chief AI Officer directives.' },
+  { date: '2025-01-23', label: 'US: EO 14179 — Removing Barriers to American Leadership in AI', status: 'past', detail: 'Federal policy: directs an AI Action Plan and rollback of EO 14110-era actions. Aimed at federal agencies — not enforceable law on private deployers.' },
   { date: '2025-02-02', label: 'Prohibited practices & AI literacy', status: 'past', detail: '8 banned practices enforced; AI literacy obligations for providers begin.' },
   { date: '2025-08-02', label: 'GPAI governance rules applicable', status: 'past', detail: 'General-purpose AI model obligations, Code of Practice, training-data summary template.' },
+  { date: '2026-03-20', label: 'US: National Policy Framework for AI (preemption proposal)', status: 'past', detail: 'Federal policy proposal: White House legislative recommendations to Congress calling for federal preemption of state AI laws (e.g. CA/CO/TX). A proposal — creates no legal obligations and is pending Congress.' },
+  { date: '2026-06-02', label: 'US: EO 14409 — voluntary frontier-model early access', status: 'past', detail: 'Federal policy: establishes a voluntary up-to-30-day government pre-release access framework for "covered frontier models" and bars any mandatory licensing/preclearance. Non-binding on private deployers.' },
   { date: '2026-06-30', label: 'Colorado AI Act applicable', status: 'current', detail: 'SB 24-205 risk management and consumer-notice obligations take effect for high-risk AI deployers.' },
   { date: '2026-08-02', label: 'Transparency rules applicable', status: 'current', detail: 'Disclosure for chatbots, AI-generated content labeling.' },
   { date: '2027-12-02', label: 'High-risk area systems applicable', status: 'upcoming', detail: 'Certain high-risk AI systems must comply after the 2026 simplification agreement.' },
