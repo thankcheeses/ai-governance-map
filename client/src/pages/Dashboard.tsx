@@ -48,7 +48,7 @@ export default function Dashboard() {
           <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
         </main>
         <footer className="gradient-border border-t border-border py-6 px-4 lg:px-8 text-center text-xs text-muted-foreground">
-          AI Governance Map · v2 · Local-only reference — no data leaves your browser.
+          AI Governance Map · v2 · Local-only — your assessment data never leaves your browser. Globe basemap imagery © Esri.
         </footer>
       </SidebarInset>
       <DemoModeOverlay active={demoActive} onClose={() => setDemoActive(false)} />
