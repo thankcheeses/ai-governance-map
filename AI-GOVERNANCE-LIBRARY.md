@@ -28,9 +28,20 @@ currently encodes **27** controls across 16 domains. The figures near "~200" are
 | **NIST AI RMF** | 72 subcategories (Govern/Map/Measure/Manage) | Outcome statements, not "controls" per se. |
 | **NIST SP 800-53 Rev 5** | 1000+ controls | Superset; the security backbone many AI controls inherit from. |
 
-**To reach a ~200-control map:** adopt the **CSA AICM** as the control spine (AI-native, already
-cross-walked to ISO 42001 / NIST AI RMF / EU AI Act), and keep the current 27 as the
-"implemented/assessed" subset. I can encode AICM in verified batches by domain.
+**To reach a ~200-control map:** see the licensing constraint below — the recommended route is to
+**expand the map's own original control library** (CCM-domain-aligned, our own descriptions),
+cross-referenced to AICM by control ID, rather than copying CSA's catalog text.
+
+> ⚠️ **CSA AICM licensing (verified):** AICM is free to download but **not openly licensed** — CSA's
+> terms permit "personal, informational, non-commercial use," and state it "may not be modified" or
+> "redistributed." Reproducing AICM's ~247 control titles/specification text in this **open-source**
+> app would require a **paid CSA license**. Therefore AICM is included here only as an **attributed
+> framework reference** (`shortCode: 'AICM'`), and its control catalog is **not** reproduced.
+> Legal paths to a larger control library: (a) author our **own** controls (as the existing 27 are),
+> cross-referenced to AICM IDs; (b) quote limited portions under Fair Use with attribution; or
+> (c) obtain a CSA license to embed the catalog. AICM v1.1 = **247 objectives / 18 domains** (the 17
+> CCM v4 domains + a new **Model Security** domain; verify its abbreviation MDS vs MOS against the
+> CSA Excel before using control IDs).
 
 ---
 
@@ -61,6 +72,7 @@ cross-walked to ISO 42001 / NIST AI RMF / EU AI Act), and keep the current 27 as
 | ISO/IEC 24028 / TR 24027 / TR 24368 (trustworthiness, bias, ethics) | TR/Standard | Global | ⚪ Reference |
 | ISO/IEC 5338 (AI system lifecycle) | Standard | Global | ⚪ Reference |
 | ISO/IEC 42006 (audit/certification bodies) | Standard | Global | ⚪ Reference |
+| IEEE 7000-2021 (ethical system design) | Standard (voluntary) | Global | ✅ In map |
 | Google Secure AI Framework (SAIF) v2 | Vendor framework | Global | 🟡 Candidate |
 | NIST CSF 2.0 | Framework | US/Global | ⚪ Reference (cross-walk) |
 
