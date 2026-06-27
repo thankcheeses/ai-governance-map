@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN' | 'GDPR' | 'COE' | 'UNESCO' | 'FDA' | 'ONC' | 'WHO' | 'CHAI' | 'TCPA' | 'TN' | 'AICM';
   name: string;
   type: string;
   jurisdiction: string;
@@ -97,6 +97,59 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'India', version: 'G.S.R. 120(E), in force Feb 20, 2026', coverage: 20,
     summary: 'Binding amendment to the IT Rules 2021 (delegated under the IT Act, 2000) targeting AI-generated/synthetic content: mandatory labelling and provenance metadata, a 3-hour takedown duty for unlabeled synthetic media, and loss of intermediary safe-harbor for noncompliance.',
   },
+  // ── International / EU normative layer (verified mid-2026; see AI-GOVERNANCE-LIBRARY.md) ──
+  {
+    slug: 'gdpr', shortCode: 'GDPR', name: 'General Data Protection Regulation (EU 2016/679)',
+    type: 'Regulation (Binding)', jurisdiction: 'EU', version: 'Regulation (EU) 2016/679, applicable 25 May 2018', coverage: 30,
+    summary: 'Binding EU data-protection law with AI-relevant provisions: Art 22 restricts solely-automated decisions with legal/significant effects, and Arts 13–15 require meaningful information about the logic and consequences of automated processing. Enforced by DPAs with fines up to €20M or 4% of global turnover.',
+  },
+  {
+    slug: 'coe-ai-convention', shortCode: 'COE', name: 'Council of Europe Framework Convention on AI (CETS 225)',
+    type: 'Treaty (Binding)', jurisdiction: 'Council of Europe + signatories', version: 'CETS No. 225, in force 1 Nov 2025', coverage: 18,
+    summary: 'First international legally binding treaty on AI, requiring Parties to ensure AI-lifecycle activities are consistent with human rights, democracy, and the rule of law. As a framework convention it binds ratifying states (implemented via national law) rather than regulating private actors directly.',
+  },
+  {
+    slug: 'unesco-ai-ethics', shortCode: 'UNESCO', name: 'UNESCO Recommendation on the Ethics of AI',
+    type: 'Recommendation (Voluntary)', jurisdiction: 'Global', version: 'Adopted 23 Nov 2021 by 193 member states', coverage: 22,
+    summary: 'First global standard-setting instrument on AI ethics, adopted by all 193 UNESCO member states. Non-binding; states commit to implementing values (human rights/dignity, transparency, fairness, human oversight, sustainability) via national policy and tools like the Ethical Impact Assessment.',
+  },
+  // ── Healthcare & voice-AI sector (verified mid-2026; see AI-GOVERNANCE-LIBRARY.md) ──
+  {
+    slug: 'fda-ai-pccp', shortCode: 'FDA', name: 'FDA AI-Enabled Device Software — PCCP Guidance',
+    type: 'Guidance (Non-binding)', jurisdiction: 'US', version: 'Final guidance 3 Dec 2024 (under FD&C Act §515C / FDORA 2022)', coverage: 20,
+    summary: 'FDA final guidance on Predetermined Change Control Plans for AI-enabled medical device software: manufacturers can pre-specify and obtain authorization for future model changes. The guidance is non-binding but rests on binding statute (FD&C Act §515C).',
+  },
+  {
+    slug: 'onc-hti-1-dsi', shortCode: 'ONC', name: 'ONC HTI-1 — Decision Support Intervention Transparency',
+    type: 'Regulation (Binding)', jurisdiction: 'US', version: '89 FR 1192, effective 11 Mar 2024 (DSI compliance by 1 Jan 2025)', coverage: 25,
+    summary: 'Binding HHS/ASTP-ONC rule requiring certified health IT to disclose "source attributes" for Decision Support Interventions — 31 attributes for Predictive DSIs (training data, fairness, validity, intended use) — and to implement intervention risk management practices.',
+  },
+  {
+    slug: 'who-ai-health-lmm', shortCode: 'WHO', name: 'WHO Ethics & Governance of AI for Health (LMM Guidance)',
+    type: 'Guidance (Non-binding)', jurisdiction: 'Global', version: 'Released 18 Jan 2024 (extends 2021 report)', coverage: 18,
+    summary: 'Voluntary WHO guidance on large multi-modal models in health: identifies five health application areas and associated risks, with 40+ recommendations to governments, developers, and providers. No legal force.',
+  },
+  {
+    slug: 'chai-assurance', shortCode: 'CHAI', name: 'Coalition for Health AI (CHAI) Assurance Standards',
+    type: 'Framework (Voluntary)', jurisdiction: 'US', version: 'Assurance Standards Guide v1.0, 26 Jun 2024', coverage: 20,
+    summary: 'Voluntary, consensus-based responsible-AI framework for healthcare from a multi-stakeholder non-profit: assurance standards across the AI lifecycle (usefulness, fairness, safety, transparency, privacy) plus reporting checklists. Not a regulation.',
+  },
+  {
+    slug: 'tcpa-ai-voice', shortCode: 'TCPA', name: 'TCPA — FCC AI-Voice Declaratory Ruling',
+    type: 'Regulation (Binding)', jurisdiction: 'US', version: 'FCC 24-17, effective 8 Feb 2024 (47 U.S.C. §227)', coverage: 22,
+    summary: 'Binding FCC ruling confirming AI-generated/cloned voices are "artificial voice" under the TCPA, requiring prior express (written, for marketing) consent before such calls, with caller-identification and opt-out duties. Enforceable by the FCC, state AGs, and private plaintiffs.',
+  },
+  {
+    slug: 'tn-elvis-act', shortCode: 'TN', name: 'Tennessee ELVIS Act (Voice & Likeness)',
+    type: 'Regulation (Binding)', jurisdiction: 'US (Tennessee)', version: 'Public Chapter 2024, effective 1 Jul 2024', coverage: 18,
+    summary: 'First US law to add "voice" to the right of publicity to target AI voice cloning/deepfakes. Prohibits unauthorized commercial use of a person\'s voice/likeness (incl. AI simulations) and distribution of tools whose primary purpose is unauthorized replication. Civil and criminal liability.',
+  },
+  // ── Control matrix (reference only — catalog text not reproduced; © CSA, non-commercial license) ──
+  {
+    slug: 'csa-aicm', shortCode: 'AICM', name: 'CSA AI Controls Matrix (AICM)',
+    type: 'Control Matrix (Voluntary)', jurisdiction: 'Global', version: 'v1.1 — 247 control objectives / 18 domains (2025)', coverage: 28,
+    summary: 'Cloud Security Alliance AI-specific control framework: 247 control objectives across 18 domains (CCM v4\'s 17 domains plus a new Model Security domain), cross-walked to ISO/IEC 42001, ISO/IEC 27001, NIST AI RMF + 600-1, EU AI Act, and BSI AIC4. Referenced here as the candidate control spine — the AICM catalog is © CSA under a non-commercial, no-redistribution license, so its control text is not reproduced in this open-source dataset.',
+  },
 ];
 
 export interface Obligation {
@@ -158,6 +211,33 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl45', title: 'Label AI-generated content', framework: 'CN', topic: 'Transparency', type: 'mandatory', effective: '2025-09-01', severity: 'high', summary: 'Generative AI content must carry a visible and/or embedded label identifying it as AI-generated, per the 2025 content-labeling rules.' },
   { id: 'obl46', title: 'Label and embed provenance metadata for synthetic media', framework: 'IN', topic: 'Transparency', type: 'mandatory', effective: '2026-02-20', severity: 'high', summary: 'Intermediaries must require visible labelling and embedded provenance metadata for AI-generated/synthetic content under the amended IT Rules.' },
   { id: 'obl47', title: 'Takedown unlabeled synthetic content within 3 hours', framework: 'IN', topic: 'Content Moderation', type: 'mandatory', effective: '2026-02-20', severity: 'critical', summary: 'Intermediaries must act on actionable knowledge to remove or disable unlabeled AI-generated content within 3 hours, or lose safe-harbor protection under the IT Act.' },
+  // GDPR
+  { id: 'obl48', title: 'Right not to be subject to solely automated decisions', framework: 'GDPR', topic: 'Automated Decision-Making', type: 'mandatory', effective: '2018-05-25', severity: 'high', summary: 'Art 22: individuals have the right not to be subject to decisions based solely on automated processing (incl. profiling) with legal or similarly significant effects, absent consent, contractual necessity, or law — with safeguards including human intervention and the right to contest.' },
+  { id: 'obl49', title: 'Meaningful information about automated processing', framework: 'GDPR', topic: 'Transparency', type: 'mandatory', effective: '2018-05-25', severity: 'medium', summary: 'Arts 13–15: where automated decision-making exists, controllers must disclose its existence and provide meaningful information about the logic involved and the significance and consequences for the data subject.' },
+  // Council of Europe AI Convention
+  { id: 'obl50', title: 'Bind AI lifecycle to human rights & rule of law', framework: 'COE', topic: 'Fundamental Rights', type: 'mandatory', effective: '2025-11-01', severity: 'high', summary: 'Parties must adopt measures ensuring activities across the AI lifecycle are consistent with human rights, the integrity of democratic processes, and the rule of law (implemented via national law).' },
+  { id: 'obl51', title: 'Transparency, oversight, accountability & remedies', framework: 'COE', topic: 'Accountability', type: 'mandatory', effective: '2025-11-01', severity: 'medium', summary: 'Parties must provide transparency and oversight (incl. identifying AI-generated content where appropriate), accountability for adverse impacts, and effective procedural safeguards and remedies for affected persons.' },
+  // UNESCO
+  { id: 'obl52', title: 'Implement AI-ethics principles via national policy', framework: 'UNESCO', topic: 'AI Ethics', type: 'recommended', effective: '2021-11-23', severity: 'medium', summary: 'Member states are encouraged to translate the Recommendation\'s values (human rights/dignity, transparency, fairness, safety, accountability, human oversight, sustainability) into domestic law and policy across 11 action areas.' },
+  { id: 'obl53', title: 'Conduct Ethical Impact Assessments', framework: 'UNESCO', topic: 'Impact Assessment', type: 'recommended', effective: '2021-11-23', severity: 'medium', summary: 'Member states are invited to use UNESCO implementation tools — the Ethical Impact Assessment and Readiness Assessment Methodology — and to periodically report on measures taken.' },
+  // FDA AI/ML SaMD — PCCP
+  { id: 'obl54', title: 'Include a Predetermined Change Control Plan', framework: 'FDA', topic: 'Change Management', type: 'recommended', effective: '2024-12-03', severity: 'high', summary: 'Manufacturers should submit a PCCP (modification description, modification protocol, impact assessment) in the original marketing submission to pre-authorize future AI model changes.' },
+  { id: 'obl55', title: 'Transparency when a device has an authorized PCCP', framework: 'FDA', topic: 'Transparency', type: 'recommended', effective: '2024-12-03', severity: 'medium', summary: 'Inform users when a device was authorized with a PCCP and when pre-authorized modifications are implemented.' },
+  // ONC HTI-1
+  { id: 'obl56', title: 'Disclose source attributes for Predictive DSIs', framework: 'ONC', topic: 'Algorithm Transparency', type: 'mandatory', effective: '2025-01-01', severity: 'critical', summary: 'Certified health IT must make 31 source attributes (training data, fairness, validity, intended use, etc.) available to users for each Predictive Decision Support Intervention it enables.' },
+  { id: 'obl57', title: 'Implement Intervention Risk Management practices', framework: 'ONC', topic: 'Risk Management', type: 'mandatory', effective: '2025-01-01', severity: 'high', summary: 'Developers must apply and publicly summarize risk-analysis, risk-mitigation, and governance practices for Predictive DSIs available through certified health IT.' },
+  // WHO health-AI / LMM
+  { id: 'obl58', title: 'Government oversight & assurance for health LMMs', framework: 'WHO', topic: 'Governance', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'WHO recommends governments regulate health large multi-modal models through laws, mandatory post-release auditing, and independent safety/efficacy assessment.' },
+  { id: 'obl59', title: 'Developer transparency & human oversight for LMMs', framework: 'WHO', topic: 'Transparency', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'WHO recommends developers design health LMMs for anticipated medical uses, ensure human oversight, and engage diverse stakeholders across the lifecycle.' },
+  // CHAI
+  { id: 'obl60', title: 'Complete assurance reporting across the AI lifecycle', framework: 'CHAI', topic: 'Assurance', type: 'recommended', effective: '2024-06-26', severity: 'medium', summary: 'Adopters evaluate health-AI products against consensus standards (usefulness, fairness, safety, transparency, privacy/security) and document results via reporting checklists.' },
+  { id: 'obl61', title: 'Establish AI governance, monitoring & bias mitigation', framework: 'CHAI', topic: 'Governance', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'CHAI recommends governance structures, ongoing performance monitoring, bias mitigation, data-protection safeguards, and clinician training.' },
+  // TCPA — FCC AI-voice ruling
+  { id: 'obl62', title: 'Obtain prior express consent before AI-voice calls', framework: 'TCPA', topic: 'Consent', type: 'mandatory', effective: '2024-02-08', severity: 'critical', summary: 'Callers must obtain prior express consent (prior express written consent for marketing) before placing calls using AI-generated or cloned voices, which the FCC deems "artificial voice" under the TCPA.' },
+  { id: 'obl63', title: 'Identify caller and provide opt-out for AI-voice calls', framework: 'TCPA', topic: 'Disclosure', type: 'mandatory', effective: '2024-02-08', severity: 'high', summary: 'AI-voice callers must identify the responsible party and offer the opt-out rights and mechanisms required for any artificial or prerecorded-voice call.' },
+  // Tennessee ELVIS Act
+  { id: 'obl64', title: 'No unauthorized use of a person\'s voice/likeness', framework: 'TN', topic: 'Right of Publicity', type: 'mandatory', effective: '2024-07-01', severity: 'critical', summary: 'Prohibits using an individual\'s voice, name, photograph, or likeness — including an AI-simulated voice — without consent.' },
+  { id: 'obl65', title: 'No distribution of unauthorized voice-cloning tools', framework: 'TN', topic: 'Secondary Liability', type: 'mandatory', effective: '2024-07-01', severity: 'high', summary: 'Prohibits making available an algorithm, software, or service whose primary purpose is producing an unauthorized replica of an individual\'s voice or likeness.' },
 ];
 
 export interface StateAILaw {
