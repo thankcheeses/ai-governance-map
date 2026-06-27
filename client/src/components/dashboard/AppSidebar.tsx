@@ -23,7 +23,7 @@ import {
   Globe,
   BookOpenCheck,
 } from 'lucide-react';
-import { GovernanceLatticeIcon, ShieldWaveformIcon } from './icons';
+import { ShieldWaveformIcon } from './icons';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -52,8 +52,8 @@ export default function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarHeader className="px-3 py-3">
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-            <GovernanceLatticeIcon className="w-5 h-5" />
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <img src="/nhid-logo.png" alt="NHID-Clinical" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold text-foreground leading-none truncate">AI Governance Map</p>

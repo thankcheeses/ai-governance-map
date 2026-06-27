@@ -1,0 +1,18 @@
+<!-- NHID-Clinical mark — Dark-mode variant (transparent; lifted tones for dark backgrounds). viewBox 120. -->
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NHID-Clinical">
+  <defs>
+    <linearGradient id="g-blade" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0" stop-color="#1c4a82"/>
+      <stop offset="0.55" stop-color="#1b86a6"/>
+      <stop offset="1" stop-color="#19c2b1"/>
+    </linearGradient>
+    <linearGradient id="g-bar" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27568c"/>
+      <stop offset="1" stop-color="#1d4474"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="39" width="29" height="47" rx="7" fill="url(#g-bar)"/>
+  <path d="M46 6 H79 a8 8 0 0 1 8 8 V40 L57 84 a9 9 0 0 1 -8 5 H45 a7 7 0 0 1 -7 -8 L40 14 a8 8 0 0 1 6 -8 Z" fill="url(#g-blade)"/>
+  <circle cx="104" cy="43" r="12.5" fill="#33598a"/>
+  <rect x="92" y="62" width="25" height="28" rx="5" fill="#8ad6e8"/>
+</svg>
