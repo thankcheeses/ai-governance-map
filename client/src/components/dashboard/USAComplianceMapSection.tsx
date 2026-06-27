@@ -1,13 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { feature } from 'topojson-client';
+import type { FeatureCollection, Geometry } from 'geojson';
 import { Map as MapIcon, ChevronDown } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { STATE_AI_LAWS, FRAMEWORKS, OBLIGATIONS, type Framework, type Obligation } from '@/data/governance';
 import SectionHeader from './SectionHeader';
 import usStates from 'us-atlas/states-10m.json';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+// Esri World Imagery — same realistic satellite basemap used by the global map.
+const ESRI_IMAGERY =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const SPACE = '#05070f';
+
+interface StateProps {
+  name: string;
+  status: 'binding' | 'none';
+}
+
+// Bundled us-atlas topojson -> GeoJSON state polygons with compliance status. In-browser, no network.
+function useStatesData(): FeatureCollection<Geometry, StateProps> {
+  return useMemo(() => {
+    const collection = feature(
+      usStates as never,
+      (usStates as never as { objects: { states: never } }).objects.states,
+    ) as unknown as FeatureCollection<Geometry, { name: string }>;
+    const features = collection.features.map((f) => {
+      const name = f.properties?.name ?? '';
+      const law = STATE_AI_LAWS.find((s) => s.name === name);
+      return { ...f, properties: { name, status: (law?.status ?? 'none') as 'binding' | 'none' } };
+    });
+    return { type: 'FeatureCollection', features } as FeatureCollection<Geometry, StateProps>;
+  }, []);
+}
 
 // National frameworks apply across every state (US-scoped or US/Global hybrid);
 // Global frameworks apply regardless of jurisdiction. Both render as collapsible
@@ -100,75 +128,143 @@ function TierSection({
 export default function USAComplianceMapSection() {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [expandedTier, setExpandedTier] = useState({ national: false, global: false });
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const statesData = useStatesData();
 
   const selectedLaw = selectedState ? STATE_AI_LAWS.find((s) => s.name === selectedState) : undefined;
   const selectedFramework = selectedLaw?.frameworkSlug ? FRAMEWORKS.find((f) => f.slug === selectedLaw.frameworkSlug) : undefined;
   const selectedObligations = selectedFramework ? OBLIGATIONS.filter((o) => o.framework === selectedFramework.shortCode) : [];
 
-  const handleStateClick = (name: string) => {
-    setSelectedState((s) => (s === name ? null : name));
-    setExpandedTier({ national: false, global: false });
-  };
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    const style: maplibregl.StyleSpecification = {
+      version: 8,
+      sources: {
+        satellite: {
+          type: 'raster',
+          tiles: [ESRI_IMAGERY],
+          tileSize: 256,
+          maxzoom: 19,
+          attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, NASA, NOAA, USGS',
+        },
+        states: { type: 'geojson', data: statesData as never, generateId: true },
+      },
+      layers: [
+        { id: 'space', type: 'background', paint: { 'background-color': SPACE } },
+        { id: 'satellite', type: 'raster', source: 'satellite' },
+        {
+          id: 'state-fill',
+          type: 'fill',
+          source: 'states',
+          paint: {
+            'fill-color': ['match', ['get', 'status'], 'binding', '#2dd4bf', '#cbd5e1'],
+            'fill-opacity': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              0.6,
+              ['match', ['get', 'status'], 'binding', 0.45, 0.22],
+            ],
+          },
+        },
+        {
+          id: 'state-outline',
+          type: 'line',
+          source: 'states',
+          paint: {
+            'line-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#ffffff', 'rgba(255,255,255,0.5)'],
+            'line-width': ['case', ['boolean', ['feature-state', 'selected'], false], 2, ['case', ['boolean', ['feature-state', 'hover'], false], 1.4, 0.6]],
+          },
+        },
+      ],
+    };
+
+    const m = new maplibregl.Map({
+      container: mapContainer.current,
+      style,
+      center: [-96, 38],
+      zoom: 3.1,
+      minZoom: 2,
+      maxZoom: 8,
+      renderWorldCopies: false,
+      attributionControl: { compact: true },
+    });
+    map.current = m;
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-left');
+
+    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
+    let hoveredId: number | string | undefined;
+    const clearHover = () => {
+      if (hoveredId !== undefined) {
+        m.setFeatureState({ source: 'states', id: hoveredId }, { hover: false });
+        hoveredId = undefined;
+      }
+    };
+
+    m.on('mousemove', 'state-fill', (e) => {
+      if (!e.features?.length) return;
+      const f = e.features[0];
+      if (f.id !== hoveredId) {
+        clearHover();
+        hoveredId = f.id;
+        m.setFeatureState({ source: 'states', id: hoveredId }, { hover: true });
+      }
+      m.getCanvas().style.cursor = 'pointer';
+      const name = f.properties?.name as string;
+      const law = STATE_AI_LAWS.find((s) => s.name === name);
+      const fw = law?.frameworkSlug ? FRAMEWORKS.find((x) => x.slug === law.frameworkSlug) : undefined;
+      popup
+        .setLngLat(e.lngLat)
+        .setHTML(
+          `<div style="font:600 12px Inter,sans-serif;color:#0f172a">${name}</div>` +
+            `<div style="font:400 10px Inter,sans-serif;color:#64748b">${fw ? fw.name : 'No AI-specific law tracked'}</div>`,
+        )
+        .addTo(m);
+    });
+    m.on('mouseleave', 'state-fill', () => {
+      clearHover();
+      m.getCanvas().style.cursor = '';
+      popup.remove();
+    });
+    m.on('click', 'state-fill', (e) => {
+      if (!e.features?.length) return;
+      const name = e.features[0].properties?.name as string;
+      setSelectedState((s) => (s === name ? null : name));
+      setExpandedTier({ national: false, global: false });
+    });
+
+    return () => {
+      m.remove();
+      map.current = null;
+    };
+  }, [statesData]);
+
+  // Reflect the selected state as a highlighted outline on the map.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !m.isStyleLoaded()) return;
+    statesData.features.forEach((f, i) => {
+      m.setFeatureState({ source: 'states', id: i }, { selected: f.properties.name === selectedState });
+    });
+  }, [selectedState, statesData]);
 
   return (
     <section id="usa-map" className="scroll-mt-24">
       <SectionHeader
         icon={<MapIcon size={18} />}
         title="USA Compliance Map"
-        subtitle="State-level AI regulation — hover a state for a quick read, click for the full obligation detail"
+        subtitle="State-level AI regulation on a live satellite map — hover a state for a quick read, click for the full obligation detail"
       />
 
       <div className="card-elevated p-5">
-        <div className="w-full max-w-2xl mx-auto">
-          <ComposableMap projection="geoAlbersUsa" className="w-full h-auto">
-            <defs>
-              <pattern id="usa-terrain" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
-                <path d="M0 18 Q 9 9, 18 18 T 36 18" fill="none" stroke="var(--border)" strokeWidth="0.6" opacity="0.5" />
-                <path d="M0 27 Q 9 18, 18 27 T 36 27" fill="none" stroke="var(--border)" strokeWidth="0.6" opacity="0.3" />
-                <path d="M0 9 Q 9 0, 18 9 T 36 9" fill="none" stroke="var(--border)" strokeWidth="0.6" opacity="0.2" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#usa-terrain)" />
-            <Geographies geography={usStates}>
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  const law = STATE_AI_LAWS.find((s) => s.name === geo.properties.name);
-                  const isBinding = law?.status === 'binding';
-                  const framework = isBinding ? FRAMEWORKS.find((f) => f.slug === law?.frameworkSlug) : undefined;
-                  const isSelected = selectedState === geo.properties.name;
-                  return (
-                    <Tooltip key={geo.id}>
-                      <TooltipTrigger asChild>
-                        <Geography
-                          geography={geo}
-                          onClick={() => handleStateClick(geo.properties.name)}
-                          className={`outline-none transition-colors duration-200 cursor-pointer ${
-                            isBinding
-                              ? 'fill-primary/30 hover:fill-primary/50'
-                              : 'fill-secondary hover:fill-secondary/70'
-                          }`}
-                          style={{
-                            default: { stroke: isSelected ? '#0F172A' : 'var(--border)', strokeWidth: isSelected ? 1.5 : 0.5 },
-                            hover: { stroke: '#0F172A', strokeWidth: 1 },
-                            pressed: { stroke: '#0F172A', strokeWidth: 1.5 },
-                          }}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="font-semibold">{geo.properties.name}</p>
-                        <p className="text-[0.65rem] opacity-80">{framework ? framework.name : 'No AI-specific law tracked'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })
-              }
-            </Geographies>
-          </ComposableMap>
+        <div className="relative rounded-lg overflow-hidden" style={{ background: SPACE }}>
+          <div ref={mapContainer} className="w-full h-[520px]" />
         </div>
 
         <div className="flex items-center gap-4 mt-4 text-[0.65rem] text-muted-foreground flex-wrap justify-center">
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-primary/30 border border-border" />AI-specific law in effect</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-secondary border border-border" />No AI-specific law tracked</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ background: '#2dd4bf' }} />AI-specific law in effect</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ background: '#cbd5e1' }} />No AI-specific law tracked</span>
         </div>
 
         <AnimatePresence mode="wait">
