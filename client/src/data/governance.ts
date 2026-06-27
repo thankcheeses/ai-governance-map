@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN' | 'GDPR' | 'COE' | 'UNESCO' | 'FDA' | 'ONC' | 'WHO' | 'CHAI' | 'TCPA' | 'TN' | 'AICM';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN' | 'GDPR' | 'COE' | 'UNESCO' | 'FDA' | 'ONC' | 'WHO' | 'CHAI' | 'TCPA' | 'TN' | 'AICM' | 'IEEE';
   name: string;
   type: string;
   jurisdiction: string;
@@ -150,6 +150,12 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Control Matrix (Voluntary)', jurisdiction: 'Global', version: 'v1.1 — 247 control objectives / 18 domains (2025)', coverage: 28,
     summary: 'Cloud Security Alliance AI-specific control framework: 247 control objectives across 18 domains (CCM v4\'s 17 domains plus a new Model Security domain), cross-walked to ISO/IEC 42001, ISO/IEC 27001, NIST AI RMF + 600-1, EU AI Act, and BSI AIC4. Referenced here as the candidate control spine — the AICM catalog is © CSA under a non-commercial, no-redistribution license, so its control text is not reproduced in this open-source dataset.',
   },
+  // ── Ethical engineering standard ──
+  {
+    slug: 'ieee-7000', shortCode: 'IEEE', name: 'IEEE 7000-2021 (Ethical System Design)',
+    type: 'Standard (Voluntary)', jurisdiction: 'Global', version: 'IEEE Std 7000-2021 (Sept 2021)', coverage: 20,
+    summary: 'International standard giving a model process for addressing ethical concerns during system design — eliciting stakeholder values and translating them into traceable ethical value requirements and design characteristics across the engineering lifecycle. Complements NIST AI RMF and ISO/IEC 42001 (which focus on risk and management systems) by operationalizing ethics at the requirements/design stage. Voluntary.',
+  },
 ];
 
 export interface Obligation {
@@ -238,6 +244,9 @@ export const OBLIGATIONS: Obligation[] = [
   // Tennessee ELVIS Act
   { id: 'obl64', title: 'No unauthorized use of a person\'s voice/likeness', framework: 'TN', topic: 'Right of Publicity', type: 'mandatory', effective: '2024-07-01', severity: 'critical', summary: 'Prohibits using an individual\'s voice, name, photograph, or likeness — including an AI-simulated voice — without consent.' },
   { id: 'obl65', title: 'No distribution of unauthorized voice-cloning tools', framework: 'TN', topic: 'Secondary Liability', type: 'mandatory', effective: '2024-07-01', severity: 'high', summary: 'Prohibits making available an algorithm, software, or service whose primary purpose is producing an unauthorized replica of an individual\'s voice or likeness.' },
+  // IEEE 7000-2021
+  { id: 'obl66', title: 'Translate stakeholder values into ethical value requirements', framework: 'IEEE', topic: 'Value-Based Design', type: 'recommended', effective: '2021-09-15', severity: 'medium', summary: 'Apply the IEEE 7000 process to elicit stakeholder values and translate them into traceable ethical value requirements (EVRs) early in system design.' },
+  { id: 'obl67', title: 'Maintain an ethical-values traceability record', framework: 'IEEE', topic: 'Documentation', type: 'recommended', effective: '2021-09-15', severity: 'medium', summary: 'Document the traceability from identified values through ethical value requirements to design characteristics, supporting transparency and ethical accountability across the lifecycle.' },
 ];
 
 export interface StateAILaw {

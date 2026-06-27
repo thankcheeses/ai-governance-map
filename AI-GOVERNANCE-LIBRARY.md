@@ -72,6 +72,7 @@ cross-referenced to AICM by control ID, rather than copying CSA's catalog text.
 | ISO/IEC 24028 / TR 24027 / TR 24368 (trustworthiness, bias, ethics) | TR/Standard | Global | ⚪ Reference |
 | ISO/IEC 5338 (AI system lifecycle) | Standard | Global | ⚪ Reference |
 | ISO/IEC 42006 (audit/certification bodies) | Standard | Global | ⚪ Reference |
+| IEEE 7000-2021 (ethical system design) | Standard (voluntary) | Global | ✅ In map |
 | Google Secure AI Framework (SAIF) v2 | Vendor framework | Global | 🟡 Candidate |
 | NIST CSF 2.0 | Framework | US/Global | ⚪ Reference (cross-walk) |
 
