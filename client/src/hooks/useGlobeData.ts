@@ -30,6 +30,20 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
       const name = f.properties?.name ?? '';
       const law = COUNTRY_AI_LAWS.find((c) => c.name === name);
 
+      // France's polygon in Natural Earth includes French Guiana (a sizeable
+      // landmass on the north coast of South America). It's legally part of
+      // France/the EU, but on a compliance globe a teal "France" blob sitting on
+      // top of Brazil reads as an error. Highlight metropolitan France only by
+      // dropping the trans-Atlantic (Americas) polygons from the France feature.
+      let geometry = f.geometry;
+      if (name === 'France' && geometry?.type === 'MultiPolygon') {
+        const polys = (geometry.coordinates as number[][][][]).filter((poly) => {
+          const lng = poly?.[0]?.[0]?.[0];
+          return typeof lng !== 'number' || lng > -20; // keep European polygons only
+        });
+        geometry = { ...geometry, coordinates: polys } as Geometry;
+      }
+
       let status: CountryProperties['status'] = 'unknown';
       let fillColor = '#E2E8F0'; // slate-200 — not yet researched (recedes on light globe)
 
@@ -43,6 +57,7 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
 
       return {
         ...f,
+        geometry,
         properties: {
           name,
           status,
