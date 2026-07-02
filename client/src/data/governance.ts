@@ -7,7 +7,7 @@
 
 export interface Framework {
   slug: string;
-  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN' | 'GDPR' | 'COE' | 'UNESCO' | 'FDA' | 'ONC' | 'WHO' | 'CHAI' | 'TCPA' | 'TN' | 'AICM' | 'IEEE';
+  shortCode: 'EU' | 'ISO' | 'NIST' | 'OECD' | 'SG' | 'OWASP' | 'CO' | 'HIPAA' | 'CA' | 'IL' | 'NY' | 'TX' | 'UT' | 'KR' | 'CN' | 'IN' | 'GDPR' | 'COE' | 'UNESCO' | 'FDA' | 'ONC' | 'WHO' | 'CHAI' | 'TCPA' | 'TN' | 'AICM' | 'IEEE' | 'VN';
   name: string;
   type: string;
   jurisdiction: string;
@@ -156,6 +156,12 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Standard (Voluntary)', jurisdiction: 'Global', version: 'IEEE Std 7000-2021 (Sept 2021)', coverage: 20,
     summary: 'International standard giving a model process for addressing ethical concerns during system design — eliciting stakeholder values and translating them into traceable ethical value requirements and design characteristics across the engineering lifecycle. Complements NIST AI RMF and ISO/IEC 42001 (which focus on risk and management systems) by operationalizing ethics at the requirements/design stage. Voluntary.',
   },
+  // ── National binding AI statute (verified mid-2026) ──
+  {
+    slug: 'vietnam-ai-law', shortCode: 'VN', name: 'Vietnam Law on Artificial Intelligence (No. 134/2025/QH15)',
+    type: 'Regulation (Binding)', jurisdiction: 'Vietnam', version: 'Law No. 134/2025/QH15, in force 1 Mar 2026', coverage: 22,
+    summary: 'Binding, risk-based national AI statute applying to domestic and foreign entities across the AI lifecycle. High-risk AI must meet impact-assessment, risk-management, technical-documentation, logging, transparency, and incident-reporting duties; unacceptable-risk uses are prohibited. Enforced with system suspension/recall and administrative fines up to 2% of annual revenue (grace periods to 2027).',
+  },
 ];
 
 export interface Obligation {
@@ -247,6 +253,9 @@ export const OBLIGATIONS: Obligation[] = [
   // IEEE 7000-2021
   { id: 'obl66', title: 'Translate stakeholder values into ethical value requirements', framework: 'IEEE', topic: 'Value-Based Design', type: 'recommended', effective: '2021-09-15', severity: 'medium', summary: 'Apply the IEEE 7000 process to elicit stakeholder values and translate them into traceable ethical value requirements (EVRs) early in system design.' },
   { id: 'obl67', title: 'Maintain an ethical-values traceability record', framework: 'IEEE', topic: 'Documentation', type: 'recommended', effective: '2021-09-15', severity: 'medium', summary: 'Document the traceability from identified values through ethical value requirements to design characteristics, supporting transparency and ethical accountability across the lifecycle.' },
+  // Vietnam Law on AI
+  { id: 'obl68', title: 'Risk management & documentation for high-risk AI', framework: 'VN', topic: 'Risk Management', type: 'mandatory', effective: '2026-03-01', severity: 'critical', summary: 'Providers/deployers of high-risk AI must conduct impact assessments and maintain a risk-management system, technical documentation, and logging (grace periods to 2027 for existing systems in finance, healthcare, and education).' },
+  { id: 'obl69', title: 'Transparency & serious-incident reporting', framework: 'VN', topic: 'Transparency', type: 'mandatory', effective: '2026-03-01', severity: 'high', summary: 'Deployers must disclose how high-risk AI systems operate and report serious AI-caused incidents to the regulator; unacceptable-risk uses are prohibited.' },
 ];
 
 export interface StateAILaw {
@@ -352,6 +361,8 @@ export const COUNTRY_AI_LAWS: CountryAILaw[] = [
   { name: 'South Korea', status: 'binding', frameworkSlug: 'korea-ai-basic-act' },
   { name: 'China', status: 'binding', frameworkSlug: 'china-genai-interim-measures' },
   { name: 'India', status: 'binding', frameworkSlug: 'india-it-rules-synthetic-media' },
+  // Vietnam: Law on AI No. 134/2025/QH15, a binding risk-based statute in force 1 Mar 2026.
+  { name: 'Vietnam', status: 'binding', frameworkSlug: 'vietnam-ai-law' },
   // Researched and confirmed to have no binding AI-specific law as of mid-2026.
   { name: 'United Kingdom', status: 'none' },
   { name: 'Canada', status: 'none' },
