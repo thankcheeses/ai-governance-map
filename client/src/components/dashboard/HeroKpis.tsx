@@ -64,9 +64,11 @@ export default function HeroKpis({ overallScore, assessedCount }: HeroKpisProps)
             initial={{ opacity: 0, y: 16, scale: 0.97 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: '-40px' }}
-            whileHover={{ y: -3 }}
+            whileHover={{ y: -4, rotateX: 2.5, boxShadow: '0 16px 32px -14px rgba(20,184,166,0.28)' }}
+            style={{ transformPerspective: 800 }}
             transition={{ delay: i * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             className="stat-accent card-elevated p-5 flex items-center gap-4"
+            title={`${kpi.label} — ${kpi.sub}`}
           >
             <div className="relative flex-shrink-0 w-16 h-16 flex items-center justify-center">
               <ProgressRing value={kpi.ring} />

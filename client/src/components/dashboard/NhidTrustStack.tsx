@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, ChevronDown, ExternalLink, Star, Zap } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronDown, ExternalLink, Github, PlayCircle, Zap } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
 import {
+  CONTROLS,
   NHID_CONFORMANCE_CONTROLS,
   NHID_EVENT_TRACE,
   NHID_EVENT_TRACE_FAIL,
@@ -10,9 +11,33 @@ import {
   NHID_SIMULATOR_URL,
 } from '@/data/governance';
 import SectionHeader from './SectionHeader';
+import TrustStackZiggurat from './visuals/TrustStackZiggurat';
+import ImpersonationLatencySplit from './visuals/ImpersonationLatencySplit';
 
-const LAYER_WIDTHS = [100, 92, 84, 76, 68, 60];
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+// Editorial layer -> CCM control mapping (Layer 3 is derived from the canonical
+// 'NHID-Clinical' tags already present in CONTROLS[].mappings; the rest are
+// curated here and labeled as editorial in the UI).
+const LAYER_CCM: Record<number, string[]> = {
+  0: ['CTRL-IAM-002'],
+  1: ['CTRL-UEM-001'],
+  2: ['CTRL-STA-003', 'CTRL-HRS-001'],
+  4: ['CTRL-LOG-001'],
+  5: ['CTRL-LOG-002', 'CTRL-SEF-001'],
+};
+
+function layerControls(layerIdx: number) {
+  const codes =
+    layerIdx === 3
+      ? CONTROLS.filter((c) => c.mappings['NHID-Clinical']).map((c) => c.code)
+      : (LAYER_CCM[layerIdx] ?? []);
+  return codes
+    .map((code) => CONTROLS.find((c) => c.code === code))
+    .filter((c): c is (typeof CONTROLS)[number] => !!c);
+}
+
+const scrollToControls = () => document.getElementById('controls')?.scrollIntoView({ behavior: 'smooth' });
 
 export default function NhidTrustStack() {
   const [activeLayer, setActiveLayer] = useState(2);
@@ -20,6 +45,7 @@ export default function NhidTrustStack() {
   const [traceMode, setTraceMode] = useState<'pass' | 'fail'>('pass');
   const active = NHID_LAYERS[activeLayer];
   const trace = traceMode === 'pass' ? NHID_EVENT_TRACE : NHID_EVENT_TRACE_FAIL;
+  const mapped = layerControls(activeLayer);
 
   const toggleRow = (code: string) => {
     setExpandedRows((prev) => {
@@ -34,53 +60,62 @@ export default function NhidTrustStack() {
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
         title="NHID-Clinical v1.3 — Voice Agent Conformance"
-        subtitle="5-layer trust stack for B2B healthcare voice channels"
+        subtitle="Healthcare-Voice Trust Stack Explorer — click a layer for its scope and related controls"
       />
 
+      {/* Print-only compact summary for the posture snapshot (hidden on screen) */}
+      <div className="print-only border border-border rounded-lg p-4 mb-4 text-xs">
+        <p className="font-bold mb-2">NHID-Clinical Trust Stack — print summary</p>
+        <ol className="list-decimal list-inside space-y-0.5">
+          {NHID_LAYERS.map((l) => (
+            <li key={l.layer}>
+              <span className="font-semibold">L{l.layer} {l.title}{l.isCore ? ' ★' : ''}:</span> {l.scope}
+            </li>
+          ))}
+        </ol>
+        <p className="font-bold mt-3 mb-1">
+          Layer 2 conformance: {NHID_CONFORMANCE_CONTROLS.length}/{NHID_CONFORMANCE_CONTROLS.length}
+        </p>
+        <ul className="space-y-0.5">
+          {NHID_CONFORMANCE_CONTROLS.map((c) => (
+            <li key={c.code}>
+              <span className="font-mono font-semibold">{c.code}</span> — {c.requirement} (SLO: {c.indicator.slo})
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 opacity-70">
+          Open voluntary proposal — NIST-2025-0035-0026, CC BY 4.0. Not a product or certification.
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-5">
-        {/* Layered stack diagram */}
-        <div className="card-elevated p-6 flex flex-col items-center">
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-5 self-start">
-            5-Layer Trust Stack
+        {/* Premium ziggurat stack */}
+        <div className="section-premium p-6 flex flex-col">
+          <p className="relative z-10 text-xs font-semibold tracking-widest uppercase text-slate-400 mb-4">
+            Trust Stack — Layers 0–5
           </p>
-          <div className="w-full flex flex-col items-center gap-2.5">
-            {NHID_LAYERS.map((layer, idx) => (
-              <motion.button
-                key={layer.layer}
-                initial={{ opacity: 0, scaleX: 0.6 }}
-                whileInView={{ opacity: 1, scaleX: 1 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ delay: idx * 0.08, duration: 0.45, ease: EASE }}
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.985 }}
-                onClick={() => setActiveLayer(idx)}
-                style={{ width: `${LAYER_WIDTHS[idx]}%` }}
-                className={`relative rounded-lg border px-4 py-3 text-left transition-colors duration-200 ${
-                  layer.isCore
-                    ? 'bg-primary/10 border-primary text-primary shadow-sm'
-                    : activeLayer === idx
-                      ? 'bg-secondary border-[#0F172A]/30 text-foreground'
-                      : 'bg-card border-border text-muted-foreground hover:border-primary/30'
-                }`}
-              >
-                {activeLayer === idx && (
-                  <motion.span
-                    layoutId="nhid-active-indicator"
-                    className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg bg-[#0F172A]"
-                    transition={{ duration: 0.3, ease: EASE }}
-                  />
-                )}
-                <span className="flex items-center gap-1.5 text-[0.7rem] font-bold">
-                  Layer {layer.layer}
-                  {layer.isCore && <Star size={11} className="fill-primary text-primary" />}
-                </span>
-                <span className="block text-xs font-semibold mt-0.5 truncate">{layer.title}</span>
-              </motion.button>
-            ))}
+          <div className="relative z-10">
+            <TrustStackZiggurat activeLayer={activeLayer} onSelect={setActiveLayer} />
           </div>
-          <p className="text-[0.68rem] text-muted-foreground mt-5 leading-relaxed text-center">
+          <p className="relative z-10 text-[0.68rem] text-slate-400 mt-4 leading-relaxed">
             NHID-Clinical v1.3 is the behavioral baseline at Layer 2 ★. Cryptographic NPI delegation
             verification lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer.
+          </p>
+          {/* Bidirectional open-source CTAs (no product CTAs) */}
+          <div className="relative z-10 flex flex-wrap gap-2 mt-4">
+            <a href="https://nhid-clinical.org/specification.html" target="_blank" rel="noopener noreferrer" className="btn-premium-dark">
+              <BookOpen size={13} /> Read the v1.3 Specification
+            </a>
+            <a href="https://nhid-clinical.org/simulator.html" target="_blank" rel="noopener noreferrer" className="btn-premium-dark">
+              <PlayCircle size={13} /> Launch Governance Simulator
+            </a>
+            <a href="https://github.com/NHID-Clinical/NHID-Clinical" target="_blank" rel="noopener noreferrer" className="btn-ghost-dark">
+              <Github size={13} /> GitHub • Contribute
+            </a>
+          </div>
+          <p className="relative z-10 disclaimer-small">
+            NHID-Clinical is an open voluntary proposal and reference implementation (public comment
+            NIST-2025-0035-0026, CC BY 4.0). Not a product. Not a certification. Not an organization.
           </p>
         </div>
 
@@ -98,6 +133,50 @@ export default function NhidTrustStack() {
               <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-primary mb-1">Layer {active.layer}</p>
               <h3 className="text-heading-sm text-foreground mb-1.5">{active.title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">{active.scope}</p>
+
+              {mapped.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-[0.6rem] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">
+                    Related CCM controls{activeLayer === 3 ? '' : ' (editorial mapping)'}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {mapped.map((c) => (
+                      <button
+                        key={c.code}
+                        onClick={scrollToControls}
+                        title={`${c.title} — jump to Controls section`}
+                        className="inline-flex items-center gap-1.5 text-[0.65rem] bg-secondary border border-border rounded-full px-2.5 py-1 hover:border-primary/50 hover:text-primary transition-colors"
+                      >
+                        <span className="font-mono font-semibold">{c.code}</span>
+                        <span className="text-muted-foreground max-w-[150px] truncate">{c.title}</span>
+                        <span className="font-mono text-[0.55rem] bg-primary/10 text-primary rounded px-1">{c.ccmDomain}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeLayer === 2 && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-[0.6rem] font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">
+                    Test a scenario in the open simulator
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {NHID_CONFORMANCE_CONTROLS.map((c) => (
+                      <a
+                        key={c.code}
+                        href={`https://nhid-clinical.org/simulator.html?scenario=${c.code.toLowerCase()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[0.65rem] font-mono font-semibold bg-primary/5 border border-primary/30 text-primary rounded-full px-2.5 py-1 hover:bg-primary/10 transition-colors"
+                      >
+                        {c.code}
+                        <ExternalLink size={9} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
 
@@ -170,6 +249,47 @@ export default function NhidTrustStack() {
               <ExternalLink size={13} />
             </motion.a>
           </div>
+        </div>
+      </div>
+
+      {/* Impersonation Latency — illustrative premium panel */}
+      <div id="nhid-latency" className="section-premium p-6 mt-5">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-1">
+            Illustrative — the problem NHID-Clinical addresses
+          </p>
+          <h3 className="text-heading-sm text-slate-100 mb-2">Impersonation Latency</h3>
+          <p className="text-xs text-slate-300 leading-relaxed max-w-3xl mb-4">
+            Impersonation latency is the measurable trust delay between an AI agent initiating a call and
+            the receiving system verifying that the caller is authorized to represent the claimed provider
+            organization; in many current healthcare workflows, that delay is effectively infinite because
+            no standard verification pathway exists.
+          </p>
+          <ImpersonationLatencySplit />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4 text-xs text-slate-300">
+            <div>
+              <p className="font-semibold text-rose-300/90 mb-1.5">Without a standard</p>
+              <ul className="space-y-1 list-disc list-inside text-slate-400">
+                <li>No proactive identity disclosure</li>
+                <li>PHI potentially exchanged before verification</li>
+                <li>No consistent escalation or audit trail</li>
+                <li>Infinite trust delay for the receiving system</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v1.3</p>
+              <ul className="space-y-1 list-disc list-inside text-slate-400">
+                <li>Mandatory early disclosure gate (IDG-01)</li>
+                <li>Pre-data-exchange verification checkpoint</li>
+                <li>Defined human handoff + full audit requirements</li>
+                <li>Measurable, testable trust pathway</li>
+              </ul>
+            </div>
+          </div>
+          <p className="disclaimer-small">
+            Conceptual illustration only — this panel describes an open voluntary reference implementation,
+            not a product or certification, and paints no data onto the compliance maps above.
+          </p>
         </div>
       </div>
 
