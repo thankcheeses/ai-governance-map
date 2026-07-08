@@ -96,10 +96,12 @@ export default function ControlsSection() {
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
+                whileHover={isOpen ? undefined : { y: -2, boxShadow: '0 10px 24px -12px rgba(20,184,166,0.22)' }}
                 transition={{ delay: Math.min(i, 8) * 0.035, duration: 0.35, ease: EASE }}
                 className={`bg-card border rounded-xl overflow-hidden transition-all duration-200 ${
                   isOpen ? 'border-[#0F172A]/30 shadow-md shadow-primary/5' : 'border-border hover:border-primary/25'
                 }`}
+                title={`${item.code} · ${item.ccmDomain} · ${item.riskTier} · ${item.priority} priority`}
               >
                 <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => toggleRow(item.id)}>
                   <div className={priorityColor(item.priority)} />

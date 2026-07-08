@@ -1,0 +1,112 @@
+/* Premium visual layer — navy/teal/metallic depth for the NHID healthcare-voice
+   sections. Additive only; no external assets; respects prefers-reduced-motion. */
+
+:root {
+  --navy-deep: #0f172a;
+  --navy-stone: #1e293b;
+  --teal-glow: #14b8a6;
+  --teal-vein: #2dd4bf;
+  --silver-edge: #94a3b8;
+  --gold-inlay: #d4af7a;
+}
+
+/* Dark cinematic band for premium sections */
+.section-premium {
+  background:
+    radial-gradient(1200px 400px at 70% -10%, rgba(20, 184, 166, 0.08), transparent 60%),
+    linear-gradient(180deg, var(--navy-deep) 0%, #0b1222 100%);
+  color: #e2e8f0;
+  border: 1px solid #1e2937;
+  border-radius: var(--radius-lg, 0.75rem);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Low-opacity verification-lattice overlay for depth */
+.section-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.6) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.6) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
+}
+
+/* Framed premium visual */
+.premium-3d {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #1e2937;
+  box-shadow:
+    0 25px 60px -15px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(20, 184, 166, 0.08),
+    inset 0 1px 0 rgba(148, 163, 184, 0.12);
+  background: var(--navy-deep);
+}
+
+.disclaimer-small {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  opacity: 0.75;
+  border-top: 1px solid #334155;
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Ghost + premium CTA buttons on dark bands */
+.btn-premium-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ccfbf1;
+  background: linear-gradient(180deg, rgba(20, 184, 166, 0.22), rgba(20, 184, 166, 0.1));
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.btn-premium-dark:hover {
+  border-color: var(--teal-vein);
+  box-shadow: 0 0 18px rgba(20, 184, 166, 0.25);
+}
+.btn-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--silver-edge);
+  border: 1px solid #334155;
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.btn-ghost-dark:hover {
+  color: #e2e8f0;
+  border-color: var(--silver-edge);
+}
+
+/* Print-only posture snapshot block (hidden on screen) */
+.print-only {
+  display: none;
+}
+@media print {
+  .print-only {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-premium *,
+  .premium-3d {
+    animation: none !important;
+    transition: none !important;
+  }
+}
