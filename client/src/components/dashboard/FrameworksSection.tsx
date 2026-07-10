@@ -12,6 +12,13 @@ interface FrameworksSectionProps {
 
 export default function FrameworksSection({ frameworkFilter, onFrameworkFilterChange }: FrameworksSectionProps) {
   const handleSelect = (shortCode: string) => {
+    // NHID-Clinical is orthogonal to the CCM heatmap (it governs voice-channel behavior,
+    // not CCM domains), so its card opens the dedicated first-class NHID section instead
+    // of dimming the heatmap.
+    if (shortCode === 'NHID') {
+      document.getElementById('nhid')?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
     onFrameworkFilterChange(frameworkFilter === shortCode ? 'all' : shortCode);
     document.getElementById('heatmap')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -57,7 +64,9 @@ export default function FrameworksSection({ frameworkFilter, onFrameworkFilterCh
                 <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
                   <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${fw.coverage}%` }} />
                 </div>
-                <span className="font-mono text-[0.65rem] text-muted-foreground">{fw.coverage}%</span>
+                <span className="font-mono text-[0.65rem] text-muted-foreground">
+                  {fw.shortCode === 'NHID' ? '5/5 controls' : `${fw.coverage}%`}
+                </span>
               </div>
             </motion.button>
           );

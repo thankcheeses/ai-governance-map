@@ -1,23 +1,63 @@
-<!-- NHID-Clinical mark — Rich Material Depth variant (hero / marketing). viewBox 120; transparent. -->
+<!-- NHID-Clinical mark — Rich Material Depth variant (hero / marketing). viewBox 120; transparent.
+     Canonical N geometry (bar + blade + circle + square) preserved exactly; premium glass/metallic
+     material depth added: metallic bar, glass specular on the blade, spherical navy satellite,
+     cyan glass square, soft blue-tinted shadow. -->
 <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NHID-Clinical">
   <defs>
-    <linearGradient id="g-blade" x1="0" y1="0" x2="0.25" y2="1">
+    <linearGradient id="g-blade" x1="0" y1="0" x2="0.28" y2="1">
       <stop offset="0" stop-color="#143a66"/>
-      <stop offset="0.55" stop-color="#16708f"/>
+      <stop offset="0.5" stop-color="#16708f"/>
       <stop offset="1" stop-color="#16b3a4"/>
     </linearGradient>
-    <linearGradient id="g-bar" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1d4470"/>
-      <stop offset="1" stop-color="#16335f"/>
+    <linearGradient id="g-bar" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#254e7e"/>
+      <stop offset="0.5" stop-color="#183a63"/>
+      <stop offset="1" stop-color="#122f52"/>
     </linearGradient>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1.4" stdDeviation="1.6" flood-color="#0b2a4a" flood-opacity="0.28"/>
+    <linearGradient id="g-sheen" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="0.4" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="g-circle" cx="0.38" cy="0.34" r="0.78">
+      <stop offset="0" stop-color="#3f639a"/>
+      <stop offset="0.55" stop-color="#2b4a76"/>
+      <stop offset="1" stop-color="#1c3559"/>
+    </radialGradient>
+    <linearGradient id="g-square" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#9fdcec"/>
+      <stop offset="1" stop-color="#5cbcd6"/>
+    </linearGradient>
+    <clipPath id="clip-blade">
+      <path d="M46 6 H79 a8 8 0 0 1 8 8 V40 L57 84 a9 9 0 0 1 -8 5 H45 a7 7 0 0 1 -7 -8 L40 14 a8 8 0 0 1 6 -8 Z"/>
+    </clipPath>
+    <clipPath id="clip-bar">
+      <rect x="4" y="39" width="29" height="47" rx="7"/>
+    </clipPath>
+    <filter id="soft" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="1.6" stdDeviation="2.0" flood-color="#0b2a4a" flood-opacity="0.30"/>
     </filter>
   </defs>
+
   <g filter="url(#soft)">
+    <!-- left metallic bar with top light -->
     <rect x="4" y="39" width="29" height="47" rx="7" fill="url(#g-bar)"/>
+    <g clip-path="url(#clip-bar)">
+      <rect x="4" y="39" width="29" height="13" fill="url(#g-sheen)"/>
+    </g>
+
+    <!-- diagonal navy→teal blade with glass specular -->
     <path d="M46 6 H79 a8 8 0 0 1 8 8 V40 L57 84 a9 9 0 0 1 -8 5 H45 a7 7 0 0 1 -7 -8 L40 14 a8 8 0 0 1 6 -8 Z" fill="url(#g-blade)"/>
-    <circle cx="104" cy="43" r="12.5" fill="#2d4d78"/>
-    <rect x="92" y="62" width="25" height="28" rx="5" fill="#79cfe4"/>
+    <g clip-path="url(#clip-blade)">
+      <path d="M46 6 H79 a8 8 0 0 1 8 8 V40 L57 84 a9 9 0 0 1 -8 5 Z" fill="url(#g-sheen)" opacity="0.5"/>
+    </g>
+
+    <!-- navy spherical satellite + specular highlight -->
+    <circle cx="104" cy="43" r="12.5" fill="url(#g-circle)"/>
+    <ellipse cx="100" cy="38.6" rx="4.2" ry="3" fill="#ffffff" opacity="0.26"/>
+
+    <!-- cyan glass square + top sheen -->
+    <rect x="92" y="62" width="25" height="28" rx="5" fill="url(#g-square)"/>
+    <rect x="92" y="62" width="25" height="9" rx="5" fill="#ffffff" opacity="0.22"/>
   </g>
 </svg>

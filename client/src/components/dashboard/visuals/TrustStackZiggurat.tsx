@@ -51,6 +51,11 @@ export default function TrustStackZiggurat({ activeLayer, onSelect }: TrustStack
             <stop offset="0" stopColor="#14b8a6" stopOpacity="0.35" />
             <stop offset="1" stopColor="#14b8a6" stopOpacity="0" />
           </radialGradient>
+          {/* glass sheen band for the top of each slab's front face (metallic highlight) */}
+          <linearGradient id="zig-sheen" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffffff" stopOpacity="0.28" />
+            <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
           <filter id="zig-soft" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#000000" floodOpacity="0.45" />
           </filter>
@@ -103,6 +108,8 @@ export default function TrustStackZiggurat({ activeLayer, onSelect }: TrustStack
                 stroke={isActive ? '#5eead4' : isCore ? '#14b8a6' : '#334155'}
                 strokeWidth={isActive ? 1.6 : 1}
               />
+              {/* glass sheen highlight across the top of the front face */}
+              <rect x={s.x + 1.5} y={s.y + 1.5} width={s.width - 3} height={s.h * 0.42} rx="2.5" fill="url(#zig-sheen)" />
               {/* teal energy vein */}
               <line
                 x1={s.x + 8}

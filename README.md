@@ -1,26 +1,73 @@
 # AI Governance Map
 
-A live reference tool mapping AI governance frameworks, regulatory requirements, and
-compliance controls across federal and state jurisdictions — built to support
-practitioners evaluating AI voice agents in healthcare administrative workflows.
+A local-only reference map for AI governance — **29 frameworks and standards**, **27
+CCM-mapped controls**, and an obligations register crosswalked across jurisdictions, with
+interactive USA and global compliance maps. Built for practitioners evaluating AI systems,
+with a first-class module for **AI voice agents and non-human identity** in healthcare.
 
 **Live:** [ai-governance-map.vercel.app](https://ai-governance-map.vercel.app)
 
----
-
-## What it does
-
-- Maps AI governance controls to regulatory frameworks (CMS-0057-F, MACPAC, NIST AI RMF, state AI laws)
-- Tracks compliance coverage across jurisdictions
-- Surfaces alignment gaps for payer and provider operations teams
-
-## Related
-
-[NHID-Clinical](https://nhid-clinical.org) — open behavioral baseline for AI voice agents
-in B2B healthcare administrative workflows. The AI Governance Map is a companion tool.
+> **Local-only, no tracking.** Everything runs in your browser. No data leaves the page,
+> no analytics, no external calls except the basemap tiles for the compliance maps.
 
 ---
 
-## Status
+## What's inside
 
-Open reference tool. **v2 Launch** (June 2026): Integrated NHID-Clinical v2 cryptographic authorization (AUTH-01), live deadline countdown, and Layer 3 security controls. Maintained alongside NHID-Clinical v2.
+- **Governance posture overview** — frameworks tracked, controls mapped, critical controls, and an optional self-assessed posture score.
+- **Risk heatmap** — likelihood × impact for healthcare voice-agent failure modes.
+- **Voice Agent & NHID-Clinical** — the Healthcare-Voice Trust Stack Explorer (see below).
+- **Controls** — 27 controls on the CCM v4.1.0 spine, each with performance indicators, SLO targets, and implementation guidance.
+- **Maturity & trend**, **Obligations timeline**, and a **framework crosswalk** (control coverage across NIST AI RMF, ISO/IEC 42001, EU AI Act, CCM, HIPAA).
+- **USA & global compliance maps** — verified, sourced status per state and country. No speculative data is ever painted onto these maps.
+- **Exports** — CSV, JSON, and a print/PDF posture snapshot.
+
+## NHID-Clinical — first-class in the map
+
+[NHID-Clinical](https://nhid-clinical.org) is an **open voluntary proposal and reference
+implementation** for transparent AI voice agents in healthcare — **not a product, not a
+certification, not an organization** (public comment NIST-2025-0035-0026, CC BY 4.0). The
+map treats it as a first-class framework:
+
+- **Five permanent controls** — `IDG-01` (identity disclosure), `PDX-01` (pre-data-exchange
+  authorization), `DBC-01` (no mimicry), `EIT-01` (human handoff), `ATR-01` (audit trail).
+- **Five-Layer Trust Stack** — an interactive stack (Layers 1–5) resting on the NPI Registry
+  foundation, with NHID-Clinical v1.3 as the behavioral baseline at Layer 2.
+- **Impersonation latency** — surfaced as a first-class risk primitive: the measurable trust
+  delay between an agent initiating a call and the receiving system verifying authorization,
+  which is effectively infinite today because no standard verification pathway exists.
+- **Call Authorization Score (CAS)** and honest **evidence indicators** (NHID's controls are
+  labeled *Prototype / Simulation only* — a reference implementation, not deployed-at-scale
+  conformance).
+
+Every NHID surface links back to the open spec, the governance simulator, and GitHub — and
+carries the open-proposal disclaimers. No product, pricing, or certification language.
+
+## Data integrity
+
+The compliance maps show only **verified, sourced** status. Illustrative material (e.g. the
+impersonation-latency panel) is clearly labeled as conceptual and is never mixed into the
+verified choropleths. Evidence indicators state what is actually substantiated.
+
+## Tech stack
+
+React 19 · Vite 7 · TypeScript · Tailwind CSS 4 · framer-motion · react-simple-maps.
+All assets are self-hosted — no CDNs, no external fonts-as-tracking, no third-party scripts.
+
+## Local development
+
+```bash
+pnpm install
+pnpm dev        # start the dev server (http://localhost:5173)
+pnpm check      # type-check (tsc --noEmit)
+pnpm build      # production build
+pnpm test       # unit tests
+```
+
+## License & attribution
+
+Code in this repository is provided for reference. NHID-Clinical material is licensed
+**CC BY 4.0** and referenced here as an open proposal; see
+[nhid-clinical.org](https://nhid-clinical.org) and
+[github.com/NHID-Clinical](https://github.com/NHID-Clinical). Framework names and control
+identifiers belong to their respective standards bodies.
