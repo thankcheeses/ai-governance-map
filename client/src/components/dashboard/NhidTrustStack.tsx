@@ -1,7 +1,17 @@
 import { useState } from 'react';
+import type { ReactElement } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, CheckCircle2, ChevronDown, ExternalLink, Github, PlayCircle, Zap } from 'lucide-react';
+import { BookOpen, ChevronDown, ExternalLink, Github, PlayCircle, Zap } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
+import {
+  IdentityDisclosureIcon,
+  PreDataGateIcon,
+  DeceptiveBehaviorIcon,
+  HumanEscalationIcon,
+  AuditTrailIcon,
+  ImpersonationLatencyIcon,
+  CasGaugeIcon,
+} from './nhid-icons';
 import {
   CONTROLS,
   NHID_CONFORMANCE_CONTROLS,
@@ -15,6 +25,18 @@ import TrustStackZiggurat from './visuals/TrustStackZiggurat';
 import ImpersonationLatencySplit from './visuals/ImpersonationLatencySplit';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+// Each permanent NHID control has a dedicated glyph from the NHID icon system.
+const CONTROL_ICON: Record<string, (p: { className?: string; size?: number }) => ReactElement> = {
+  'IDG-01': IdentityDisclosureIcon,
+  'PDX-01': PreDataGateIcon,
+  'DBC-01': DeceptiveBehaviorIcon,
+  'EIT-01': HumanEscalationIcon,
+  'ATR-01': AuditTrailIcon,
+};
+
+// Non-human-identity controls elsewhere in the library that the Voice Agent view surfaces.
+const NON_HUMAN_IDENTITY_CODES = ['CTRL-IAM-001', 'CTRL-CEK-001', 'CTRL-UEM-001'];
 
 // Editorial layer -> CCM control mapping (Layer 3 is derived from the canonical
 // 'NHID-Clinical' tags already present in CONTROLS[].mappings; the rest are
@@ -59,8 +81,8 @@ export default function NhidTrustStack() {
     <section id="nhid" className="scroll-mt-24">
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
-        title="NHID-Clinical v1.3 — Voice Agent Conformance"
-        subtitle="Healthcare-Voice Trust Stack Explorer — click a layer for its scope and related controls"
+        title="NHID-Clinical v1.3 — Voice Agent & Non-Human Identity"
+        subtitle="Healthcare-Voice Trust Stack Explorer — five permanent controls, a five-layer trust stack, and impersonation latency as a first-class risk primitive"
       />
 
       {/* Print-only compact summary for the posture snapshot (hidden on screen) */}
@@ -92,14 +114,15 @@ export default function NhidTrustStack() {
         {/* Premium ziggurat stack */}
         <div className="section-premium p-6 flex flex-col">
           <p className="relative z-10 text-xs font-semibold tracking-widest uppercase text-slate-400 mb-4">
-            Trust Stack — Layers 0–5
+            Five-Layer Trust Stack · over the NPI foundation
           </p>
           <div className="relative z-10">
             <TrustStackZiggurat activeLayer={activeLayer} onSelect={setActiveLayer} />
           </div>
           <p className="relative z-10 text-[0.68rem] text-slate-400 mt-4 leading-relaxed">
-            NHID-Clinical v1.3 is the behavioral baseline at Layer 2 ★. Cryptographic NPI delegation
-            verification lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer.
+            The five trust layers (1–5) rest on the NPI Registry foundation (Layer 0). NHID-Clinical
+            v1.3 is the behavioral baseline at Layer 2 ★; cryptographic NPI-delegation verification
+            lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer.
           </p>
           {/* Bidirectional open-source CTAs (no product CTAs) */}
           <div className="relative z-10 flex flex-wrap gap-2 mt-4">
@@ -181,12 +204,25 @@ export default function NhidTrustStack() {
           </AnimatePresence>
 
           <div className="card-elevated p-5">
-            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">
-              {`Layer 2 Conformance — ${NHID_CONFORMANCE_CONTROLS.length} / ${NHID_CONFORMANCE_CONTROLS.length} Controls`}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+                Permanent Controls — {NHID_CONFORMANCE_CONTROLS.length} / {NHID_CONFORMANCE_CONTROLS.length}
+              </p>
+              <span
+                className="inline-flex items-center gap-1.5 text-[0.65rem] font-mono font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5"
+                title="Call Authorization Score — permanent controls met / total, in the conformant example trace"
+              >
+                <CasGaugeIcon size={13} /> CAS {NHID_CONFORMANCE_CONTROLS.length}/{NHID_CONFORMANCE_CONTROLS.length}
+              </span>
+            </div>
+            <p className="text-[0.62rem] text-muted-foreground mb-3">
+              Evidence across all five is <span className="font-semibold">Prototype / Simulation only</span> — an
+              open reference implementation, not deployed-at-scale conformance.
             </p>
             <div className="flex flex-col gap-2">
               {NHID_CONFORMANCE_CONTROLS.map((c, i) => {
                 const isOpen = expandedRows.has(c.code);
+                const Icon = CONTROL_ICON[c.code] ?? IdentityDisclosureIcon;
                 return (
                   <motion.div
                     key={c.code}
@@ -200,9 +236,12 @@ export default function NhidTrustStack() {
                       onClick={() => toggleRow(c.code)}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-left"
                     >
-                      <CheckCircle2 size={14} className="text-primary flex-shrink-0" />
+                      <Icon size={16} className="text-primary flex-shrink-0" />
                       <span className="font-mono text-[0.65rem] text-muted-foreground">{c.code}</span>
                       <span className="text-foreground flex-1">{c.requirement}</span>
+                      <span className="hidden sm:inline text-[0.55rem] font-medium text-amber-700 bg-amber-100 border border-amber-300 rounded px-1.5 py-0.5 flex-shrink-0" title="Evidence / maturity level">
+                        {c.evidence}
+                      </span>
                       <ChevronDown size={13} className={`text-muted-foreground transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     <AnimatePresence initial={false}>
@@ -252,13 +291,55 @@ export default function NhidTrustStack() {
         </div>
       </div>
 
-      {/* Impersonation Latency — illustrative premium panel */}
+      {/* Voice Agent & Non-Human Identity — related controls + evidence legend */}
+      <div className="card-elevated p-5 mt-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-1.5">
+              Voice Agent &amp; Non-Human Identity — related controls
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {NON_HUMAN_IDENTITY_CODES.map((code) => {
+                const c = CONTROLS.find((x) => x.code === code);
+                if (!c) return null;
+                return (
+                  <button
+                    key={code}
+                    onClick={scrollToControls}
+                    title={`${c.title} — jump to Controls`}
+                    className="inline-flex items-center gap-1.5 text-[0.65rem] bg-secondary border border-border rounded-full px-2.5 py-1 hover:border-primary/50 hover:text-primary transition-colors"
+                  >
+                    <span className="font-mono font-semibold">{c.code}</span>
+                    <span className="text-muted-foreground max-w-[160px] truncate">{c.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="text-[0.6rem] text-muted-foreground sm:text-right">
+            <p className="font-semibold tracking-widest uppercase mb-1">Evidence scale</p>
+            <p className="leading-relaxed">
+              <span className="font-medium text-amber-700">Prototype / Simulation only</span> ·
+              Framework-level · Some production usage · Strong evidence
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Impersonation Latency — first-class risk primitive (illustrative premium panel) */}
       <div id="nhid-latency" className="section-premium p-6 mt-5">
         <div className="relative z-10">
-          <p className="text-xs font-semibold tracking-widest uppercase text-slate-400 mb-1">
-            Illustrative — the problem NHID-Clinical addresses
-          </p>
-          <h3 className="text-heading-sm text-slate-100 mb-2">Impersonation Latency</h3>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 text-[0.6rem] font-semibold tracking-widest uppercase text-cyan-300/90 bg-cyan-400/10 border border-cyan-400/25 rounded-full px-2 py-0.5">
+              <ImpersonationLatencyIcon size={12} /> Risk Primitive
+            </span>
+            <p className="text-xs font-semibold tracking-widest uppercase text-slate-400">
+              the problem NHID-Clinical addresses
+            </p>
+          </div>
+          <h3 className="text-heading-sm text-slate-100 mb-2 flex items-center gap-2">
+            <ImpersonationLatencyIcon size={20} className="text-teal-300" /> Impersonation Latency
+          </h3>
           <p className="text-xs text-slate-300 leading-relaxed max-w-3xl mb-4">
             Impersonation latency is the measurable trust delay between an AI agent initiating a call and
             the receiving system verifying that the caller is authorized to represent the claimed provider
@@ -328,12 +409,13 @@ export default function NhidTrustStack() {
   "start_time": "${trace.start_time}",
   "disclosure_time": ${trace.disclosure_time ? `"${trace.disclosure_time}"` : 'null'},
   "disclosure_text": "${trace.disclosure_text}",
+  "pre_exchange_authorization_verified": ${trace.pre_exchange_authorization_verified}, // PDX-01
   "human_handoff_requested": ${trace.human_handoff_requested},
   "handoff_time": ${trace.handoff_time ? `"${trace.handoff_time}"` : 'null'},
   "audit_log_complete": ${trace.audit_log_complete},
   "deceptive_artifacts_detected": ${trace.deceptive_artifacts_detected},
   "npi_delegation_verified": ${trace.npi_delegation_verified}, // NHID-Auth v2 (Layer 3)
-  "nhid_clinical_score": "${trace.nhid_clinical_score}"
+  "call_authorization_score": "${trace.nhid_clinical_score}" // CAS
 }`}
         </pre>
       </div>

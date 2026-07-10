@@ -99,12 +99,12 @@ export default function ImpersonationLatencySplit() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         />
-        {/* IDG-01 gate */}
+        {/* Disclosure + authorization gate (IDG-01 · PDX-01) */}
         <g filter="url(#lat-glow)">
           <rect x="496" y="86" width="46" height="68" rx="7" fill="url(#lat-gate)" opacity="0.92" />
           <rect x="507" y="100" width="24" height="40" rx="4" fill="#022c26" />
           <text x="519" y="122" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="monospace">IDG</text>
-          <text x="519" y="132" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="monospace">01</text>
+          <text x="519" y="132" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="monospace">PDX</text>
         </g>
         {/* verified continuation */}
         <motion.path
@@ -124,7 +124,7 @@ export default function ImpersonationLatencySplit() {
           trust delay: measurable
         </text>
         <text x="364" y="228" fontSize="9" fill="#94a3b8" fontFamily="Inter, sans-serif">
-          Disclosure gate (IDG-01) · verification before data exchange · audited
+          Disclosure + authorization gate (IDG-01 · PDX-01) · verified before data exchange · audited
         </text>
       </svg>
       <figcaption className="disclaimer-small">

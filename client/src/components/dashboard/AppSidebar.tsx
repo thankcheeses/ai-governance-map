@@ -31,7 +31,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'heatmap', label: 'Risk Heatmap', icon: Flame },
-  { id: 'nhid', label: 'NHID-Clinical', icon: ShieldWaveformIcon, isCustomIcon: true },
+  { id: 'nhid', label: 'Voice Agent & NHID', icon: ShieldWaveformIcon, isCustomIcon: true },
   { id: 'controls', label: 'Controls', icon: ListChecks },
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
   { id: 'timeline', label: 'Obligations Timeline', icon: CalendarClock },
