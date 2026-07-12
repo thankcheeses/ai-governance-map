@@ -60,6 +60,32 @@ export default function GlobalGlobeVisualization() {
             ],
           },
         },
+        // 3D compliance relief — extrusion HEIGHT encodes the same verified status
+        // (binding AI law rises highest, researched-no-law a low plateau, unknown flat).
+        // No fabricated data: height is a visual encoding of `status`, nothing more.
+        {
+          id: 'country-extrusion',
+          type: 'fill-extrusion',
+          source: 'countries',
+          filter: ['!=', ['get', 'status'], 'unknown'],
+          paint: {
+            'fill-extrusion-color': [
+              'match',
+              ['get', 'status'],
+              'binding', '#2dd4bf',
+              'none', '#94a3b8',
+              '#94a3b8',
+            ],
+            'fill-extrusion-height': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              ['match', ['get', 'status'], 'binding', 340000, 'none', 150000, 0],
+              ['match', ['get', 'status'], 'binding', 230000, 'none', 80000, 0],
+            ],
+            'fill-extrusion-base': 0,
+            'fill-extrusion-opacity': 0.82,
+          },
+        },
         {
           id: 'country-outline',
           type: 'line',
@@ -85,6 +111,8 @@ export default function GlobalGlobeVisualization() {
       zoom: 1.55,
       minZoom: 0.8,
       maxZoom: 6,
+      pitch: 45,
+      maxPitch: 75,
       renderWorldCopies: false,
       attributionControl: { compact: true },
     });
@@ -166,7 +194,7 @@ export default function GlobalGlobeVisualization() {
       <SectionHeader
         icon={<Globe size={18} />}
         title="Global Compliance Map"
-        subtitle="Country-level AI regulation on a live globe — drag to rotate, click a country for detail"
+        subtitle="Country-level AI regulation on a live 3D globe — relief height encodes verified status; drag to rotate, click a country for detail"
       />
 
       <div className="card-elevated relative overflow-hidden" ref={frameRef} style={{ background: SPACE }}>
@@ -195,6 +223,10 @@ export default function GlobalGlobeVisualization() {
         <div className="flex items-center gap-2">
           <span className="inline-block w-3 h-3 rounded-sm border border-white/30" style={{ background: 'transparent' }} />
           <span className="text-muted-foreground">Not yet researched (terrain only)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-t from-slate-400 to-teal-400" />
+          <span className="text-muted-foreground">Relief height = verified status (binding rises highest)</span>
         </div>
       </div>
     </section>
