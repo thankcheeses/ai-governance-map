@@ -36,8 +36,8 @@ const NAV_ITEMS = [
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
   { id: 'timeline', label: 'Obligations Timeline', icon: CalendarClock },
   { id: 'crosswalk', label: 'Crosswalk', icon: Network },
-  { id: 'usa-map', label: 'USA Compliance Map', icon: Map },
   { id: 'global-map', label: 'Global Compliance Map', icon: Globe },
+  { id: 'usa-map', label: 'USA Compliance Map', icon: Map },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck },
 ];
 
