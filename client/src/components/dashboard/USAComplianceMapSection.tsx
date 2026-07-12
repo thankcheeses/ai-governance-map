@@ -168,6 +168,27 @@ export default function USAComplianceMapSection() {
             ],
           },
         },
+        // 3D compliance relief — extrusion HEIGHT encodes the same verified status
+        // (states with a binding AI law rise; others stay a low plateau). Visual
+        // encoding of `status` only — no fabricated data.
+        {
+          id: 'state-extrusion',
+          type: 'fill-extrusion',
+          source: 'states',
+          paint: {
+            'fill-extrusion-color': ['match', ['get', 'status'], 'binding', '#2dd4bf', '#94a3b8'],
+            'fill-extrusion-height': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              ['match', ['get', 'status'], 'binding', 150000, 60000],
+              ['case', ['boolean', ['feature-state', 'hover'], false],
+                ['match', ['get', 'status'], 'binding', 130000, 55000],
+                ['match', ['get', 'status'], 'binding', 90000, 30000]],
+            ],
+            'fill-extrusion-base': 0,
+            'fill-extrusion-opacity': 0.72,
+          },
+        },
         {
           id: 'state-outline',
           type: 'line',
@@ -187,6 +208,8 @@ export default function USAComplianceMapSection() {
       zoom: 3.1,
       minZoom: 2,
       maxZoom: 8,
+      pitch: 48,
+      maxPitch: 74,
       renderWorldCopies: false,
       attributionControl: { compact: true },
     });
@@ -254,7 +277,7 @@ export default function USAComplianceMapSection() {
       <SectionHeader
         icon={<MapIcon size={18} />}
         title="USA Compliance Map"
-        subtitle="State-level AI regulation on a live satellite map — hover a state for a quick read, click for the full obligation detail"
+        subtitle="State-level AI regulation on a live 3D satellite map — relief height encodes verified status; hover a state for a quick read, click for the full obligation detail"
       />
 
       <div className="card-elevated p-5">
