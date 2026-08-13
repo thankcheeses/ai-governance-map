@@ -32,7 +32,7 @@ map treats it as a first-class framework:
 - **Five permanent controls** — `IDG-01` (identity disclosure), `PDX-01` (pre-data-exchange
   authorization), `DBC-01` (no mimicry), `EIT-01` (human handoff), `ATR-01` (audit trail).
 - **Five-Layer Trust Stack** — an interactive stack (Layers 1–5) resting on the NPI Registry
-  foundation, with NHID-Clinical v1.3 as the behavioral baseline at Layer 2.
+  foundation, with NHID-Clinical v2.0 as the behavioral baseline at Layer 2.
 - **Impersonation latency** — surfaced as a first-class risk primitive: the measurable trust
   delay between an agent initiating a call and the receiving system verifying authorization,
   which is effectively infinite today because no standard verification pathway exists.
@@ -63,6 +63,25 @@ pnpm check      # type-check (tsc --noEmit)
 pnpm build      # production build
 pnpm test       # unit tests
 ```
+
+## Deployment
+
+The app is a fully static single-page site (no server, no API routes), so any static host
+works. Target host is **Cloudflare Pages**:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | None (Vite) |
+| Build command | `pnpm build` |
+| Build output directory | `dist/public` |
+| Node version | 20+ |
+
+Client-side routing (wouter) is handled by `client/public/_redirects` (`/* /index.html 200`),
+which Vite copies into the build output — no extra host config needed.
+
+To connect it: in the Cloudflare dashboard, **Workers & Pages → Create → Pages → Connect to
+Git**, pick this repository, enter the build command and output directory above, and deploy.
+Each push to `main` publishes automatically; pull requests get preview URLs.
 
 ## License & attribution
 

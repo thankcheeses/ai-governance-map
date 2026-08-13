@@ -18,9 +18,9 @@ export interface Framework {
 
 export const FRAMEWORKS: Framework[] = [
   {
-    slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v1.3',
-    type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v1.3 · NIST-2025-0035-0026', coverage: 100,
-    summary: 'Open behavioral baseline for transparent AI voice agents in healthcare — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. A voluntary, testable proposal (CC BY 4.0) — not a product, not a certification. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains.',
+    slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v2.0',
+    type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v2.0 · v1.3 spec: NIST-2025-0035-0026', coverage: 100,
+    summary: 'Open behavioral baseline for transparent AI voice agents in healthcare — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. A voluntary, testable proposal (CC BY 4.0) — not a product, not a certification. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains.',
   },
   {
     slug: 'eu-ai-act', shortCode: 'EU', name: 'EU Artificial Intelligence Act',
@@ -181,11 +181,11 @@ export interface Obligation {
 }
 
 export const OBLIGATIONS: Obligation[] = [
-  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.' },
-  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.' },
-  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.' },
-  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.' },
-  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.' },
+  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.' },
+  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.' },
+  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.' },
+  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.' },
+  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.' },
   { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-08-02', severity: 'high', summary: 'Users must be informed when interacting with an AI system under transparency rules.' },
   { id: 'obl2', title: 'Implement appropriate human oversight', framework: 'EU', topic: 'Human Oversight', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk AI systems must include measures enabling appropriate human oversight.' },
   { id: 'obl3', title: 'Maintain logging for traceability', framework: 'EU', topic: 'Logging', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk systems must log activity to support traceability and compliance review.' },
@@ -202,7 +202,10 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl14', title: 'Map system context & stakeholders', framework: 'NIST', topic: 'Risk Management', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Map system purpose, context, stakeholders, affected parties, and intended use.' },
   { id: 'obl15', title: 'Provide transparency & responsible disclosure', framework: 'OECD', topic: 'Transparency', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'AI actors should provide meaningful info about capabilities, limitations, and challenge pathways.' },
   { id: 'obl16', title: 'Ensure robustness, security & safety', framework: 'OECD', topic: 'Cybersecurity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'AI systems should be robust, secure, and safe throughout the lifecycle with safe override capability.' },
-  { id: 'obl17', title: 'Caller Authorization Verification (NHID-Auth v2)', framework: 'EU', topic: 'Authorization', type: 'mandatory', effective: '2026-06-11', severity: 'critical', summary: 'NHID-Auth v2 (Layer 3): Cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding, separate from NHID-Clinical v1.3 Layer 2 conformance.' },
+  // Reclassified: NHID-Auth v2 is a voluntary reference implementation, not an EU
+  // mandate. It was previously encoded as framework 'EU' / mandatory / critical with
+  // a 2026-06-11 compliance date, which over-claimed a voluntary spec as binding law.
+  { id: 'obl17', title: 'Caller Authorization Verification (NHID-Auth v2)', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Optional NHID-Auth v2 layer (Layer 3): cryptographic authorization via Ed25519 delegation chain + DPoP nonce binding, separate from NHID-Clinical v2.0 Layer 2 conformance. Voluntary reference implementation — not a regulatory requirement.' },
   { id: 'obl18', title: 'Generative AI testing & evaluation guidance', framework: 'SG', topic: 'Testing & Evaluation', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Apply structured red-teaming, benchmarking, and content-provenance testing per the Model AI Governance Framework for Generative AI (2nd Ed).' },
   { id: 'obl19', title: 'Content provenance & incident reporting channel', framework: 'SG', topic: 'Transparency', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Label AI-generated content where feasible and maintain a channel for reporting AI-related incidents and feedback.' },
   { id: 'obl20', title: 'Mitigate OWASP LLM Top 10 risks', framework: 'OWASP', topic: 'Application Security', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Address prompt injection, insecure output handling, training data poisoning, and excessive agency per the OWASP Top 10 for LLM Applications.' },
@@ -587,15 +590,21 @@ export const HEATMAP_LIKELIHOODS = ['Rare', 'Unlikely', 'Possible', 'Likely', 'A
 export const HEATMAP_IMPACTS = ['Negligible', 'Minor', 'Moderate', 'Significant', 'Severe'];
 
 export const HEATMAP_CELLS: HeatmapCell[] = [
-  { likelihoodIndex: 0, impactIndex: 0, level: 'cool', label: 'ASR model disclosure gap', obligationId: 'obl7' },
-  { likelihoodIndex: 0, impactIndex: 1, level: 'cool', label: 'Call log retention lapse', obligationId: 'obl9' },
+  // "transparency" not "disclosure" — in this app disclosure means IDG-01 caller
+  // disclosure; this cell is about model/provider transparency (EU GPAI duty).
+  { likelihoodIndex: 0, impactIndex: 0, level: 'cool', label: 'ASR model transparency gap', obligationId: 'obl7' },
+  // Anchored to the binding HIPAA audit-controls duty rather than the generic
+  // ISO Clause 7.5 documentation duty it previously pointed at.
+  { likelihoodIndex: 0, impactIndex: 1, level: 'cool', label: 'Call log retention lapse', obligationId: 'obl29' },
   { likelihoodIndex: 0, impactIndex: 2, level: 'mild', label: 'Undetected triage drift', obligationId: 'obl14' },
-  { likelihoodIndex: 0, impactIndex: 3, level: 'mild', label: 'ASR vendor doc missing', obligationId: 'obl8' },
+  // Vendor technical documentation is the EU high-risk documentation duty, not
+  // prohibited-practices screening (obl8), which this previously pointed at.
+  { likelihoodIndex: 0, impactIndex: 3, level: 'mild', label: 'ASR vendor documentation gap', obligationId: 'obl6' },
   { likelihoodIndex: 0, impactIndex: 4, level: 'warm', label: 'Undisclosed AI voice agent', obligationId: 'obl1' },
   { likelihoodIndex: 1, impactIndex: 0, level: 'cool', label: 'Stale voice-agent inventory', obligationId: 'obl13' },
   { likelihoodIndex: 1, impactIndex: 1, level: 'mild', label: 'Incomplete call audit trail', obligationId: 'obl3' },
   { likelihoodIndex: 1, impactIndex: 2, level: 'mild', label: 'Weak call monitoring config', obligationId: 'obl12' },
-  { likelihoodIndex: 1, impactIndex: 3, level: 'warm', label: 'Third-party ASR model risk', obligationId: 'obl5' },
+  { likelihoodIndex: 1, impactIndex: 3, level: 'warm', label: 'Unvetted third-party ASR model', obligationId: 'obl5' },
   { likelihoodIndex: 1, impactIndex: 4, level: 'hot', label: "Patient not told it's AI", obligationId: 'obl1' },
   { likelihoodIndex: 2, impactIndex: 0, level: 'mild', label: 'Triage policy not updated', obligationId: 'obl11' },
   { likelihoodIndex: 2, impactIndex: 1, level: 'mild', label: 'Call logs not retained', obligationId: 'obl3' },
@@ -656,7 +665,7 @@ export interface NhidLayer {
 export const NHID_LAYERS: NhidLayer[] = [
   { layer: 0, title: 'NPI Registry', scope: 'No delegation proof, no call-time authorization.' },
   { layer: 1, title: 'STIR/SHAKEN', scope: 'Carrier attestation (A/B/C levels) — verifies phone number origin only.' },
-  { layer: 2, title: 'NHID-Clinical v1.3 — Behavioral Baseline', scope: 'Disclosure, no mimicry, human handoff, audit log.', isCore: true },
+  { layer: 2, title: 'NHID-Clinical v2.0 — Behavioral Baseline', scope: 'Disclosure, no mimicry, human handoff, audit log.', isCore: true },
   { layer: 3, title: 'NHID-Auth v2', scope: 'Cryptographic authorization layer: Ed25519 delegation chain + DPoP call-nonce binding (reference implementation, CC BY 4.0).' },
   { layer: 4, title: 'FHIR AuditEvent R4', scope: 'Healthcare-native structured logging (HL7 base spec v4.0.1); no named Implementation Guide (e.g. IHE BALP) conformance claimed.' },
   { layer: 5, title: 'OpenTelemetry → SIEM', scope: 'Spans forwarded to enterprise observability / security pipeline.' },
