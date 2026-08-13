@@ -290,6 +290,17 @@ export default function USAComplianceMapSection() {
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm" style={{ background: '#cbd5e1' }} />No AI-specific law tracked</span>
         </div>
 
+        {/* Data-currency disclosure — states plainly what this dataset is and is not. */}
+        <p className="mt-3 text-[0.62rem] leading-relaxed text-muted-foreground border-t border-border pt-3">
+          <span className="font-semibold">Data currency:</span> state-law status last reviewed
+          mid-August 2026. Individual entries carry no per-row provenance (no source or
+          verified-on field), so freshness cannot be audited entry by entry. This map is{' '}
+          <span className="font-semibold">not comprehensively current for all 50 states</span> —
+          it tracks a reviewed subset, and states shown as &ldquo;no AI-specific law tracked&rdquo;
+          may have activity not yet reviewed here. Note that an enacted law may have obligations
+          that begin later (e.g. Colorado&rsquo;s SB 26-189 duties begin 1 January 2027).
+        </p>
+
         <AnimatePresence mode="wait">
           {selectedState && (
             <motion.div
