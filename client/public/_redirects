@@ -1,0 +1,4 @@
+# Cloudflare Pages SPA fallback — serve the app shell for any client-side route.
+# Replaces the vercel.json "rewrites" rule. Vite copies this file (from client/public)
+# into the build output (dist/public), where Cloudflare Pages reads it.
+/*    /index.html   200

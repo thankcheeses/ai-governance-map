@@ -81,7 +81,7 @@ export default function NhidTrustStack() {
     <section id="nhid" className="scroll-mt-24">
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
-        title="NHID-Clinical v1.3 — Voice Agent & Non-Human Identity"
+        title="NHID-Clinical v2.0 — Voice Agent & Non-Human Identity"
         subtitle="Healthcare-Voice Trust Stack Explorer — five permanent controls, a five-layer trust stack, and impersonation latency as a first-class risk primitive"
       />
 
@@ -121,8 +121,16 @@ export default function NhidTrustStack() {
           </div>
           <p className="relative z-10 text-[0.68rem] text-slate-400 mt-4 leading-relaxed">
             The five trust layers (1–5) rest on the NPI Registry foundation (Layer 0). NHID-Clinical
-            v1.3 is the behavioral baseline at Layer 2 ★; cryptographic NPI-delegation verification
+            v2.0 is the behavioral baseline at Layer 2 ★; cryptographic NPI-delegation verification
             lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer.
+          </p>
+          {/* Status note: signals that work has moved past the published spec, without
+              asserting any results, metrics, or evaluation figures. */}
+          <p className="relative z-10 text-[0.66rem] text-slate-400/90 mt-3 leading-relaxed border-l-2 border-teal-400/30 pl-3">
+            <span className="font-semibold text-slate-300">Status:</span> reference-implementation,
+            evaluation-corpus and Audit Event Spec work has continued past the published v1.3
+            behavioral baseline. The v1.3 specification remains the citable public-comment artifact
+            (NIST-2025-0035-0026); conformance evidence below is still prototype / simulation only.
           </p>
           {/* Bidirectional open-source CTAs (no product CTAs) */}
           <div className="relative z-10 flex flex-wrap gap-2 mt-4">
@@ -358,7 +366,7 @@ export default function NhidTrustStack() {
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v1.3</p>
+              <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v2.0</p>
               <ul className="space-y-1 list-disc list-inside text-slate-400">
                 <li>Mandatory early disclosure gate (IDG-01)</li>
                 <li>Pre-data-exchange verification checkpoint</li>

@@ -48,7 +48,12 @@ export default function Dashboard() {
           <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />
         </main>
         <footer className="gradient-border border-t border-border py-6 px-4 lg:px-8 text-center text-xs text-muted-foreground">
-          AI Governance Map · v2 · Local-only — your assessment data never leaves your browser. Globe basemap imagery © Esri.
+          <p>
+            AI Governance Map · v2 · Local-only — your assessment data never leaves your browser. Globe basemap imagery © Esri.
+          </p>
+          <p className="mt-1 font-mono text-[0.65rem] opacity-80">
+            Last updated {__BUILD_DATE__} · frameworks &amp; obligations verified mid-2026 · NHID-Clinical v2.0
+          </p>
         </footer>
       </SidebarInset>
       <DemoModeOverlay active={demoActive} onClose={() => setDemoActive(false)} />
