@@ -53,7 +53,7 @@ export default function AppSidebar() {
       <SidebarHeader className="px-3 py-3">
         <div className="flex items-center gap-2.5 overflow-hidden">
           <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-            <img src="/nhid-logo.png" alt="NHID-Clinical" className="w-8 h-8 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}nhid-logo.png`} alt="NHID-Clinical" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold text-foreground leading-none truncate">AI Governance Map</p>

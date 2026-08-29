@@ -5,7 +5,7 @@
 **Source of Truth:** `thankcheeses/ai-governance-map` repository + session conversation record  
 **Generated:** June 12, 2026  
 **Canonical URL:** https://nhid-clinical.org  
-**Companion Tool:** https://ai-governance-map.vercel.app
+**Companion Tool:** https://thankcheeses.github.io/ai-governance-map/ *(migrated from Vercel, Aug 29 2026)*
 
 > **Source Material Notice:** This archive was built from content available in the `thankcheeses/ai-governance-map` repository (index.html, CHANGELOG.md, README.md, ideas.md, todo.md) and the project session record. The primary `NHID-Clinical/NHID-Clinical` repository was not accessible during this session and its contents — including the v1.3 canonical reference prompt, ElevenLabs agent configuration files, test suite source code, and implementation code — are **not** captured here. Sections dependent on that repository are marked **[SOURCE: NHID-Clinical/NHID-Clinical repo — not yet ingested]**. All content below is traceable to available source material; nothing has been invented.
 
@@ -142,7 +142,7 @@ In concrete terms:
 | **Type** | Voluntary open behavioral baseline |
 | **Domain** | B2B healthcare payer-provider voice AI workflows |
 | **Website** | https://nhid-clinical.org |
-| **Companion** | AI Governance Map (https://ai-governance-map.vercel.app) |
+| **Companion** | AI Governance Map (https://thankcheeses.github.io/ai-governance-map/) |
 
 ### Core Concepts
 
@@ -1413,7 +1413,7 @@ A number from 0 to 5 showing how many of the five NHID-Clinical controls an agen
 
 ### What is the AI Governance Map?
 
-A companion website (https://ai-governance-map.vercel.app) that shows NHID-Clinical alongside other major AI governance frameworks — EU AI Act, NIST AI Risk Management Framework, ISO 42001, and OECD AI Principles. It lets practitioners see how NHID-Clinical controls map to their broader compliance obligations.
+A companion website (https://thankcheeses.github.io/ai-governance-map/) that shows NHID-Clinical alongside other major AI governance frameworks — EU AI Act, NIST AI Risk Management Framework, ISO 42001, and OECD AI Principles. It lets practitioners see how NHID-Clinical controls map to their broader compliance obligations.
 
 ### Who is Nadine?
 
