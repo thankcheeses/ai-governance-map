@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Build-only validation on PRs (the deploy job is gated to push below), so a PR
+  # that would break the Pages build fails here rather than after merge. This keeps
+  # the build check that the removed webpack.yml used to provide.
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 # Least privilege: read the repo, and mint the OIDC token deploy-pages needs.
@@ -43,15 +48,22 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Pages-specific steps only on real deploys. On a pull request the job stops at
+      # the build above, so PR validation never depends on Pages being enabled for the
+      # repository (it would otherwise fail for a reason unrelated to the change).
       - uses: actions/configure-pages@v5
+        if: github.event_name != 'pull_request'
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist/public
 
   deploy:
     name: Deploy
     needs: build
+    # Never publish from a pull request — deploy only for pushes to main and manual runs.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
