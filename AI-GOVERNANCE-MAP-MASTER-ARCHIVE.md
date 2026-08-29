@@ -4,7 +4,7 @@
 **Version:** Aligned to AI Governance Map v2 (live since June 11, 2026)
 **Source of Truth:** `thankcheeses/ai-governance-map` repository + project session record
 **Generated:** June 26, 2026
-**Live Tool:** https://ai-governance-map.vercel.app
+**Live Tool:** https://thankcheeses.github.io/ai-governance-map/ *(migrated from Vercel — see Deployment Change Log, Aug 29 2026)*
 **Companion Standard:** https://nhid-clinical.org
 
 > **Source Material Notice:** This archive is built strictly from material present in the
@@ -688,6 +688,75 @@ effect Jan 2026, India IT Rules Amendment in force Feb 2026).
 **Verification status of this archive:** every count and table above was read directly from
 the current `governance.ts` and repository state on the generation date. Items dependent on
 the external NHID-Clinical repository are explicitly marked and not asserted as in-repo fact.
+
+
+---
+
+## DEPLOYMENT CHANGE LOG
+
+### 2026-08-29 — Hosting migrated from Vercel to GitHub Pages
+
+**Change type:** Material deployment/architecture change. No application functionality,
+data, or UI was altered.
+
+**Rationale.** Eliminate the Vercel dependency and its cost; host the project independently
+on GitHub Pages, matching the model used for the owner's other GitHub-hosted projects.
+
+**Original hosting architecture.** Vercel, configured entirely by a single `vercel.json`
+(`buildCommand: vite build`, `outputDirectory: dist/public`, `framework: null`, SPA rewrite
+`/(.*) → /index.html`). Auto-deploy from `main`; PR preview deployments. **No Vercel npm
+packages, no `/api` directory, no serverless functions** — the platform coupling was config
+only.
+
+**New hosting architecture.** GitHub Pages project site at
+`https://thankcheeses.github.io/ai-governance-map/`, built and published by
+`.github/workflows/deploy-pages.yml` (pnpm → `pnpm check` → `pnpm build` →
+`upload-pages-artifact` → `deploy-pages`) on every push to `main`. Permissions
+`contents: read, pages: write, id-token: write`; `concurrency: pages`.
+
+**Why this required code changes.** Pages serves from a **subpath** and has **no rewrite
+engine**. Three concrete breakages were identified and fixed:
+
+| Breakage | Fix |
+| --- | --- |
+| No Vite `base` → all bundled asset URLs root-absolute → 404 | `base: "/ai-governance-map/"` in `vite.config.ts` |
+| `AppSidebar.tsx` hardcoded `src="/nhid-logo.png"` (Vite does **not** rewrite absolute paths inside JSX) | `src={\`${import.meta.env.BASE_URL}nhid-logo.png\`}` |
+| wouter `<Route path="">` with no base → NotFound would render instead of Dashboard | `<Router base={import.meta.env.BASE_URL.replace(/\/$/, "")}>` in `App.tsx` |
+| No SPA rewrite equivalent | `gh-pages-spa-fallback` Vite plugin copies `index.html` → `404.html` at `closeBundle` |
+| Jekyll drops `_`-prefixed paths (`client/public/__manus__/`) | `client/public/.nojekyll` |
+
+**Files changed.** `vite.config.ts`, `client/src/App.tsx`,
+`client/src/components/dashboard/AppSidebar.tsx`, `README.md`, this archive,
+`NHID-CLINICAL-MASTER-ARCHIVE.md` (companion-URL pointers only).
+**Added:** `.github/workflows/deploy-pages.yml`, `client/public/.nojekyll`.
+**Deleted:** `vercel.json`, `client/public/_redirects` (Cloudflare Pages artifact, ignored by
+GitHub Pages), `.github/workflows/webpack.yml` (redundant build that used npm against a pnpm
+lockfile).
+
+**Preserved unchanged.** All content, navigation, visual design, interactive behaviour, data
+(29 frameworks / 27 CCM controls), assets, routes, accessibility work (heatmap ARIA +
+colourblind-safe scale), responsive behaviour, and the local-only/no-tracking architecture.
+
+**Verification (local, against the production build served under the real
+`/ai-governance-map/` subpath).** Dashboard renders (not NotFound); 10/10 sections present;
+sidebar logo loads; CSS applied; both MapLibre canvases render; KPIs 29/27; localStorage
+posture scoring persists (3/27); Demo mode opens; 390px mobile with no horizontal overflow;
+`404.html` boots the app; **zero local 404s**; zero console errors; `pnpm check` and
+`pnpm build` clean.
+
+**Limitations / residual notes.**
+- Esri basemap tiles and Google Fonts remain third-party client-side fetches — host-agnostic,
+  unchanged by this migration.
+- `client/public/__manus__/` (dev-only debug collector, `NODE_ENV`-guarded and absent from the
+  built `index.html`) still ships to the output as inert dead weight.
+- `package-lock.json` remains alongside `pnpm-lock.yaml` — flagged, not removed.
+- Historical references to Vercel elsewhere in this archive and in
+  `NHID-CLINICAL-MASTER-ARCHIVE.md` are **retained as accurate history** of the pre-migration
+  era and were deliberately not rewritten.
+
+**Vercel retirement status.** The project no longer requires Vercel: the only coupling was
+`vercel.json`, now deleted. Vercel was **not** cancelled or deleted as part of this change —
+per instruction, it stays in place until the GitHub Pages deployment is confirmed live.
 
 ---
 

@@ -5,7 +5,7 @@ CCM-mapped controls**, and an obligations register crosswalked across jurisdicti
 interactive USA and global compliance maps. Built for practitioners evaluating AI systems,
 with a first-class module for **AI voice agents and non-human identity** in healthcare.
 
-**Live:** [ai-governance-map.vercel.app](https://ai-governance-map.vercel.app)
+**Live:** [thankcheeses.github.io/ai-governance-map](https://thankcheeses.github.io/ai-governance-map/)
 
 > **Local-only, no tracking.** Everything runs in your browser. No data leaves the page,
 > no analytics, no external calls except the basemap tiles for the compliance maps.
@@ -66,22 +66,31 @@ pnpm test       # unit tests
 
 ## Deployment
 
-The app is a fully static single-page site (no server, no API routes), so any static host
-works. Target host is **Cloudflare Pages**:
+Deployed to **GitHub Pages** at
+[thankcheeses.github.io/ai-governance-map](https://thankcheeses.github.io/ai-governance-map/).
+The app is a fully static single-page site — no server, no API routes, no runtime environment
+variables or secrets.
 
 | Setting | Value |
 | --- | --- |
-| Framework preset | None (Vite) |
 | Build command | `pnpm build` |
 | Build output directory | `dist/public` |
-| Node version | 20+ |
+| Vite `base` | `/ai-governance-map/` (project-site subpath) |
+| Node version | 22 |
 
-Client-side routing (wouter) is handled by `client/public/_redirects` (`/* /index.html 200`),
-which Vite copies into the build output — no extra host config needed.
+Deployment is automated by `.github/workflows/deploy-pages.yml`: every push to `main` builds
+with pnpm and publishes `dist/public` via GitHub Pages. **One-time repo setting:** under
+*Settings → Pages*, set **Source: GitHub Actions**.
 
-To connect it: in the Cloudflare dashboard, **Workers & Pages → Create → Pages → Connect to
-Git**, pick this repository, enter the build command and output directory above, and deploy.
-Each push to `main` publishes automatically; pull requests get preview URLs.
+Two details that matter for a project-site subpath:
+
+- **Base path.** `vite.config.ts` sets `base: "/ai-governance-map/"`, and the router derives its
+  own base from `import.meta.env.BASE_URL`, so asset URLs and routes stay in step. The base is
+  applied in dev too, so `pnpm dev` serves at `http://localhost:5173/ai-governance-map/` — path
+  bugs surface locally instead of only after deploy.
+- **SPA fallback.** GitHub Pages has no rewrite engine, so the build copies `index.html` to
+  `404.html` (see the `gh-pages-spa-fallback` plugin). A `.nojekyll` file is published so Pages
+  serves `_`-prefixed paths instead of letting Jekyll drop them.
 
 ## License & attribution
 
