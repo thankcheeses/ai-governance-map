@@ -101,12 +101,16 @@ export default function NhidTrustStack() {
         <ul className="space-y-0.5">
           {NHID_CONFORMANCE_CONTROLS.map((c) => (
             <li key={c.code}>
-              <span className="font-mono font-semibold">{c.code}</span> — {c.requirement} (SLO: {c.indicator.slo})
+              <span className="font-mono font-semibold">{c.code}</span> — {c.requirement} ({c.kind}; SLO:{' '}
+              {c.indicator.slo})
             </li>
           ))}
         </ul>
         <p className="mt-2 opacity-70">
-          Open voluntary proposal — NIST-2025-0035-0026, CC BY 4.0. Not a product or certification.
+          Open voluntary proposal — NIST-2025-0035-0026, CC BY 4.0. Not law, not an official standard, not a
+          certification. Scope is B2B payer–provider administrative voice calls; patient-facing calls and clinical
+          decision support are out of scope. Any mapping to legal requirements is interpretive and does not
+          establish regulatory compliance.
         </p>
       </div>
 

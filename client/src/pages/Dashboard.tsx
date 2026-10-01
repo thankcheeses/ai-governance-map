@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/dashboard/AppSidebar';
 import TopBar from '@/components/dashboard/TopBar';
-import HeroKpis from '@/components/dashboard/HeroKpis';
-import AttentionBoard from '@/components/dashboard/AttentionBoard';
+import StatusStrip from '@/components/dashboard/StatusStrip';
+import EvidenceCoverage from '@/components/dashboard/EvidenceCoverage';
 import IntroBanner from '@/components/dashboard/IntroBanner';
-import GovernanceHeatmap from '@/components/dashboard/GovernanceHeatmap';
+import RiskMatrix from '@/components/dashboard/RiskMatrix';
+import type { MatrixId } from '@/data/matrix';
 import NhidTrustStack from '@/components/dashboard/NhidTrustStack';
 import ControlsSection from '@/components/dashboard/ControlsSection';
 import MaturityRadarSection from '@/components/dashboard/MaturityRadarSection';
@@ -19,6 +20,15 @@ import { useGovernanceState } from '@/hooks/useGovernanceState';
 import { exportControlsCSV, exportProgressJSON, printPostureSnapshot } from '@/lib/exports';
 
 type Lens = 'all' | 'executive' | 'grc' | 'risk';
+
+// Each lens opens the matrix on the grid that answers its question; the matrix
+// selector still overrides it.
+const LENS_MATRIX: Record<Lens, MatrixId> = {
+  all: 'risk',
+  executive: 'exec',
+  grc: 'grc',
+  risk: 'risk',
+};
 
 const LENS_SECTIONS: Record<Lens, string[]> = {
   all: ['overview', 'heatmap', 'nhid', 'controls', 'maturity', 'timeline', 'crosswalk', 'global-map', 'usa-map', 'frameworks'],
@@ -47,7 +57,7 @@ export default function Dashboard() {
           onPrintSnapshot={printPostureSnapshot}
           onStartDemo={() => setDemoActive(true)}
         />
-        <main className="flex flex-col gap-10 p-4 sm:p-6 lg:p-10 max-w-[1400px] w-full mx-auto">
+        <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8 max-w-[1400px] w-full mx-auto">
           <div className="flex items-center gap-2 flex-wrap" role="tablist" aria-label="Working view">
             {([['all', 'Full register'], ['executive', 'Executive'], ['grc', 'GRC'], ['risk', 'Risk']] as const).map(([id, label]) => (
               <button
@@ -64,12 +74,17 @@ export default function Dashboard() {
           </div>
           {assessedCount === 0 && <IntroBanner onStartDemo={() => setDemoActive(true)} />}
           {visible.has('overview') && (
-            <>
-              <AttentionBoard controlState={controlState} assessedCount={assessedCount} onJump={jump} />
-              <HeroKpis overallScore={overallScore} assessedCount={assessedCount} />
-            </>
+            <StatusStrip
+              controlState={controlState}
+              overallScore={overallScore}
+              assessedCount={assessedCount}
+              onJump={jump}
+            />
           )}
-          {visible.has('heatmap') && <GovernanceHeatmap frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />}
+          {/* The matrix is the workspace, so it sits directly under the status strip
+              rather than below a row of summary tiles. */}
+          {visible.has('heatmap') && <RiskMatrix controlState={controlState} preferredMatrix={LENS_MATRIX[lens]} />}
+          {visible.has('overview') && <EvidenceCoverage />}
           {visible.has('nhid') && <NhidTrustStack />}
           {visible.has('controls') && <ControlsSection />}
           {visible.has('maturity') && <MaturityRadarSection />}

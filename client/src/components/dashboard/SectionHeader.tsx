@@ -18,7 +18,7 @@ export default function SectionHeader({ icon, title, subtitle, action }: Section
       className="flex items-center justify-between mb-5 flex-wrap gap-3"
     >
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-[#0F172A]/10 text-primary ring-1 ring-primary/15 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-md bg-muted text-foreground border border-border flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
         <div>

@@ -9,10 +9,12 @@ const TIER_ICON: Record<EvidenceTier, typeof FileText> = {
   secondary: Newspaper,
 };
 
+// Tier is carried by the icon and the label text. The fills differ only in
+// weight, so a row of chips reads as a register rather than a set of badges.
 const TIER_CLASS: Record<EvidenceTier, string> = {
-  primary: 'border-emerald-700/40 bg-emerald-50 text-emerald-950',
-  'official-guidance': 'border-sky-700/40 bg-sky-50 text-sky-950',
-  secondary: 'border-amber-700/40 bg-amber-50 text-amber-950',
+  primary: 'border-[#A9B7C6] bg-[#E8EDF2] text-[#1F2A37]',
+  'official-guidance': 'border-[#C2CBD6] bg-[#F1F4F7] text-[#334155]',
+  secondary: 'border-border bg-transparent text-muted-foreground',
 };
 
 /**

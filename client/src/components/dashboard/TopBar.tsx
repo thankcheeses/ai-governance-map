@@ -30,11 +30,11 @@ export default function TopBar({ overallScore, assessedCount, onExportCSV, onExp
           <span className="hidden sm:inline text-sm font-semibold text-foreground">Dashboard</span>
         </div>
 
-        <div className="flex items-center gap-2.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md font-mono text-xs font-semibold text-primary">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 bg-muted border border-border rounded-md font-mono text-xs font-medium text-foreground">
           <span>Posture {isUnassessed ? '—' : `${overallScore}%`}</span>
-          <div className="w-16 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+          <div className="w-16 h-1.5 bg-border rounded-sm overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
+              className="h-full bg-foreground rounded-sm transition-all duration-500"
               style={{ width: isUnassessed ? '0%' : `${overallScore}%`, opacity: isUnassessed ? 0.3 : 1 }}
             />
           </div>

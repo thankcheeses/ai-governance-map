@@ -20,7 +20,7 @@ export const FRAMEWORKS: Framework[] = [
   {
     slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v2.0',
     type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v2.0 · v1.3 spec: NIST-2025-0035-0026', coverage: 100,
-    summary: 'Open behavioral baseline for transparent AI voice agents in healthcare — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. A voluntary, testable proposal (CC BY 4.0) — not a product, not a certification. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains.',
+    summary: 'Open behavioral baseline for AI voice agents on B2B healthcare payer–provider administrative calls — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. Scope is administrative calls only: patient-facing calls and clinical decision support are expressly out of scope. A voluntary, testable proposal (CC BY 4.0) — not law, not an official standard, not a certification, and not a general healthcare AI mandate. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains.',
   },
   {
     slug: 'eu-ai-act', shortCode: 'EU', name: 'EU Artificial Intelligence Act',
@@ -634,12 +634,52 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   { date: '2028-08-02', label: 'Product-integrated high-risk systems applicable', status: 'upcoming', detail: 'High-risk AI systems integrated into products already covered by EU product safety law apply from this date under Regulation (EU) 2026/1744.', source: { tier: 'secondary', citation: 'Regulation (EU) 2026/1744 (Digital Omnibus on AI)', url: 'https://eur-lex.europa.eu/eli/reg/2026/1744/oj', checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
 ];
 
+/** Ordered low -> high. Index + 1 is the band rank used by the residual formula. */
+export const RISK_BANDS = ['cool', 'mild', 'warm', 'hot'] as const;
+export type RiskBand = (typeof RISK_BANDS)[number];
+
+export const RISK_BAND_LABEL: Record<RiskBand, string> = {
+  cool: 'Low',
+  mild: 'Moderate',
+  warm: 'Elevated',
+  hot: 'Critical',
+};
+
+/**
+ * AI use cases and risk domains are not a new taxonomy imposed on the register —
+ * they are read out of the 25 scenarios that already exist, so the Risk matrix
+ * re-plots real records rather than inventing rows. Combinations with no scenario
+ * stay genuinely empty and render as "No data", never as low risk.
+ */
+export const RISK_USE_CASES = [
+  'Voice agent',
+  'Call handling',
+  'Speech recognition',
+  'Clinical triage',
+  'Governance & assurance',
+] as const;
+export type RiskUseCase = (typeof RISK_USE_CASES)[number];
+
+export const RISK_DOMAINS = [
+  'Transparency',
+  'Human oversight',
+  'Data governance',
+  'Audit & traceability',
+  'Monitoring & drift',
+  'Documentation',
+  'Lawfulness & conformance',
+] as const;
+export type RiskDomain = (typeof RISK_DOMAINS)[number];
+
 export interface HeatmapCell {
   likelihoodIndex: number;
   impactIndex: number;
-  level: 'cool' | 'mild' | 'warm' | 'hot';
+  /** Inherent band, before any control credit. Hand-authored; never computed. */
+  level: RiskBand;
   label: string;
   obligationId: string;
+  useCase: RiskUseCase;
+  riskDomain: RiskDomain;
 }
 
 export const HEATMAP_LIKELIHOODS = ['Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];
@@ -648,35 +688,35 @@ export const HEATMAP_IMPACTS = ['Negligible', 'Minor', 'Moderate', 'Significant'
 export const HEATMAP_CELLS: HeatmapCell[] = [
   // "transparency" not "disclosure" — in this app disclosure means IDG-01 caller
   // disclosure; this cell is about model/provider transparency (EU GPAI duty).
-  { likelihoodIndex: 0, impactIndex: 0, level: 'cool', label: 'ASR model transparency gap', obligationId: 'obl7' },
+  { likelihoodIndex: 0, impactIndex: 0, level: 'cool', label: 'ASR model transparency gap', obligationId: 'obl7', useCase: 'Speech recognition', riskDomain: 'Transparency' },
   // Anchored to the binding HIPAA audit-controls duty rather than the generic
   // ISO Clause 7.5 documentation duty it previously pointed at.
-  { likelihoodIndex: 0, impactIndex: 1, level: 'cool', label: 'Call log retention lapse', obligationId: 'obl29' },
-  { likelihoodIndex: 0, impactIndex: 2, level: 'mild', label: 'Undetected triage drift', obligationId: 'obl14' },
+  { likelihoodIndex: 0, impactIndex: 1, level: 'cool', label: 'Call log retention lapse', obligationId: 'obl29', useCase: 'Call handling', riskDomain: 'Audit & traceability' },
+  { likelihoodIndex: 0, impactIndex: 2, level: 'mild', label: 'Undetected triage drift', obligationId: 'obl14', useCase: 'Clinical triage', riskDomain: 'Monitoring & drift' },
   // Vendor technical documentation is the EU high-risk documentation duty, not
   // prohibited-practices screening (obl8), which this previously pointed at.
-  { likelihoodIndex: 0, impactIndex: 3, level: 'mild', label: 'ASR vendor documentation gap', obligationId: 'obl6' },
-  { likelihoodIndex: 0, impactIndex: 4, level: 'warm', label: 'Undisclosed AI voice agent', obligationId: 'obl1' },
-  { likelihoodIndex: 1, impactIndex: 0, level: 'cool', label: 'Stale voice-agent inventory', obligationId: 'obl13' },
-  { likelihoodIndex: 1, impactIndex: 1, level: 'mild', label: 'Incomplete call audit trail', obligationId: 'obl3' },
-  { likelihoodIndex: 1, impactIndex: 2, level: 'mild', label: 'Weak call monitoring config', obligationId: 'obl12' },
-  { likelihoodIndex: 1, impactIndex: 3, level: 'warm', label: 'Unvetted third-party ASR model', obligationId: 'obl5' },
-  { likelihoodIndex: 1, impactIndex: 4, level: 'hot', label: "Patient not told it's AI", obligationId: 'obl1' },
-  { likelihoodIndex: 2, impactIndex: 0, level: 'mild', label: 'Triage policy not updated', obligationId: 'obl11' },
-  { likelihoodIndex: 2, impactIndex: 1, level: 'mild', label: 'Call logs not retained', obligationId: 'obl3' },
-  { likelihoodIndex: 2, impactIndex: 2, level: 'warm', label: 'Drift in triage model', obligationId: 'obl4' },
-  { likelihoodIndex: 2, impactIndex: 3, level: 'warm', label: 'Clinician oversight bypassed', obligationId: 'obl2' },
-  { likelihoodIndex: 2, impactIndex: 4, level: 'hot', label: 'Triage system non-compliant', obligationId: 'obl4' },
-  { likelihoodIndex: 3, impactIndex: 0, level: 'mild', label: 'Compliance review missed', obligationId: 'obl12' },
-  { likelihoodIndex: 3, impactIndex: 1, level: 'warm', label: 'Adverse event unreported', obligationId: 'obl8' },
-  { likelihoodIndex: 3, impactIndex: 2, level: 'warm', label: 'Clinical data quality gap', obligationId: 'obl5' },
-  { likelihoodIndex: 3, impactIndex: 3, level: 'hot', label: 'Clinician override ignored', obligationId: 'obl2' },
-  { likelihoodIndex: 3, impactIndex: 4, level: 'hot', label: 'Diagnostic bias detected', obligationId: 'obl16' },
-  { likelihoodIndex: 4, impactIndex: 0, level: 'warm', label: 'Conformance audit overdue', obligationId: 'obl12' },
-  { likelihoodIndex: 4, impactIndex: 1, level: 'warm', label: 'Call recording breach', obligationId: 'obl16' },
-  { likelihoodIndex: 4, impactIndex: 2, level: 'hot', label: 'Banned AI triage practice', obligationId: 'obl8' },
-  { likelihoodIndex: 4, impactIndex: 3, level: 'hot', label: 'No clinician escalation', obligationId: 'obl2' },
-  { likelihoodIndex: 4, impactIndex: 4, level: 'hot', label: 'Catastrophic triage failure', obligationId: 'obl4' },
+  { likelihoodIndex: 0, impactIndex: 3, level: 'mild', label: 'ASR vendor documentation gap', obligationId: 'obl6', useCase: 'Speech recognition', riskDomain: 'Documentation' },
+  { likelihoodIndex: 0, impactIndex: 4, level: 'warm', label: 'Undisclosed AI voice agent', obligationId: 'obl1', useCase: 'Voice agent', riskDomain: 'Transparency' },
+  { likelihoodIndex: 1, impactIndex: 0, level: 'cool', label: 'Stale voice-agent inventory', obligationId: 'obl13', useCase: 'Voice agent', riskDomain: 'Documentation' },
+  { likelihoodIndex: 1, impactIndex: 1, level: 'mild', label: 'Incomplete call audit trail', obligationId: 'obl3', useCase: 'Call handling', riskDomain: 'Audit & traceability' },
+  { likelihoodIndex: 1, impactIndex: 2, level: 'mild', label: 'Weak call monitoring config', obligationId: 'obl12', useCase: 'Call handling', riskDomain: 'Monitoring & drift' },
+  { likelihoodIndex: 1, impactIndex: 3, level: 'warm', label: 'Unvetted third-party ASR model', obligationId: 'obl5', useCase: 'Speech recognition', riskDomain: 'Data governance' },
+  { likelihoodIndex: 1, impactIndex: 4, level: 'hot', label: "Patient not told it's AI", obligationId: 'obl1', useCase: 'Voice agent', riskDomain: 'Transparency' },
+  { likelihoodIndex: 2, impactIndex: 0, level: 'mild', label: 'Triage policy not updated', obligationId: 'obl11', useCase: 'Clinical triage', riskDomain: 'Documentation' },
+  { likelihoodIndex: 2, impactIndex: 1, level: 'mild', label: 'Call logs not retained', obligationId: 'obl3', useCase: 'Call handling', riskDomain: 'Audit & traceability' },
+  { likelihoodIndex: 2, impactIndex: 2, level: 'warm', label: 'Drift in triage model', obligationId: 'obl4', useCase: 'Clinical triage', riskDomain: 'Monitoring & drift' },
+  { likelihoodIndex: 2, impactIndex: 3, level: 'warm', label: 'Clinician oversight bypassed', obligationId: 'obl2', useCase: 'Clinical triage', riskDomain: 'Human oversight' },
+  { likelihoodIndex: 2, impactIndex: 4, level: 'hot', label: 'Triage system non-compliant', obligationId: 'obl4', useCase: 'Clinical triage', riskDomain: 'Lawfulness & conformance' },
+  { likelihoodIndex: 3, impactIndex: 0, level: 'mild', label: 'Compliance review missed', obligationId: 'obl12', useCase: 'Governance & assurance', riskDomain: 'Lawfulness & conformance' },
+  { likelihoodIndex: 3, impactIndex: 1, level: 'warm', label: 'Adverse event unreported', obligationId: 'obl8', useCase: 'Governance & assurance', riskDomain: 'Audit & traceability' },
+  { likelihoodIndex: 3, impactIndex: 2, level: 'warm', label: 'Clinical data quality gap', obligationId: 'obl5', useCase: 'Clinical triage', riskDomain: 'Data governance' },
+  { likelihoodIndex: 3, impactIndex: 3, level: 'hot', label: 'Clinician override ignored', obligationId: 'obl2', useCase: 'Clinical triage', riskDomain: 'Human oversight' },
+  { likelihoodIndex: 3, impactIndex: 4, level: 'hot', label: 'Diagnostic bias detected', obligationId: 'obl16', useCase: 'Clinical triage', riskDomain: 'Data governance' },
+  { likelihoodIndex: 4, impactIndex: 0, level: 'warm', label: 'Conformance audit overdue', obligationId: 'obl12', useCase: 'Governance & assurance', riskDomain: 'Lawfulness & conformance' },
+  { likelihoodIndex: 4, impactIndex: 1, level: 'warm', label: 'Call recording breach', obligationId: 'obl16', useCase: 'Call handling', riskDomain: 'Data governance' },
+  { likelihoodIndex: 4, impactIndex: 2, level: 'hot', label: 'Banned AI triage practice', obligationId: 'obl8', useCase: 'Clinical triage', riskDomain: 'Lawfulness & conformance' },
+  { likelihoodIndex: 4, impactIndex: 3, level: 'hot', label: 'No clinician escalation', obligationId: 'obl2', useCase: 'Voice agent', riskDomain: 'Human oversight' },
+  { likelihoodIndex: 4, impactIndex: 4, level: 'hot', label: 'Catastrophic triage failure', obligationId: 'obl4', useCase: 'Clinical triage', riskDomain: 'Lawfulness & conformance' },
 ];
 
 export const CROSSWALK_TOPICS = {
@@ -739,6 +779,11 @@ export type EvidenceLevel =
 
 export interface NhidConformanceControl {
   code: string;
+  /**
+   * Four controls gate what the agent may do on a call; ATR-01 records what
+   * happened. Collapsing the two would imply the audit trail can stop a call.
+   */
+  kind: 'behavioral gate' | 'evidence';
   requirement: string;
   status: 'Conformant';
   evidence: EvidenceLevel;
@@ -749,6 +794,7 @@ export interface NhidConformanceControl {
 export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   {
     code: 'IDG-01',
+    kind: 'behavioral gate',
     requirement: 'Disclose AI identity before any data exchange',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
@@ -757,6 +803,7 @@ export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   },
   {
     code: 'PDX-01',
+    kind: 'behavioral gate',
     requirement: 'Verify authorization before any operational data exchange',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
@@ -765,6 +812,7 @@ export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   },
   {
     code: 'DBC-01',
+    kind: 'behavioral gate',
     requirement: 'No human voice mimicry or impersonation',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
@@ -773,6 +821,7 @@ export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   },
   {
     code: 'EIT-01',
+    kind: 'behavioral gate',
     requirement: 'Offer human handoff on request',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
@@ -781,6 +830,7 @@ export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   },
   {
     code: 'ATR-01',
+    kind: 'evidence',
     requirement: 'Minimal audit log of call and disclosures',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',

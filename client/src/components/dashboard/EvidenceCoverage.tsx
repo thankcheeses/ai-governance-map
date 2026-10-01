@@ -3,10 +3,11 @@ import { OBLIGATIONS, TIMELINE_EVENTS, EVIDENCE_TIER_LABEL, sourceCoverage, type
 
 const TIER_ORDER: EvidenceTier[] = ['primary', 'official-guidance', 'secondary'];
 
+// One hue, three weights: evidence strength is an ordinal, not three categories.
 const TIER_BAR: Record<EvidenceTier, string> = {
-  primary: 'bg-emerald-700',
-  'official-guidance': 'bg-sky-700',
-  secondary: 'bg-amber-600',
+  primary: 'bg-[#334155]',
+  'official-guidance': 'bg-[#64748B]',
+  secondary: 'bg-[#A9B7C6]',
 };
 
 /**

@@ -15,7 +15,9 @@ with a first-class module for **AI voice agents and non-human identity** in heal
 ## What's inside
 
 - **Governance posture overview** — frameworks tracked, controls mapped, critical controls, and an optional self-assessed posture score.
-- **Risk heatmap** — likelihood × impact for healthcare voice-agent failure modes.
+- **Risk matrix** — the main working surface. Three grids that deliberately do *not* share a
+  score: *Scenarios* (AI use case × risk domain), *Jurisdictions* (jurisdiction × obligation
+  status) and *Control domains* (CCM domain × instrument). See below.
 - **Voice Agent & NHID-Clinical** — the Healthcare-Voice Trust Stack Explorer (see below).
 - **Controls** — 27 controls on the CCM v4.1.0 spine, each with performance indicators, SLO targets, and implementation guidance.
 - **Maturity & trend**, **Obligations timeline**, and a **framework crosswalk** (control coverage across NIST AI RMF, ISO/IEC 42001, EU AI Act, CCM, HIPAA).
@@ -48,6 +50,41 @@ carries the open-proposal disclaimers. No product, pricing, or certification lan
 The compliance maps show only **verified, sourced** status. Illustrative material (e.g. the
 impersonation-latency panel) is clearly labeled as conceptual and is never mixed into the
 verified choropleths. Evidence indicators state what is actually substantiated.
+
+### The risk matrix
+
+Each grid carries its own metric selector, and the selected metric is named in the title and
+the legend, so a screenshot can never be read against the wrong scale. Two scales are used:
+a **severity** ramp where warmth appears only as severity rises, and a **neutral** ramp for
+plain counts — because a dense cell on the Jurisdictions grid means regulatory volume, not
+danger.
+
+Four cell states are kept distinct, and a missing assessment is never rendered as low risk:
+
+| State | Meaning |
+| --- | --- |
+| **Assessed** | A value exists and is shown as text in the cell. |
+| **Not assessed** | Records exist, but nobody has scored the mitigating controls. |
+| **Not applicable** | The question does not arise — e.g. a voluntary-only jurisdiction has no legal commencement date. |
+| **No data** | No record exists at that intersection. |
+
+Inherent and residual risk are separate. Inherent is the hand-authored band for each mapped
+scenario. Residual is computed *only* from your own browser-local control scores:
+
+```
+effectiveness = mean(maturity of scored mitigating controls) ÷ 5
+residual band = max(Low, inherent band − 2 × effectiveness), rounded up
+```
+
+With no mitigating control scored, the cell reads **Not assessed** — it never falls back to the
+inherent band and never flatters an empty register. The formula and thresholds are printed
+beside the legend, not buried in a tooltip.
+
+Every cell is a focusable button with an accessible name, reachable by arrow keys with a single
+tab stop into the grid, and clicking one opens the underlying records with their source
+provisions, scoring rationale, mitigating controls, and assessment coverage. A sortable table
+equivalent carries the same cells, and is the default layout below 768px — a seven-column
+matrix squeezed to phone width is unreadable, and shrinking it would be worse than switching.
 
 ### Per-row provenance
 

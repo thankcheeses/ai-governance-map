@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  Flame,
+  Grid3x3,
   ShieldCheck,
   ListChecks,
   Radar,
@@ -30,7 +30,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'heatmap', label: 'Risk Heatmap', icon: Flame },
+  { id: 'heatmap', label: 'Risk Matrix', icon: Grid3x3 },
   { id: 'nhid', label: 'Voice Agent & NHID', icon: ShieldWaveformIcon, isCustomIcon: true },
   { id: 'controls', label: 'Controls', icon: ListChecks },
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
