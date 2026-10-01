@@ -49,6 +49,32 @@ The compliance maps show only **verified, sourced** status. Illustrative materia
 impersonation-latency panel) is clearly labeled as conceptual and is never mixed into the
 verified choropleths. Evidence indicators state what is actually substantiated.
 
+### Per-row provenance
+
+A compliance date is only as good as the document behind it, so every obligation and timeline
+event can carry a `SourceRef` — the citation, the specific provision, a link to the official
+document, and the date the row was last reconciled against it. Three tiers classify the
+*document cited*, not how carefully it was read:
+
+| Tier | Meaning |
+| --- | --- |
+| **Primary text** | The enacted instrument itself (Official Journal, Federal Register, statute book). |
+| **Official guidance** | Published by the regulator or enforcing authority, but not the law. |
+| **Secondary report** | Law-firm notes, trade press, or other third-party reporting. |
+
+Where a row rests on a summary rather than the enacted text, the chip's `note` says so
+explicitly — for example, the Regulation (EU) 2026/1744 deferral dates are marked as
+reconciled against Commission guidance and commentary rather than the Official Journal text.
+
+Rows with no citation render **“no source recorded”** rather than being left blank, so an
+unattested row reads as a known gap instead of inheriting the credibility of its neighbours.
+The **Evidence coverage** panel on the decision desk publishes the resulting ratio for the
+register as a whole. The number is deliberately unflattering; closing it is ordinary editorial
+work, and hiding it would not be.
+
+Citation links carry `rel="noreferrer"` by design: following a source must not tell the
+destination that the reader came from this tool.
+
 ## Tech stack
 
 React 19 · Vite 7 · TypeScript · Tailwind CSS 4 · framer-motion · react-simple-maps.

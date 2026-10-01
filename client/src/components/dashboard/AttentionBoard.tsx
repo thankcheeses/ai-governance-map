@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { CONTROLS, OBLIGATIONS, daysUntil, type Obligation } from '@/data/governance';
+import { CONTROLS, OBLIGATIONS, daysUntil, type Obligation, type SourceRef } from '@/data/governance';
 import type { ControlState } from '@/hooks/useGovernanceState';
+import EvidenceCoverage from './EvidenceCoverage';
+import SourceChip from './SourceChip';
 
 interface AttentionBoardProps {
   controlState: ControlState;
@@ -51,6 +53,7 @@ export default function AttentionBoard({ controlState, assessedCount, onJump }: 
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
             Dates checked 1 October 2026. Article 50 transparency has applied since 2 August 2026.
             Annex III high-risk rules were deferred to 2 December 2027 by Regulation (EU) 2026/1744.
+            Every date below carries the document it came from — or says that none is recorded.
           </p>
         </div>
         <button
@@ -62,7 +65,10 @@ export default function AttentionBoard({ controlState, assessedCount, onJump }: 
         </button>
       </div>
 
-      <p className="text-sm text-foreground border border-border bg-card rounded-md px-3 py-2 mb-4">{action}</p>
+      <div className="flex items-center gap-2 flex-wrap text-sm text-foreground border border-border bg-card rounded-md px-3 py-2 mb-4">
+        <span>{action}</span>
+        {model.next && <SourceChip source={model.next.obl.source} />}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <Queue
@@ -73,6 +79,8 @@ export default function AttentionBoard({ controlState, assessedCount, onJump }: 
             kicker: row.obl.framework,
             title: row.obl.title,
             meta: clockLabel(row.days),
+            source: row.obl.source,
+            showSource: true,
           }))}
           onJump={() => onJump('timeline')}
         />
@@ -84,6 +92,8 @@ export default function AttentionBoard({ controlState, assessedCount, onJump }: 
             kicker: row.obl.framework,
             title: row.obl.title,
             meta: clockLabel(row.days),
+            source: row.obl.source,
+            showSource: true,
           }))}
           onJump={() => onJump('timeline')}
         />
@@ -99,6 +109,10 @@ export default function AttentionBoard({ controlState, assessedCount, onJump }: 
           onJump={() => onJump('controls')}
         />
       </div>
+
+      <div className="mt-3">
+        <EvidenceCoverage />
+      </div>
     </section>
   );
 }
@@ -111,7 +125,7 @@ function Queue({
 }: {
   title: string;
   empty: string;
-  rows: { id: string; kicker: string; title: string; meta: string }[];
+  rows: { id: string; kicker: string; title: string; meta: string; source?: SourceRef; showSource?: boolean }[];
   onJump: () => void;
 }) {
   return (
@@ -131,6 +145,11 @@ function Queue({
               <div className="min-w-0">
                 <p className="text-[0.65rem] font-mono text-muted-foreground">{row.kicker}</p>
                 <p className="text-sm text-foreground leading-snug">{row.title}</p>
+                {row.showSource && (
+                  <div className="mt-1">
+                    <SourceChip source={row.source} />
+                  </div>
+                )}
               </div>
               <span className="text-[0.65rem] font-mono text-muted-foreground whitespace-nowrap">{row.meta}</span>
             </li>

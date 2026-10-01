@@ -169,6 +169,51 @@ export const FRAMEWORKS: Framework[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Provenance layer
+//
+// A compliance date is only as good as the document behind it. Every dated row
+// may carry a SourceRef naming what it was taken from. `tier` classifies the
+// *document cited* — not how carefully it was read — and `checked` records when
+// the row was last reconciled against it. Rows with no SourceRef render as
+// "no source recorded" rather than inheriting the credibility of the sourced
+// ones, so the coverage figures below are deliberately unflattering: an
+// unsourced row is a known gap, not a silent assumption.
+// ---------------------------------------------------------------------------
+export type EvidenceTier = 'primary' | 'official-guidance' | 'secondary';
+
+export interface SourceRef {
+  /** Class of the cited document, not a judgement about how it was verified. */
+  tier: EvidenceTier;
+  /** Full legal or documentary citation, written out. */
+  citation: string;
+  /** Specific article/section the row rests on, where one applies. */
+  provision?: string;
+  /** Official landing page for the cited document, when a public one exists. */
+  url?: string;
+  /** ISO date this row was last reconciled against the cited document. */
+  checked: string;
+  /** Caveats — above all, when the row rests on a summary of the text. */
+  note?: string;
+}
+
+export const EVIDENCE_TIER_LABEL: Record<EvidenceTier, string> = {
+  primary: 'Primary text',
+  'official-guidance': 'Official guidance',
+  secondary: 'Secondary report',
+};
+
+export const EVIDENCE_TIER_DESCRIPTION: Record<EvidenceTier, string> = {
+  primary: 'The enacted legal instrument itself (Official Journal, statute book).',
+  'official-guidance': 'Published by the regulator or enforcing authority, but not the law.',
+  secondary: 'Law-firm notes, trade press or other third-party reporting.',
+};
+
+const OJ_AI_ACT = 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj';
+const EC_ART50_FAQ = 'https://digital-strategy.ec.europa.eu/en/faqs/transparency-obligations-under-article-50-ai-act';
+const OMNIBUS_RECONCILED =
+  'Deferral dates reconciled against Commission guidance and legal commentary on Regulation (EU) 2026/1744; the Official Journal text was not re-read for this row.';
+
 export interface Obligation {
   id: string;
   title: string;
@@ -178,24 +223,25 @@ export interface Obligation {
   effective: string;
   severity: 'critical' | 'high' | 'medium';
   summary: string;
+  source?: SourceRef;
 }
 
 export const OBLIGATIONS: Obligation[] = [
-  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.' },
-  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.' },
-  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.' },
-  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.' },
-  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.' },
+  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'IDG-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v2.0 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'PDX-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'DBC-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'EIT-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'ATR-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
   // In force since 2026-08-02 (EU AI Act Art. 50 transparency obligations applicable).
-  { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-08-02', severity: 'high', summary: 'In force since 2 Aug 2026. Art. 50 transparency: providers must ensure people are informed they are interacting with an AI system unless it is obvious to a reasonably well-informed person, and AI-generated content must be marked machine-readably.' },
-  { id: 'obl-art50-mark', title: 'Machine-readable marking grace ends', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-12-02', severity: 'high', summary: 'Article 50(2) marking applies now to generative systems placed on the market from 2 Aug 2026. Systems already on the market before that date have until 2 Dec 2026. Not legal advice; sourced from Commission guidance and Regulation (EU) 2026/1744 commentary.' },
-  { id: 'obl2', title: 'Implement appropriate human oversight', framework: 'EU', topic: 'Human Oversight', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk AI systems must include measures enabling appropriate human oversight.' },
-  { id: 'obl3', title: 'Maintain logging for traceability', framework: 'EU', topic: 'Logging', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk systems must log activity to support traceability and compliance review.' },
-  { id: 'obl4', title: 'Risk management system for high-risk AI', framework: 'EU', topic: 'Risk Management', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'Continuous, iterative risk management process throughout the AI system lifecycle.' },
-  { id: 'obl5', title: 'Data governance & quality for high-risk', framework: 'EU', topic: 'Data Governance', type: 'mandatory', effective: '2027-12-02', severity: 'high', summary: 'Training, validation, and testing datasets must meet quality and governance standards.' },
-  { id: 'obl6', title: 'Technical documentation for high-risk', framework: 'EU', topic: 'Documentation', type: 'mandatory', effective: '2027-12-02', severity: 'high', summary: 'Comprehensive technical documentation must be maintained and provided to authorities.' },
-  { id: 'obl7', title: 'GPAI model transparency obligations', framework: 'EU', topic: 'GPAI', type: 'mandatory', effective: '2025-08-02', severity: 'high', summary: 'General-purpose AI model providers must disclose training data summaries and comply with copyright rules.' },
-  { id: 'obl8', title: 'Prohibited practices screening', framework: 'EU', topic: 'Prohibited Practices', type: 'mandatory', effective: '2025-02-02', severity: 'critical', summary: 'Screen for 8 banned practices: manipulation, exploitation, social scoring, certain biometric uses, etc.' },
+  { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-08-02', severity: 'high', summary: 'In force since 2 Aug 2026. Art. 50 transparency: providers must ensure people are informed they are interacting with an AI system unless it is obvious to a reasonably well-informed person, and AI-generated content must be marked machine-readably.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 50(1)', url: OJ_AI_ACT, checked: '2026-10-01' } },
+  { id: 'obl-art50-mark', title: 'Machine-readable marking grace ends', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-12-02', severity: 'high', summary: 'Article 50(2) marking applies now to generative systems placed on the market from 2 Aug 2026. Systems already on the market before that date have until 2 Dec 2026. Not legal advice.', source: { tier: 'official-guidance', citation: 'European Commission — Transparency obligations under Article 50 of the AI Act (FAQ)', provision: 'Art. 50(2)', url: EC_ART50_FAQ, checked: '2026-10-01', note: 'The Commission FAQ states the grace period applies only to systems placed on the market before 2 Aug 2026 and only to the Art. 50(2) marking and detection duty.' } },
+  { id: 'obl2', title: 'Implement appropriate human oversight', framework: 'EU', topic: 'Human Oversight', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk AI systems must include measures enabling appropriate human oversight.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689, as deferred by Regulation (EU) 2026/1744', provision: 'Art. 14', url: OJ_AI_ACT, checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { id: 'obl3', title: 'Maintain logging for traceability', framework: 'EU', topic: 'Logging', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk systems must log activity to support traceability and compliance review.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689, as deferred by Regulation (EU) 2026/1744', provision: 'Art. 12', url: OJ_AI_ACT, checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { id: 'obl4', title: 'Risk management system for high-risk AI', framework: 'EU', topic: 'Risk Management', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'Continuous, iterative risk management process throughout the AI system lifecycle.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689, as deferred by Regulation (EU) 2026/1744', provision: 'Art. 9', url: OJ_AI_ACT, checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { id: 'obl5', title: 'Data governance & quality for high-risk', framework: 'EU', topic: 'Data Governance', type: 'mandatory', effective: '2027-12-02', severity: 'high', summary: 'Training, validation, and testing datasets must meet quality and governance standards.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689, as deferred by Regulation (EU) 2026/1744', provision: 'Art. 10', url: OJ_AI_ACT, checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { id: 'obl6', title: 'Technical documentation for high-risk', framework: 'EU', topic: 'Documentation', type: 'mandatory', effective: '2027-12-02', severity: 'high', summary: 'Comprehensive technical documentation must be maintained and provided to authorities.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689, as deferred by Regulation (EU) 2026/1744', provision: 'Art. 11 & Annex IV', url: OJ_AI_ACT, checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { id: 'obl7', title: 'GPAI model transparency obligations', framework: 'EU', topic: 'GPAI', type: 'mandatory', effective: '2025-08-02', severity: 'high', summary: 'General-purpose AI model providers must disclose training data summaries and comply with copyright rules.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 53', url: OJ_AI_ACT, checked: '2026-10-01' } },
+  { id: 'obl8', title: 'Prohibited practices screening', framework: 'EU', topic: 'Prohibited Practices', type: 'mandatory', effective: '2025-02-02', severity: 'critical', summary: 'Screen for 8 banned practices: manipulation, exploitation, social scoring, certain biometric uses, etc.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 5', url: OJ_AI_ACT, checked: '2026-10-01' } },
   { id: 'obl9', title: 'Control documented information', framework: 'ISO', topic: 'Documentation', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Documented information must be created, updated, controlled, retained, and protected per Clause 7.5.' },
   { id: 'obl10', title: 'Establish AIMS scope & context', framework: 'ISO', topic: 'Governance', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Understand internal/external issues, interested parties, and define AIMS scope per Clause 4.' },
   { id: 'obl11', title: 'Leadership commitment & AI policy', framework: 'ISO', topic: 'Governance', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Top management must demonstrate leadership and establish an AI policy per Clause 5.' },
@@ -569,22 +615,23 @@ export interface TimelineEvent {
   label: string;
   status: 'past' | 'current' | 'upcoming';
   detail: string;
+  source?: SourceRef;
 }
 
 export const TIMELINE_EVENTS: TimelineEvent[] = [
-  { date: '2024-08-01', label: 'EU AI Act entered into force', status: 'past', detail: 'Regulation (EU) 2024/1689 published and in force.' },
+  { date: '2024-08-01', label: 'EU AI Act entered into force', status: 'past', detail: 'Regulation (EU) 2024/1689 published and in force.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 113', url: OJ_AI_ACT, checked: '2026-10-01' } },
   { date: '2025-01-20', label: 'US: EO 14110 revoked', status: 'past', detail: 'Federal policy (non-binding on private deployers): the 2023 Safe, Secure & Trustworthy AI executive order was rescinded, ending its model safety-reporting and agency Chief AI Officer directives.' },
-  { date: '2025-01-23', label: 'US: EO 14179 — Removing Barriers to American Leadership in AI', status: 'past', detail: 'Federal policy: directs an AI Action Plan and rollback of EO 14110-era actions. Aimed at federal agencies — not enforceable law on private deployers.' },
-  { date: '2025-02-02', label: 'Prohibited practices & AI literacy', status: 'past', detail: '8 banned practices enforced; AI literacy obligations for providers begin.' },
-  { date: '2025-08-02', label: 'GPAI governance rules applicable', status: 'past', detail: 'General-purpose AI model obligations, Code of Practice, training-data summary template.' },
+  { date: '2025-01-23', label: 'US: EO 14179 — Removing Barriers to American Leadership in AI', status: 'past', detail: 'Federal policy: directs an AI Action Plan and rollback of EO 14110-era actions. Aimed at federal agencies — not enforceable law on private deployers.', source: { tier: 'primary', citation: 'Executive Order 14179, 90 FR 8741 (31 Jan 2025)', url: 'https://www.federalregister.gov/documents/2025/01/31/2025-02172/removing-barriers-to-american-leadership-in-artificial-intelligence', checked: '2026-10-01' } },
+  { date: '2025-02-02', label: 'Prohibited practices & AI literacy', status: 'past', detail: '8 banned practices enforced; AI literacy obligations for providers begin.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 5 & Art. 113(a)', url: OJ_AI_ACT, checked: '2026-10-01' } },
+  { date: '2025-08-02', label: 'GPAI governance rules applicable', status: 'past', detail: 'General-purpose AI model obligations, Code of Practice, training-data summary template.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Ch. V & Art. 113(b)', url: OJ_AI_ACT, checked: '2026-10-01' } },
   { date: '2026-03-20', label: 'US: National Policy Framework for AI (preemption proposal)', status: 'past', detail: 'Federal policy proposal: White House legislative recommendations to Congress calling for federal preemption of state AI laws (e.g. CA/CO/TX). A proposal — creates no legal obligations and is pending Congress.' },
   { date: '2026-06-02', label: 'US: EO 14409 — voluntary frontier-model early access', status: 'past', detail: 'Federal policy: establishes a voluntary up-to-30-day government pre-release access framework for "covered frontier models" and bars any mandatory licensing/preclearance. Non-binding on private deployers.' },
-  { date: '2026-07-27', label: 'AI Omnibus in force', status: 'past', detail: 'Regulation (EU) 2026/1744 deferred Annex III high-risk application to 2 Dec 2027 and product-integrated high-risk to 2 Aug 2028. It did not defer Article 50.' },
-  { date: '2026-08-02', label: 'Article 50 transparency in force', status: 'past', detail: 'Disclosure duties for interactive AI, including voice agents, apply. Machine-readable marking applies immediately to systems placed on the market from this date. Pre-existing generative systems have until 2 Dec 2026 for the Article 50(2) marking duty.' },
-  { date: '2026-12-02', label: 'Marking grace ends; new Article 5 prohibitions', status: 'upcoming', detail: 'Grace period ends for Article 50(2) marking on generative systems already on the market before 2 Aug 2026. The AI Omnibus prohibition on systems that generate non-consensual intimate imagery or child sexual abuse material also applies from this date.' },
+  { date: '2026-07-27', label: 'AI Omnibus in force', status: 'past', detail: 'Regulation (EU) 2026/1744 deferred Annex III high-risk application to 2 Dec 2027 and product-integrated high-risk to 2 Aug 2028. It did not defer Article 50.', source: { tier: 'secondary', citation: 'Regulation (EU) 2026/1744 (Digital Omnibus on AI)', url: 'https://eur-lex.europa.eu/eli/reg/2026/1744/oj', checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { date: '2026-08-02', label: 'Article 50 transparency in force', status: 'past', detail: 'Disclosure duties for interactive AI, including voice agents, apply. Machine-readable marking applies immediately to systems placed on the market from this date. Pre-existing generative systems have until 2 Dec 2026 for the Article 50(2) marking duty.', source: { tier: 'official-guidance', citation: 'European Commission — Transparency obligations under Article 50 of the AI Act (FAQ)', provision: 'Art. 50', url: EC_ART50_FAQ, checked: '2026-10-01' } },
+  { date: '2026-12-02', label: 'Marking grace ends; new Article 5 prohibitions', status: 'upcoming', detail: 'Grace period ends for Article 50(2) marking on generative systems already on the market before 2 Aug 2026. The AI Omnibus prohibition on systems that generate non-consensual intimate imagery or child sexual abuse material also applies from this date.', source: { tier: 'official-guidance', citation: 'European Commission — Transparency obligations under Article 50 of the AI Act (FAQ)', provision: 'Art. 50(2)', url: EC_ART50_FAQ, checked: '2026-10-01', note: 'The new Art. 5 prohibition on systems generating non-consensual intimate imagery or CSAM is attributed to Regulation (EU) 2026/1744 and was reconciled against commentary, not the Official Journal text.' } },
   { date: '2027-01-01', label: 'Colorado ADMT obligations applicable', status: 'upcoming', detail: 'SB 26-189 (enacted 14 May 2026) repealed and replaced SB 24-205 before it became operative; its narrower ADMT transparency obligations begin. The original 2026 high-risk risk-management regime never took effect.' },
-  { date: '2027-12-02', label: 'Annex III high-risk systems applicable', status: 'upcoming', detail: 'Standalone high-risk systems listed in Annex III, including employment, education, and critical infrastructure, apply from this date under Regulation (EU) 2026/1744.' },
-  { date: '2028-08-02', label: 'Product-integrated high-risk systems applicable', status: 'upcoming', detail: 'High-risk AI systems integrated into products already covered by EU product safety law apply from this date under Regulation (EU) 2026/1744.' },
+  { date: '2027-12-02', label: 'Annex III high-risk systems applicable', status: 'upcoming', detail: 'Standalone high-risk systems listed in Annex III, including employment, education, and critical infrastructure, apply from this date under Regulation (EU) 2026/1744.', source: { tier: 'secondary', citation: 'Regulation (EU) 2026/1744 (Digital Omnibus on AI)', url: 'https://eur-lex.europa.eu/eli/reg/2026/1744/oj', checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
+  { date: '2028-08-02', label: 'Product-integrated high-risk systems applicable', status: 'upcoming', detail: 'High-risk AI systems integrated into products already covered by EU product safety law apply from this date under Regulation (EU) 2026/1744.', source: { tier: 'secondary', citation: 'Regulation (EU) 2026/1744 (Digital Omnibus on AI)', url: 'https://eur-lex.europa.eu/eli/reg/2026/1744/oj', checked: '2026-10-01', note: OMNIBUS_RECONCILED } },
 ];
 
 export interface HeatmapCell {
@@ -782,4 +829,27 @@ export function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return Math.ceil((target.getTime() - today.getTime()) / 86400000);
+}
+
+export interface SourceCoverage {
+  total: number;
+  sourced: number;
+  unsourced: number;
+  byTier: Record<EvidenceTier, number>;
+}
+
+/**
+ * Audits the register against itself. Used to publish the tool's own evidence
+ * gap on the dashboard instead of leaving the reader to assume every row is
+ * equally well attested.
+ */
+export function sourceCoverage(rows: { source?: SourceRef }[]): SourceCoverage {
+  const byTier: Record<EvidenceTier, number> = { primary: 0, 'official-guidance': 0, secondary: 0 };
+  let sourced = 0;
+  for (const row of rows) {
+    if (!row.source) continue;
+    sourced += 1;
+    byTier[row.source.tier] += 1;
+  }
+  return { total: rows.length, sourced, unsourced: rows.length - sourced, byTier };
 }
