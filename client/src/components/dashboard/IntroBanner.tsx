@@ -19,7 +19,7 @@ export default function IntroBanner({ onStartDemo }: IntroBannerProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.4, ease: EASE }}
-          className="card-elevated border-l-2 border-l-primary p-4 flex items-center gap-4 flex-wrap"
+          className="card-elevated border-l-2 border-l-foreground p-4 flex items-center gap-4 flex-wrap"
         >
           <p className="text-sm text-foreground flex-1 min-w-[240px]">
             No controls scored. Score a control, or load the demo posture. Scores stay in this browser.
@@ -29,7 +29,7 @@ export default function IntroBanner({ onStartDemo }: IntroBannerProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onStartDemo}
-              className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-2 hover:opacity-90 transition-opacity"
+              className="flex items-center gap-1.5 text-xs font-semibold bg-foreground text-background rounded-md px-3 py-2 hover:opacity-90 transition-opacity"
             >
               <PlayCircle size={13} />Start Demo
             </motion.button>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CalendarClock, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { OBLIGATIONS, TIMELINE_EVENTS, FRAMEWORKS, daysUntil } from '@/data/governance';
 import SectionHeader from './SectionHeader';
+import SourceChip from './SourceChip';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -69,6 +70,9 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
                 </div>
                 <p className="font-semibold text-sm text-foreground">{ev.label}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{ev.detail}</p>
+                <div className="mt-1.5">
+                  <SourceChip source={ev.source} />
+                </div>
               </motion.div>
             );
           })}
@@ -131,6 +135,7 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
                   <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{obl.topic}</span>
                   <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{obl.type}</span>
                   <span className="text-muted-foreground">Effective {obl.effective}</span>
+                  <SourceChip source={obl.source} />
                 </div>
               </div>
             </motion.div>

@@ -15,7 +15,9 @@ with a first-class module for **AI voice agents and non-human identity** in heal
 ## What's inside
 
 - **Governance posture overview** — frameworks tracked, controls mapped, critical controls, and an optional self-assessed posture score.
-- **Risk heatmap** — likelihood × impact for healthcare voice-agent failure modes.
+- **Risk matrix** — the main working surface. Three grids that deliberately do *not* share a
+  score: *Scenarios* (AI use case × risk domain), *Jurisdictions* (jurisdiction × obligation
+  status) and *Control domains* (CCM domain × instrument). See below.
 - **Voice Agent & NHID-Clinical** — the Healthcare-Voice Trust Stack Explorer (see below).
 - **Controls** — 27 controls on the CCM v4.1.0 spine, each with performance indicators, SLO targets, and implementation guidance.
 - **Maturity & trend**, **Obligations timeline**, and a **framework crosswalk** (control coverage across NIST AI RMF, ISO/IEC 42001, EU AI Act, CCM, HIPAA).
@@ -32,7 +34,7 @@ map treats it as a first-class framework:
 - **Five permanent controls** — `IDG-01` (identity disclosure), `PDX-01` (pre-data-exchange
   authorization), `DBC-01` (no mimicry), `EIT-01` (human handoff), `ATR-01` (audit trail).
 - **Five-Layer Trust Stack** — an interactive stack (Layers 1–5) resting on the NPI Registry
-  foundation, with NHID-Clinical v2.0 as the behavioral baseline at Layer 2.
+  foundation, with NHID-Clinical v1.3 as the behavioral baseline at Layer 2.
 - **Impersonation latency** — surfaced as a first-class risk primitive: the measurable trust
   delay between an agent initiating a call and the receiving system verifying authorization,
   which is effectively infinite today because no standard verification pathway exists.
@@ -48,6 +50,67 @@ carries the open-proposal disclaimers. No product, pricing, or certification lan
 The compliance maps show only **verified, sourced** status. Illustrative material (e.g. the
 impersonation-latency panel) is clearly labeled as conceptual and is never mixed into the
 verified choropleths. Evidence indicators state what is actually substantiated.
+
+### The risk matrix
+
+Each grid carries its own metric selector, and the selected metric is named in the title and
+the legend, so a screenshot can never be read against the wrong scale. Two scales are used:
+a **severity** ramp where warmth appears only as severity rises, and a **neutral** ramp for
+plain counts — because a dense cell on the Jurisdictions grid means regulatory volume, not
+danger.
+
+Four cell states are kept distinct, and a missing assessment is never rendered as low risk:
+
+| State | Meaning |
+| --- | --- |
+| **Assessed** | A value exists and is shown as text in the cell. |
+| **Not assessed** | Records exist, but nobody has scored the mitigating controls. |
+| **Not applicable** | The question does not arise — e.g. a voluntary-only jurisdiction has no legal commencement date. |
+| **No data** | No record exists at that intersection. |
+
+Inherent and residual risk are separate. Inherent is the hand-authored band for each mapped
+scenario. Residual is computed *only* from your own browser-local control scores:
+
+```
+effectiveness = mean(maturity of scored mitigating controls) ÷ 5
+residual band = max(Low, inherent band − 2 × effectiveness), rounded up
+```
+
+With no mitigating control scored, the cell reads **Not assessed** — it never falls back to the
+inherent band and never flatters an empty register. The formula and thresholds are printed
+beside the legend, not buried in a tooltip.
+
+Every cell is a focusable button with an accessible name, reachable by arrow keys with a single
+tab stop into the grid, and clicking one opens the underlying records with their source
+provisions, scoring rationale, mitigating controls, and assessment coverage. A sortable table
+equivalent carries the same cells, and is the default layout below 768px — a seven-column
+matrix squeezed to phone width is unreadable, and shrinking it would be worse than switching.
+
+### Per-row provenance
+
+A compliance date is only as good as the document behind it, so every obligation and timeline
+event can carry a `SourceRef` — the citation, the specific provision, a link to the official
+document, and the date the row was last reconciled against it. Three tiers classify the
+*document cited*, not how carefully it was read:
+
+| Tier | Meaning |
+| --- | --- |
+| **Primary text** | The enacted instrument itself (Official Journal, Federal Register, statute book). |
+| **Official guidance** | Published by the regulator or enforcing authority, but not the law. |
+| **Secondary report** | Law-firm notes, trade press, or other third-party reporting. |
+
+Where a row rests on a summary rather than the enacted text, the chip's `note` says so
+explicitly — for example, the Regulation (EU) 2026/1744 deferral dates are marked as
+reconciled against Commission guidance and commentary rather than the Official Journal text.
+
+Rows with no citation render **“no source recorded”** rather than being left blank, so an
+unattested row reads as a known gap instead of inheriting the credibility of its neighbours.
+The **Evidence coverage** panel on the decision desk publishes the resulting ratio for the
+register as a whole. The number is deliberately unflattering; closing it is ordinary editorial
+work, and hiding it would not be.
+
+Citation links carry `rel="noreferrer"` by design: following a source must not tell the
+destination that the reader came from this tool.
 
 ## Tech stack
 

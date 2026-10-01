@@ -224,46 +224,25 @@
     min-width: 0;
   }
 
+  /* Surfaces are flat and bordered. A panel that lifts, glows or tints on hover
+     reads as a clickable card; these are work surfaces, so they stay still and
+     let the data carry the emphasis. */
   .card-elevated {
-    @apply bg-card border border-border rounded-xl shadow-sm;
-    box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.05);
-    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .card-elevated:hover {
-    box-shadow: 0 2px 8px rgba(15,23,42,0.06), 0 12px 32px rgba(20,184,166,0.16);
-    transform: translateY(-2px);
-    border-color: rgba(20,184,166,0.35);
+    @apply bg-card border border-border rounded-md;
   }
 
   .section-accent-rule {
-    background: linear-gradient(90deg, #0F172A 0%, #14B8A6 60%, #67E8F9 100%);
+    background: var(--border);
   }
 
+  /* Retained so existing call sites keep their hairline rule, but the three-stop
+     gradient is gone — a divider should divide, not decorate. */
   .gradient-border {
     position: relative;
-    overflow: hidden;
-  }
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #0F172A, #14B8A6, #67E8F9);
   }
 
   .stat-accent {
-    @apply bg-card border border-border rounded-xl relative overflow-hidden;
-  }
-  .stat-accent::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #0F172A, #14B8A6, #67E8F9);
+    @apply bg-card border border-border rounded-md;
   }
 
   @media (min-width: 640px) {
@@ -299,6 +278,9 @@
 
 body { background: var(--paper-100); background-image: linear-gradient(rgba(15,23,42,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.025) 1px, transparent 1px); background-size: 32px 32px; }
 [data-sidebar="sidebar"] { background: var(--ink-950) !important; color: #d7e0e5; border-color: #263343 !important; }
+/* The panel above is painted dark unconditionally, so the sidebar token has to
+   follow it; left at its light-mode value the header rendered dark-on-dark. */
+[data-sidebar="sidebar"] { --sidebar-foreground: #E2E8F0; }
 [data-sidebar="sidebar"] [data-sidebar="header"] { border-bottom: 1px solid #263343; padding: 20px 16px !important; }
 [data-sidebar="sidebar"] [data-sidebar="group-label"] { color: #6e8290; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
 [data-sidebar="sidebar"] [data-sidebar="menu-button"] { color: #8ea0aa; border-radius: 5px; font-size: 12px; min-height: 35px; }

@@ -81,7 +81,7 @@ export default function NhidTrustStack() {
     <section id="nhid" className="scroll-mt-24">
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
-        title="NHID-Clinical v2.0 — Voice Agent & Non-Human Identity"
+        title="NHID-Clinical v1.3 — Voice Agent & Non-Human Identity"
         subtitle="Healthcare-Voice Trust Stack Explorer — five permanent controls, a five-layer trust stack, and impersonation latency as a first-class risk primitive"
       />
 
@@ -101,12 +101,16 @@ export default function NhidTrustStack() {
         <ul className="space-y-0.5">
           {NHID_CONFORMANCE_CONTROLS.map((c) => (
             <li key={c.code}>
-              <span className="font-mono font-semibold">{c.code}</span> — {c.requirement} (SLO: {c.indicator.slo})
+              <span className="font-mono font-semibold">{c.code}</span> — {c.requirement} ({c.kind}; SLO:{' '}
+              {c.indicator.slo})
             </li>
           ))}
         </ul>
         <p className="mt-2 opacity-70">
-          Open voluntary proposal — NIST-2025-0035-0026, CC BY 4.0. Not a product or certification.
+          Open voluntary proposal — NIST-2025-0035-0026, CC BY 4.0. Not law, not an official standard, not a
+          certification. Scope is B2B payer–provider administrative voice calls; patient-facing calls and clinical
+          decision support are out of scope. Any mapping to legal requirements is interpretive and does not
+          establish regulatory compliance.
         </p>
       </div>
 
@@ -121,7 +125,7 @@ export default function NhidTrustStack() {
           </div>
           <p className="relative z-10 text-[0.68rem] text-slate-400 mt-4 leading-relaxed">
             The five trust layers (1–5) rest on the NPI Registry foundation (Layer 0). NHID-Clinical
-            v2.0 is the behavioral baseline at Layer 2 ★; cryptographic NPI-delegation verification
+            v1.3 is the behavioral baseline at Layer 2 ★; cryptographic NPI-delegation verification
             lives in NHID-Auth v2 at Layer 3 — a separate, optional authorization layer.
           </p>
           {/* Status note: signals that work has moved past the published spec, without
@@ -366,7 +370,7 @@ export default function NhidTrustStack() {
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v2.0</p>
+              <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v1.3</p>
               <ul className="space-y-1 list-disc list-inside text-slate-400">
                 <li>Mandatory early disclosure gate (IDG-01)</li>
                 <li>Pre-data-exchange verification checkpoint</li>

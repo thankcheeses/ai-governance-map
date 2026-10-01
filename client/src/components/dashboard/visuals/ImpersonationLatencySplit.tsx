@@ -84,7 +84,7 @@ export default function ImpersonationLatencySplit() {
 
         {/* ===== RIGHT: the verified pathway ===== */}
         <text x="364" y="28" fontSize="11" fontWeight="700" fill="#5eead4" fontFamily="Inter, sans-serif">
-          WITH NHID-CLINICAL v2.0
+          WITH NHID-CLINICAL v1.3
         </text>
         {/* AI caller (disclosed) */}
         <circle cx="404" cy="120" r="22" fill="#0f3733" stroke="#14b8a6" strokeWidth="1.5" />

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  Flame,
+  Grid3x3,
   ShieldCheck,
   ListChecks,
   Radar,
@@ -30,7 +30,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'heatmap', label: 'Risk Heatmap', icon: Flame },
+  { id: 'heatmap', label: 'Risk Matrix', icon: Grid3x3 },
   { id: 'nhid', label: 'Voice Agent & NHID', icon: ShieldWaveformIcon, isCustomIcon: true },
   { id: 'controls', label: 'Controls', icon: ListChecks },
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
@@ -56,8 +56,8 @@ export default function AppSidebar() {
             <img src={`${import.meta.env.BASE_URL}nhid-logo.png`} alt="NHID-Clinical" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-sm font-bold text-foreground leading-none truncate">AI Governance Map</p>
-            <p className="text-[0.65rem] text-muted-foreground font-mono">CONTROL ROOM · v3</p>
+            <p className="text-sm font-bold text-sidebar-foreground leading-none truncate">AI Governance Map</p>
+            <p className="text-[0.65rem] text-sidebar-foreground/70 font-mono">CONTROL ROOM · v3</p>
           </div>
         </div>
       </SidebarHeader>
@@ -101,7 +101,7 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="px-3 py-3 group-data-[collapsible=icon]:hidden">
-        <p className="text-[0.65rem] text-muted-foreground leading-relaxed">
+        <p className="text-[0.65rem] text-sidebar-foreground/70 leading-relaxed">
           Multi-framework AI governance and risk assessment. Local-only — your assessment data never leaves this browser.
         </p>
       </SidebarFooter>
