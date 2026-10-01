@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0] - 1 October 2026
+
+### Decision desk
+- Overview now opens on in-force obligations, the next clock, and unscored critical controls.
+- Working views: Full register, Executive, GRC, Risk. Hidden sections stay in the sidebar targets when that view includes them.
+
+### Obligations clock
+- Article 50 transparency marked past / in force (applied 2 August 2026; not deferred by Regulation (EU) 2026/1744).
+- Added 2 December 2026 marking-grace end and Omnibus Article 5 prohibition date.
+- Annex III high-risk dated 2 December 2027; product-integrated high-risk dated 2 August 2028.
+- Added the marking-grace obligation to the register.
+
+---
+
+# Changelog
+
 ## [2.0.0] - June 11, 2026
 
 ### Major Features

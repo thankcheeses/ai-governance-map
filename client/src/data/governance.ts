@@ -25,7 +25,7 @@ export const FRAMEWORKS: Framework[] = [
   {
     slug: 'eu-ai-act', shortCode: 'EU', name: 'EU Artificial Intelligence Act',
     type: 'Regulation (Binding)', jurisdiction: 'EU', version: 'Regulation (EU) 2024/1689', coverage: 72,
-    summary: 'Risk-based legal framework. Prohibited practices from Feb 2025, GPAI rules from Aug 2025, transparency from Aug 2026, high-risk from Dec 2027.',
+    summary: 'Risk-based legal framework. Prohibited practices from Feb 2025 and GPAI rules from Aug 2025 are in force. Article 50 transparency has applied since 2 Aug 2026. Annex III high-risk application was deferred to 2 Dec 2027, and product-integrated high-risk to 2 Aug 2028, by Regulation (EU) 2026/1744.',
   },
   {
     slug: 'iso-iec-42001', shortCode: 'ISO', name: 'ISO/IEC 42001:2023',
@@ -188,6 +188,7 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v2.0 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.' },
   // In force since 2026-08-02 (EU AI Act Art. 50 transparency obligations applicable).
   { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-08-02', severity: 'high', summary: 'In force since 2 Aug 2026. Art. 50 transparency: providers must ensure people are informed they are interacting with an AI system unless it is obvious to a reasonably well-informed person, and AI-generated content must be marked machine-readably.' },
+  { id: 'obl-art50-mark', title: 'Machine-readable marking grace ends', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-12-02', severity: 'high', summary: 'Article 50(2) marking applies now to generative systems placed on the market from 2 Aug 2026. Systems already on the market before that date have until 2 Dec 2026. Not legal advice; sourced from Commission guidance and Regulation (EU) 2026/1744 commentary.' },
   { id: 'obl2', title: 'Implement appropriate human oversight', framework: 'EU', topic: 'Human Oversight', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk AI systems must include measures enabling appropriate human oversight.' },
   { id: 'obl3', title: 'Maintain logging for traceability', framework: 'EU', topic: 'Logging', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'High-risk systems must log activity to support traceability and compliance review.' },
   { id: 'obl4', title: 'Risk management system for high-risk AI', framework: 'EU', topic: 'Risk Management', type: 'mandatory', effective: '2027-12-02', severity: 'critical', summary: 'Continuous, iterative risk management process throughout the AI system lifecycle.' },
@@ -578,10 +579,12 @@ export const TIMELINE_EVENTS: TimelineEvent[] = [
   { date: '2025-08-02', label: 'GPAI governance rules applicable', status: 'past', detail: 'General-purpose AI model obligations, Code of Practice, training-data summary template.' },
   { date: '2026-03-20', label: 'US: National Policy Framework for AI (preemption proposal)', status: 'past', detail: 'Federal policy proposal: White House legislative recommendations to Congress calling for federal preemption of state AI laws (e.g. CA/CO/TX). A proposal — creates no legal obligations and is pending Congress.' },
   { date: '2026-06-02', label: 'US: EO 14409 — voluntary frontier-model early access', status: 'past', detail: 'Federal policy: establishes a voluntary up-to-30-day government pre-release access framework for "covered frontier models" and bars any mandatory licensing/preclearance. Non-binding on private deployers.' },
-  { date: '2026-08-02', label: 'Transparency rules applicable', status: 'current', detail: 'In force: Art. 50 disclosure duties for chatbots and other direct-interaction AI, plus machine-readable marking of AI-generated content.' },
+  { date: '2026-07-27', label: 'AI Omnibus in force', status: 'past', detail: 'Regulation (EU) 2026/1744 deferred Annex III high-risk application to 2 Dec 2027 and product-integrated high-risk to 2 Aug 2028. It did not defer Article 50.' },
+  { date: '2026-08-02', label: 'Article 50 transparency in force', status: 'past', detail: 'Disclosure duties for interactive AI, including voice agents, apply. Machine-readable marking applies immediately to systems placed on the market from this date. Pre-existing generative systems have until 2 Dec 2026 for the Article 50(2) marking duty.' },
+  { date: '2026-12-02', label: 'Marking grace ends; new Article 5 prohibitions', status: 'upcoming', detail: 'Grace period ends for Article 50(2) marking on generative systems already on the market before 2 Aug 2026. The AI Omnibus prohibition on systems that generate non-consensual intimate imagery or child sexual abuse material also applies from this date.' },
   { date: '2027-01-01', label: 'Colorado ADMT obligations applicable', status: 'upcoming', detail: 'SB 26-189 (enacted 14 May 2026) repealed and replaced SB 24-205 before it became operative; its narrower ADMT transparency obligations begin. The original 2026 high-risk risk-management regime never took effect.' },
-  { date: '2027-12-02', label: 'High-risk area systems applicable', status: 'upcoming', detail: 'Certain high-risk AI systems must comply after the 2026 simplification agreement.' },
-  { date: '2028-08-02', label: 'Product-integrated AI systems applicable', status: 'upcoming', detail: 'AI systems integrated into regulated products must fully comply.' },
+  { date: '2027-12-02', label: 'Annex III high-risk systems applicable', status: 'upcoming', detail: 'Standalone high-risk systems listed in Annex III, including employment, education, and critical infrastructure, apply from this date under Regulation (EU) 2026/1744.' },
+  { date: '2028-08-02', label: 'Product-integrated high-risk systems applicable', status: 'upcoming', detail: 'High-risk AI systems integrated into products already covered by EU product safety law apply from this date under Regulation (EU) 2026/1744.' },
 ];
 
 export interface HeatmapCell {
