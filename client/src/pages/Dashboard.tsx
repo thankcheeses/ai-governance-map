@@ -99,7 +99,7 @@ export default function Dashboard() {
             AI Governance Map · v3 · Local-only — your assessment data never leaves your browser. Globe basemap imagery © Esri.
           </p>
           <p className="mt-1 font-mono text-[0.65rem] opacity-80">
-            Last updated {__BUILD_DATE__} · obligations verified 1 Oct 2026 · NHID-Clinical v2.0
+            Last updated {__BUILD_DATE__} · obligations verified 1 Oct 2026 · NHID-Clinical v1.3
           </p>
         </footer>
       </SidebarInset>

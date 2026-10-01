@@ -4,6 +4,7 @@ import {
   FRAMEWORKS,
   HEATMAP_CELLS,
   NHID_CONFORMANCE_CONTROLS,
+  NHID_LAYERS,
   OBLIGATIONS,
   RISK_DOMAINS,
   RISK_USE_CASES,
@@ -171,6 +172,29 @@ describe('NHID-Clinical scope and status', () => {
     expect(nhid?.summary).toMatch(/not law/i);
     expect(nhid?.summary).toMatch(/not a certification/i);
     expect(nhid?.summary).toMatch(/not an official standard/i);
+  });
+
+  // The citable artifact is the v1.3 public-comment spec. Labelling the baseline
+  // "v2.0" claimed a released version the site does not publish and the map's own
+  // status note contradicts, so the version label is pinned to what is citable.
+  it('labels the baseline at the version that is actually citable', () => {
+    const nhid = FRAMEWORKS.find((f) => f.shortCode === 'NHID');
+    expect(nhid?.name).toBe('NHID-Clinical v1.3');
+    expect(nhid?.version).toMatch(/v1\.3/);
+    expect(nhid?.version).toMatch(/NIST-2025-0035-0026/);
+    expect(nhid?.name).not.toMatch(/v2\.0/);
+    expect(NHID_LAYERS.find((l) => l.layer === 2)?.title).toMatch(/v1\.3/);
+  });
+
+  it('carries no NHID-Clinical v2.0 label anywhere in the register', () => {
+    const surfaces = [
+      ...FRAMEWORKS.map((f) => `${f.name} ${f.version} ${f.summary}`),
+      ...OBLIGATIONS.filter((o) => o.framework === 'NHID').map((o) => `${o.title} ${o.summary}`),
+      ...NHID_LAYERS.map((l) => `${l.title} ${l.scope}`),
+    ];
+    for (const text of surfaces) {
+      expect(text).not.toMatch(/NHID-Clinical v2\.0/i);
+    }
   });
 
   it('states the B2B administrative scope and its exclusions', () => {

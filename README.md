@@ -34,7 +34,7 @@ map treats it as a first-class framework:
 - **Five permanent controls** — `IDG-01` (identity disclosure), `PDX-01` (pre-data-exchange
   authorization), `DBC-01` (no mimicry), `EIT-01` (human handoff), `ATR-01` (audit trail).
 - **Five-Layer Trust Stack** — an interactive stack (Layers 1–5) resting on the NPI Registry
-  foundation, with NHID-Clinical v2.0 as the behavioral baseline at Layer 2.
+  foundation, with NHID-Clinical v1.3 as the behavioral baseline at Layer 2.
 - **Impersonation latency** — surfaced as a first-class risk primitive: the measurable trust
   delay between an agent initiating a call and the receiving system verifying authorization,
   which is effectively infinite today because no standard verification pathway exists.
