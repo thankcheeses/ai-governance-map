@@ -47,8 +47,23 @@ export default function Dashboard() {
           onPrintSnapshot={printPostureSnapshot}
           onStartDemo={() => setDemoActive(true)}
         />
-        <main className="flex flex-col gap-10 p-4 sm:p-6 lg:p-10 max-w-[1400px] w-full mx-auto">
-          <div className="flex items-center gap-2 flex-wrap" role="tablist" aria-label="Working view">
+        <main className="product-main flex flex-col gap-10 p-4 sm:p-6 lg:p-10 max-w-[1400px] w-full mx-auto">
+          <div className="workspace-heading">
+            <div>
+              <p className="eyebrow mono">AI GOVERNANCE OPERATING SYSTEM <span>·</span> CONTROL ROOM</p>
+              <h1>Map exposure. Prove coverage. Act before the clock.</h1>
+              <p className="workspace-subtitle">A living register for AI obligations, internal controls, and risk decisions across the frameworks that matter to your organization.</p>
+            </div>
+            <div className="workspace-meta">
+              <span className="status-dot" />
+              <span>Local workspace</span>
+              <span className="meta-divider" />
+              <span className="mono">UPDATED {__BUILD_DATE__}</span>
+            </div>
+          </div>
+          <div className="lens-bar">
+            <div className="lens-copy"><span className="eyebrow mono">VIEW</span><span className="lens-description">Choose the lens for this review</span></div>
+            <div className="lens-tabs" role="tablist" aria-label="Working view">
             {([['all', 'Full register'], ['executive', 'Executive'], ['grc', 'GRC'], ['risk', 'Risk']] as const).map(([id, label]) => (
               <button
                 key={id}
@@ -56,11 +71,12 @@ export default function Dashboard() {
                 role="tab"
                 aria-selected={lens === id}
                 onClick={() => setLens(id)}
-                className={`text-xs font-medium px-2.5 py-1 rounded-md border ${lens === id ? 'bg-foreground text-background border-foreground' : 'border-border text-muted-foreground'}`}
+                className={`lens-tab text-xs font-medium px-2.5 py-1 rounded-md border ${lens === id ? 'is-active' : ''}`}
               >
                 {label}
               </button>
             ))}
+            </div>
           </div>
           {assessedCount === 0 && <IntroBanner onStartDemo={() => setDemoActive(true)} />}
           {visible.has('overview') && (

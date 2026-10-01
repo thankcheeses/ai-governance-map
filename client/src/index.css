@@ -276,8 +276,86 @@
   @media (min-width: 1024px) {
     .container {
       padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
+      padding-right: 2rem; /* 32px - desktop padding */
       max-width: 1280px; /* Standard content width */
     }
   }
+}
+
+/* --------------------------------------------------------------------------
+   AI Governance Map — Control Room visual system
+   A deliberately sober interface for operational risk work: graphite canvas,
+   paper cards, signal colors, and dense but legible information hierarchy.
+---------------------------------------------------------------------------- */
+:root {
+  --ink-950: #0b1018;
+  --ink-900: #111925;
+  --ink-850: #172131;
+  --paper-100: #f7f8f5;
+  --line-strong: #cdd4d0;
+  --signal: #2dd4bf;
+  --signal-deep: #0f766e;
+}
+
+body { background: var(--paper-100); background-image: linear-gradient(rgba(15,23,42,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,.025) 1px, transparent 1px); background-size: 32px 32px; }
+[data-sidebar="sidebar"] { background: var(--ink-950) !important; color: #d7e0e5; border-color: #263343 !important; }
+[data-sidebar="sidebar"] [data-sidebar="header"] { border-bottom: 1px solid #263343; padding: 20px 16px !important; }
+[data-sidebar="sidebar"] [data-sidebar="group-label"] { color: #6e8290; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
+[data-sidebar="sidebar"] [data-sidebar="menu-button"] { color: #8ea0aa; border-radius: 5px; font-size: 12px; min-height: 35px; }
+[data-sidebar="sidebar"] [data-sidebar="menu-button"]:hover { background: #1b2a3a; color: #f5f7f6; }
+[data-sidebar="sidebar"] [data-sidebar="menu-button"][data-active="true"] { color: #e8fffb; background: #173d42 !important; box-shadow: inset 2px 0 0 var(--signal); }
+[data-sidebar="sidebar"] [data-sidebar="footer"] { border-top: 1px solid #263343; color: #71828d; }
+[data-sidebar="sidebar"] img { filter: saturate(.7) brightness(1.2); }
+
+.product-main { padding-top: 38px !important; }
+.topbar-context { display: flex; flex-direction: column; gap: 1px; }
+.topbar-title { font-size: 13px; font-weight: 700; color: var(--foreground); }
+.eyebrow { color: #7c8b91; font-size: 9px; letter-spacing: .18em; font-weight: 700; }
+.eyebrow span { color: var(--signal-deep); margin: 0 4px; }
+header.sticky { background: rgba(247,248,245,.92) !important; border-color: var(--line-strong) !important; box-shadow: 0 1px 0 rgba(11,16,24,.04); }
+.posture-pill { background: #e0f4ef; border: 1px solid #a8ded4; color: var(--signal-deep); }
+.posture-label { color: #497b78; font-size: 9px; letter-spacing: .14em; }
+.posture-value { color: #0b5d58; }
+
+.workspace-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--line-strong); }
+.workspace-heading h1 { max-width: 800px; margin-top: 9px; color: var(--ink-950); font-size: clamp(32px, 4vw, 56px); line-height: .98; letter-spacing: -.055em; }
+.workspace-subtitle { max-width: 700px; margin-top: 17px; color: #5b6b70; font-size: 14px; line-height: 1.7; }
+.workspace-meta { display: flex; align-items: center; gap: 9px; white-space: nowrap; color: #6a797d; font-size: 10px; }
+.status-dot { width: 7px; height: 7px; background: var(--signal); border-radius: 50%; box-shadow: 0 0 0 4px rgba(45,212,191,.16); }
+.meta-divider { width: 1px; height: 16px; background: var(--line-strong); }
+.lens-bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--line-strong); }
+.lens-copy, .lens-tabs { display: flex; align-items: center; gap: 10px; }
+.lens-description { color: #667579; font-size: 11px; }
+.lens-tabs { gap: 3px; }
+.lens-tab { border: 0 !important; background: transparent; color: #718084; padding: 8px 12px !important; font-size: 11px; transition: color .18s ease, background .18s ease; }
+.lens-tab:hover { color: var(--ink-950); background: #e7ece8; }
+.lens-tab.is-active { background: var(--ink-950) !important; color: #f7faf8 !important; box-shadow: 0 2px 6px rgba(11,16,24,.18); }
+
+.card-elevated, .stat-accent { border-radius: 8px !important; border-color: var(--line-strong) !important; box-shadow: 0 8px 20px rgba(11,16,24,.045) !important; }
+.card-elevated:hover { border-color: #99bdb8 !important; box-shadow: 0 12px 28px rgba(11,16,24,.08) !important; }
+.section-icon { border-radius: 7px !important; background: #e0f4ef !important; color: var(--signal-deep) !important; box-shadow: none !important; }
+.section-kicker { color: #859298; font-size: 9px; letter-spacing: .16em; margin-bottom: 3px; }
+.stat-accent::after { height: 2px; background: var(--signal); }
+
+#heatmap .card-elevated { background: #f1f3ef; }
+#heatmap .grid button { min-height: 74px; border-radius: 4px !important; border-width: 1px !important; box-shadow: none !important; font-family: 'IBM Plex Mono', monospace; font-size: 10px !important; letter-spacing: -.02em; }
+#heatmap .grid button[class*="bg-teal-100"] { background: #d8eeeb !important; border-color: #9ccfc6 !important; color: #155e59 !important; }
+#heatmap .grid button[class*="bg-cyan-300"] { background: #a9dce0 !important; border-color: #70bdc3 !important; color: #154e56 !important; }
+#heatmap .grid button[class*="bg-amber-500"] { background: #e8bb68 !important; border-color: #cd9132 !important; color: #503a11 !important; }
+#heatmap .grid button[class*="bg-rose-600"] { background: #d96552 !important; border-color: #aa4336 !important; color: #fffaf5 !important; }
+#heatmap .grid button[class*="bg-secondary"] { background: #e3e7e3 !important; border-color: #ccd4cf !important; color: #899491 !important; }
+#heatmap .grid button[class*="ring-2"] { outline: 3px solid var(--ink-950); outline-offset: 2px; }
+#heatmap .flex.items-center.gap-4 { padding-top: 14px; border-top: 1px solid var(--line-strong); }
+.product-main .rounded-full { border-radius: 4px; }
+.product-main .font-mono { letter-spacing: -.025em; }
+
+@media (max-width: 760px) {
+  .product-main { padding-top: 24px !important; }
+  .workspace-heading { display: block; padding-bottom: 22px; }
+  .workspace-heading h1 { font-size: 37px; }
+  .workspace-meta { margin-top: 22px; }
+  .lens-bar { display: block; }
+  .lens-copy { margin-bottom: 10px; }
+  .lens-tabs { width: 100%; overflow-x: auto; }
+  .lens-tab { white-space: nowrap; }
 }

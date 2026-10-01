@@ -57,13 +57,13 @@ export default function AppSidebar() {
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold text-foreground leading-none truncate">AI Governance Map</p>
-            <p className="text-[0.65rem] text-muted-foreground font-mono">v3 · 1 Oct 2026</p>
+            <p className="text-[0.65rem] text-muted-foreground font-mono">CONTROL ROOM · v3</p>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigate</SidebarGroupLabel>
+          <SidebarGroupLabel>Review workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV_ITEMS.map((item, i) => {
@@ -102,7 +102,7 @@ export default function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="px-3 py-3 group-data-[collapsible=icon]:hidden">
         <p className="text-[0.65rem] text-muted-foreground leading-relaxed">
-          Multi-framework AI governance reference. Local-only — no data leaves your browser.
+          Multi-framework AI governance and risk assessment. Local-only — your assessment data never leaves this browser.
         </p>
       </SidebarFooter>
     </Sidebar>

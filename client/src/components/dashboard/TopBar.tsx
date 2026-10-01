@@ -27,11 +27,14 @@ export default function TopBar({ overallScore, assessedCount, onExportCSV, onExp
       <div className="flex items-center justify-between gap-3 h-16 px-4 lg:px-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
-          <span className="hidden sm:inline text-sm font-semibold text-foreground">Dashboard</span>
+          <div className="hidden sm:block topbar-context">
+            <span className="eyebrow mono">WORKSPACE</span>
+            <span className="topbar-title">Governance posture</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md font-mono text-xs font-semibold text-primary">
-          <span>Posture {isUnassessed ? '—' : `${overallScore}%`}</span>
+        <div className="posture-pill flex items-center gap-2.5 px-3 py-1.5 rounded-md font-mono text-xs font-semibold">
+          <span className="posture-label">POSTURE</span><span className="posture-value">{isUnassessed ? 'UNASSESSED' : `${overallScore}%`}</span>
           <div className="w-16 h-1.5 bg-primary/20 rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all duration-500"
