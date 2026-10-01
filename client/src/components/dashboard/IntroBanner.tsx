@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PlayCircle, Sparkles, X } from 'lucide-react';
+import { PlayCircle, X } from 'lucide-react';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -21,10 +21,8 @@ export default function IntroBanner({ onStartDemo }: IntroBannerProps) {
           transition={{ duration: 0.4, ease: EASE }}
           className="card-elevated border-l-2 border-l-primary p-4 flex items-center gap-4 flex-wrap"
         >
-          <Sparkles size={18} className="text-primary flex-shrink-0" />
           <p className="text-sm text-foreground flex-1 min-w-[240px]">
-            This is a live reference — score your own controls below, or click{' '}
-            <span className="font-semibold">Demo</span> to see a fully populated example posture.
+            No controls scored. Score a control, or load the demo posture. Scores stay in this browser.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             <motion.button

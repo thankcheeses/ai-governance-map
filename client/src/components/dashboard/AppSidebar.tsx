@@ -57,7 +57,7 @@ export default function AppSidebar() {
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-sm font-bold text-foreground leading-none truncate">AI Governance Map</p>
-            <p className="text-[0.65rem] text-muted-foreground font-mono">v2 · CCM v4.1.0</p>
+            <p className="text-[0.65rem] text-muted-foreground font-mono">v3 · 1 Oct 2026</p>
           </div>
         </div>
       </SidebarHeader>
