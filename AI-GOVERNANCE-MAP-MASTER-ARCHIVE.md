@@ -520,8 +520,8 @@ The Map's regulatory spine, as modeled in the data:
   Singapore, Japan researched-none; ISO/IEC 42001, OECD Principles, Singapore MGF,
   OWASP/ATLAS as voluntary standards.
 
-**NIST references** appear pervasively in control `mappings` (GOV/MAP/MEASURE/MANAGE
-function codes). **CMS references** anchor the healthcare use case via the README and the
+**NIST references** appear pervasively in control `mappings` as subcategory ids in
+NIST's form, e.g. `GOVERN 1.1` (reviewed in `docs/nist-playbook-mapping-review.md`). **CMS references** anchor the healthcare use case via the README and the
 NHID-Clinical companion. Specific NIST/CMS document internals beyond what the data encodes
 are **[SOURCE: NHID-Clinical — see companion archive]**.
 

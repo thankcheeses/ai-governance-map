@@ -21,6 +21,7 @@ with a first-class module for **AI voice agents and non-human identity** in heal
 - **Voice Agent & NHID-Clinical** — the Healthcare-Voice Trust Stack Explorer (see below).
 - **Controls** — 27 controls on the CCM v4.1.0 spine, each with performance indicators, SLO targets, and implementation guidance.
 - **Maturity & trend**, **Obligations timeline**, and a **framework crosswalk** (control coverage across NIST AI RMF, ISO/IEC 42001, EU AI Act, CCM, HIPAA).
+- **NIST AI RMF Playbook** — all 72 subcategories with NIST's verbatim outcome statements, suggested actions and documentation questions, searchable, with the controls that cite each and the subcategories no control maps to. Control mappings open the cited subcategory directly; the review behind them is in [`docs/nist-playbook-mapping-review.md`](docs/nist-playbook-mapping-review.md).
 - **USA & global compliance maps** — verified, sourced status per state and country. No speculative data is ever painted onto these maps.
 - **Exports** — CSV, JSON, and a print/PDF posture snapshot.
 

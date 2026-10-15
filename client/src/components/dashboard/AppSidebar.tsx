@@ -22,6 +22,7 @@ import {
   Map,
   Globe,
   BookOpenCheck,
+  Library,
 } from 'lucide-react';
 import { ShieldWaveformIcon } from './icons';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { id: 'maturity', label: 'Maturity & Trend', icon: Radar },
   { id: 'timeline', label: 'Obligations Timeline', icon: CalendarClock },
   { id: 'crosswalk', label: 'Crosswalk', icon: Network },
+  { id: 'nist-playbook', label: 'NIST AI RMF Playbook', icon: Library },
   { id: 'global-map', label: 'Global Compliance Map', icon: Globe },
   { id: 'usa-map', label: 'USA Compliance Map', icon: Map },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck },
