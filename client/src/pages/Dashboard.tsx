@@ -12,6 +12,7 @@ import ControlsSection from '@/components/dashboard/ControlsSection';
 import MaturityRadarSection from '@/components/dashboard/MaturityRadarSection';
 import TimelineSection from '@/components/dashboard/TimelineSection';
 import CrosswalkSection from '@/components/dashboard/CrosswalkSection';
+import NistPlaybookSection from '@/components/dashboard/NistPlaybookSection';
 import USAComplianceMapSection from '@/components/dashboard/USAComplianceMapSection';
 import GlobalGlobeVisualization from '@/components/dashboard/GlobalGlobeVisualization';
 import FrameworksSection from '@/components/dashboard/FrameworksSection';
@@ -31,9 +32,9 @@ const LENS_MATRIX: Record<Lens, MatrixId> = {
 };
 
 const LENS_SECTIONS: Record<Lens, string[]> = {
-  all: ['overview', 'heatmap', 'nhid', 'controls', 'maturity', 'timeline', 'crosswalk', 'global-map', 'usa-map', 'frameworks'],
+  all: ['overview', 'heatmap', 'nhid', 'controls', 'maturity', 'timeline', 'crosswalk', 'nist-playbook', 'global-map', 'usa-map', 'frameworks'],
   executive: ['overview', 'heatmap', 'timeline', 'maturity'],
-  grc: ['overview', 'controls', 'crosswalk', 'timeline', 'frameworks'],
+  grc: ['overview', 'controls', 'crosswalk', 'nist-playbook', 'timeline', 'frameworks'],
   risk: ['overview', 'heatmap', 'nhid', 'usa-map', 'global-map'],
 };
 
@@ -106,6 +107,7 @@ export default function Dashboard() {
           {visible.has('maturity') && <MaturityRadarSection />}
           {visible.has('timeline') && <TimelineSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />}
           {visible.has('crosswalk') && <CrosswalkSection />}
+          {visible.has('nist-playbook') && <NistPlaybookSection />}
           {visible.has('global-map') && <GlobalGlobeVisualization />}
           {visible.has('usa-map') && <USAComplianceMapSection />}
           {visible.has('frameworks') && <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />}

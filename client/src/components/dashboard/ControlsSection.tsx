@@ -5,7 +5,9 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { CONTROLS, MATURITY_LEVELS } from '@/data/governance';
+import { NIST_MAPPING_KEY } from '@/data/nist-playbook';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
+import NistSubcategorySheet from './NistSubcategorySheet';
 import { ShieldWaveformIcon } from './icons';
 import SectionHeader from './SectionHeader';
 
@@ -23,6 +25,7 @@ export default function ControlsSection() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTier, setSelectedTier] = useState('All');
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [nistOpen, setNistOpen] = useState<string | null>(null);
 
   const filteredData = useMemo(
     () => CONTROLS.filter((item) => {
@@ -200,13 +203,35 @@ export default function ControlsSection() {
                         <Globe size={11} />Framework Mappings
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(item.mappings).map(([fw, codes]) => (
-                          <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
-                            {fw === 'NHID-Clinical' && <ShieldWaveformIcon className="w-3 h-3 flex-shrink-0" />}
-                            {fw}: {codes.join(', ')}
-                          </span>
-                        ))}
+                        {Object.entries(item.mappings).map(([fw, codes]) =>
+                          fw === NIST_MAPPING_KEY ? (
+                            // Each subcategory opens the Playbook entry it cites, so the
+                            // mapping can be checked against NIST's own wording.
+                            <span key={fw} className="flex flex-wrap items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 pl-2 pr-1 py-0.5 rounded font-mono">
+                              {fw}:
+                              {codes.map((id) => (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() => setNistOpen(id)}
+                                  title={`Open ${id} in the NIST AI RMF Playbook`}
+                                  className="inline-flex items-center gap-0.5 rounded px-1 py-px underline decoration-dotted decoration-primary/50 underline-offset-2 hover:bg-primary/15 hover:decoration-solid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                                >
+                                  {id}
+                                </button>
+                              ))}
+                            </span>
+                          ) : (
+                            <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
+                              {fw === 'NHID-Clinical' && <ShieldWaveformIcon className="w-3 h-3 flex-shrink-0" />}
+                              {fw}: {codes.join(', ')}
+                            </span>
+                          ),
+                        )}
                       </div>
+                      {item.mappings[NIST_MAPPING_KEY] && (
+                        <p className="text-[0.65rem] text-muted-foreground mt-1.5">Select a NIST subcategory to read its outcome, suggested actions and documentation questions.</p>
+                      )}
 
                       <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2 mt-5 flex items-center gap-1.5">
                         <Network size={11} />CCM Domain
@@ -229,6 +254,7 @@ export default function ControlsSection() {
           })}
         </div>
       </div>
+      <NistSubcategorySheet id={nistOpen} onClose={() => setNistOpen(null)} />
     </section>
   );
 }
