@@ -24,6 +24,7 @@ import { useGovernanceState } from '@/hooks/useGovernanceState';
 import PlaceCard from '@/components/dashboard/PlaceCard';
 import CountryPanel from '@/components/workspace/CountryPanel';
 import Starfield from '@/components/workspace/Starfield';
+import SiteFooter, { type FooterColumn, type FooterLink } from '@/components/workspace/SiteFooter';
 import RiskMatrix from '@/components/dashboard/RiskMatrix';
 import StatusStrip from '@/components/dashboard/StatusStrip';
 import EvidenceCoverage from '@/components/dashboard/EvidenceCoverage';
@@ -69,7 +70,7 @@ const PANELS: PanelDef[] = [
   { id: 'matrix', label: 'Risk matrix', icon: Grid3x3, wide: true },
   { id: 'controls', label: 'Controls', icon: ListChecks, wide: true },
   { id: 'maturity', label: 'Maturity', icon: Radar },
-  { id: 'timeline', label: 'Timeline', icon: CalendarClock },
+  { id: 'timeline', label: 'Timeline', icon: CalendarClock, wide: true },
   { id: 'crosswalk', label: 'Crosswalk', icon: Network, wide: true },
   { id: 'playbook', label: 'NIST playbook', icon: Target, wide: true },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck, wide: true },
@@ -91,12 +92,14 @@ export default function MapWorkspace() {
   const [projection, setProjection] = useState<Projection>('globe');
   const [placesOn, setPlacesOn] = useState(true);
   const [reliefOn, setReliefOn] = useState(true);
-  // Off by default: the reference design is a glass globe with a starfield, and
-  // satellite photography fights it. One click brings the imagery back.
+  // Opt-in, and off on arrival. Satellite tiles are the only map host this app
+  // can contact, so leaving this off means a normal visit requests none and the
+  // tile provider is never told who is looking or where.
   const [satelliteOn, setSatelliteOn] = useState(false);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
+  const [footerOpen, setFooterOpen] = useState(false);
 
   const flyTo = useCallback((lon: number, lat: number, zoom = 4.5) => {
     map.current?.flyTo({ center: [lon, lat], zoom, duration: 1400, essential: true });
@@ -220,6 +223,7 @@ export default function MapWorkspace() {
     m.setLayoutProperty('satellite', 'visibility', satelliteOn ? 'visible' : 'none');
   }, [satelliteOn, ready]);
 
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q.length < 2) return [];
@@ -251,6 +255,40 @@ export default function MapWorkspace() {
   const selectedPlace = selection?.kind === 'place' ? GOVERNANCE_PLACES.find((p) => p.id === selection.id) : undefined;
   const unpinned = GOVERNANCE_PLACES.filter((p) => typeof p.lat !== 'number');
   const activePanel = PANELS.find((p) => p.id === panel);
+
+  const go = (id: PanelId): FooterLink => ({
+    label: PANELS.find((p) => p.id === id)!.label,
+    onSelect: () => {
+      setPanel(id);
+      setFooterOpen(false);
+    },
+  });
+
+  const footerColumns: FooterColumn[] = [
+    { heading: 'Assess', links: [go('overview'), go('matrix'), go('controls'), go('maturity')] },
+    { heading: 'Obligations', links: [go('timeline'), go('frameworks'), go('crosswalk'), go('playbook')] },
+    {
+      heading: 'Map',
+      links: [
+        { label: 'Globe view', onSelect: () => { setProjection('globe'); setFooterOpen(false); } },
+        { label: 'Flat world map', onSelect: () => { setProjection('flat'); setFooterOpen(false); } },
+        go('usa'),
+        { label: 'Institutions layer', onSelect: () => { setPlacesOn(true); setFooterOpen(false); } },
+      ],
+    },
+    {
+      heading: 'NHID-Clinical',
+      links: [
+        go('nhid'),
+        { label: 'Specification v1.3', href: 'https://nhid-clinical.org/specification.html' },
+        { label: 'Governance simulator', href: 'https://nhid-clinical.org/simulator.html' },
+        { label: 'NHID-Clinical site', href: 'https://nhid-clinical.org/' },
+      ],
+    },
+  ];
+
+  // The views a first-time reader is most likely to go looking for.
+  const quickLinks: FooterLink[] = [go('matrix'), go('controls'), go('timeline'), go('frameworks'), go('nhid')];
 
   const panelBody = () => {
     switch (panel) {
@@ -385,7 +423,7 @@ export default function MapWorkspace() {
             />
             <LayerToggle
               label="Satellite imagery"
-              hint="Esri World Imagery over the globe. Off gives the glass look; the stars stay either way."
+              hint="Off by default. Turning it on streams photo tiles from Esri — the only outside map host this site can contact."
               on={satelliteOn}
               onChange={setSatelliteOn}
             />
@@ -454,6 +492,13 @@ export default function MapWorkspace() {
             </section>
           )}
         </div>
+
+        <SiteFooter
+          open={footerOpen}
+          onToggle={() => setFooterOpen((v) => !v)}
+          columns={footerColumns}
+          quickLinks={quickLinks}
+        />
       </div>
     </div>
   );

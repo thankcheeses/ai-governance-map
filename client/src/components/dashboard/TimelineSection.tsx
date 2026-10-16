@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarClock, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock, AlertTriangle } from 'lucide-react';
 import { OBLIGATIONS, TIMELINE_EVENTS, FRAMEWORKS, daysUntil } from '@/data/governance';
 import SectionHeader from './SectionHeader';
 import SourceChip from './SourceChip';
@@ -25,6 +25,7 @@ interface TimelineSectionProps {
 }
 
 export default function TimelineSection({ frameworkFilter, onFrameworkFilterChange }: TimelineSectionProps) {
+  const railRef = useRef<HTMLDivElement>(null);
   const filteredObligations = useMemo(
     () => (frameworkFilter === 'all' ? OBLIGATIONS : OBLIGATIONS.filter((o) => o.framework === frameworkFilter)),
     [frameworkFilter],
@@ -35,47 +36,92 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
       <SectionHeader
         icon={<CalendarClock size={18} />}
         title="Obligations Timeline"
-        subtitle="EU AI Act phase-in schedule plus obligations across all tracked frameworks"
+        subtitle="EU AI Act phase-in schedule on a horizontal rail, plus obligations across all tracked frameworks"
       />
 
+      {/* Horizontal rail. A phase-in schedule is a sequence in time, so it reads
+          along one axis; the vertical stack made the reader scroll the page to
+          compare two dates that belong side by side. The container is focusable
+          and labelled so the rail is reachable by keyboard, not just by wheel. */}
       <div className="card-elevated p-5 mb-5">
-        <div className="relative pl-6 border-l-2 border-border ml-2">
-          {TIMELINE_EVENTS.map((ev, i) => {
-            const days = daysUntil(ev.date);
-            return (
-              <motion.div
-                key={ev.date}
-                initial={{ opacity: 0, x: -14 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ delay: i * 0.07, duration: 0.4, ease: EASE }}
-                className="relative pb-6 last:pb-0"
-              >
-                <span
-                  className={`absolute -left-[1.97rem] top-0.5 w-3.5 h-3.5 rounded-full border-2 ${
-                    ev.status === 'past' ? 'bg-muted border-border' : ev.status === 'current' ? 'bg-amber-400 border-amber-500' : 'bg-card border-[#0F172A]'
-                  }`}
-                />
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="font-mono text-xs text-muted-foreground">{ev.date}</span>
-                  <span className={`text-[0.6rem] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border ${STATUS_STYLES[ev.status]}`}>
-                    {ev.status}
-                  </span>
-                  {ev.status !== 'past' && (
-                    <span className="text-[0.65rem] font-mono text-muted-foreground flex items-center gap-1">
-                      {days >= 0 ? <Clock size={10} /> : <CheckCircle2 size={10} />}
-                      {days >= 0 ? `${days}d` : 'elapsed'}
+        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+            Phase-in schedule — {TIMELINE_EVENTS.length} dated events
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => railRef.current?.scrollBy({ left: -360, behavior: 'smooth' })}
+              aria-label="Scroll timeline earlier"
+              className="p-1 rounded border border-border text-muted-foreground hover:text-foreground"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => railRef.current?.scrollBy({ left: 360, behavior: 'smooth' })}
+              aria-label="Scroll timeline later"
+              className="p-1 rounded border border-border text-muted-foreground hover:text-foreground"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+
+        <div
+          ref={railRef}
+          tabIndex={0}
+          role="group"
+          aria-label={`Obligations timeline, ${TIMELINE_EVENTS.length} events from ${TIMELINE_EVENTS[0]?.date} to ${TIMELINE_EVENTS[TIMELINE_EVENTS.length - 1]?.date}. Scroll horizontally.`}
+          className="overflow-x-auto overscroll-x-contain pb-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+        >
+          <div className="relative flex gap-0 min-w-max pt-7">
+            {/* The axis itself, behind the markers. */}
+            <span aria-hidden="true" className="absolute left-0 right-0 top-[1.1rem] h-px bg-border" />
+            {TIMELINE_EVENTS.map((ev, i) => {
+              const days = daysUntil(ev.date);
+              return (
+                <motion.article
+                  key={ev.date}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-20px' }}
+                  transition={{ delay: Math.min(i, 8) * 0.05, duration: 0.35, ease: EASE }}
+                  className="relative w-[17rem] flex-shrink-0 px-3 first:pl-0"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-3 first:left-0 top-[0.72rem] w-3.5 h-3.5 rounded-full border-2 ${
+                      ev.status === 'past'
+                        ? 'bg-muted border-border'
+                        : ev.status === 'current'
+                          ? 'bg-amber-400 border-amber-500'
+                          : 'bg-card border-foreground'
+                    }`}
+                  />
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="font-mono text-xs text-muted-foreground">{ev.date}</span>
+                    <span
+                      className={`text-[0.6rem] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full border ${STATUS_STYLES[ev.status]}`}
+                    >
+                      {ev.status}
                     </span>
-                  )}
-                </div>
-                <p className="font-semibold text-sm text-foreground">{ev.label}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{ev.detail}</p>
-                <div className="mt-1.5">
-                  <SourceChip source={ev.source} />
-                </div>
-              </motion.div>
-            );
-          })}
+                    {ev.status !== 'past' && (
+                      <span className="text-[0.65rem] font-mono text-muted-foreground flex items-center gap-1">
+                        {days >= 0 ? <Clock size={10} /> : <CheckCircle2 size={10} />}
+                        {days >= 0 ? `${days}d` : 'elapsed'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-semibold text-sm text-foreground leading-snug">{ev.label}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{ev.detail}</p>
+                  <div className="mt-1.5">
+                    <SourceChip source={ev.source} />
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
         </div>
       </div>
 
