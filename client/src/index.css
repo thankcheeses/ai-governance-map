@@ -322,7 +322,8 @@ header.sticky { background: rgba(247,248,245,.92) !important; border-color: var(
 .card-elevated, .stat-accent { border-radius: 8px !important; border-color: var(--line-strong) !important; box-shadow: 0 8px 20px rgba(11,16,24,.045) !important; }
 .card-elevated:hover { border-color: #99bdb8 !important; box-shadow: 0 12px 28px rgba(11,16,24,.08) !important; }
 .section-icon { border-radius: 7px !important; background: #e0f4ef !important; color: var(--signal-deep) !important; box-shadow: none !important; }
-.section-kicker { color: #859298; font-size: 9px; letter-spacing: .16em; margin-bottom: 3px; }
+/* Was #859298 at 9px: 3.06:1 and too small to read. */
+.section-kicker { color: #4a5a62; font-size: 11px; letter-spacing: .14em; margin-bottom: 3px; }
 .stat-accent::after { height: 2px; background: var(--signal); }
 
 #heatmap .card-elevated { background: #f1f3ef; }

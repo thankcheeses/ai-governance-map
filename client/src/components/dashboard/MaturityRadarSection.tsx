@@ -48,7 +48,7 @@ export default function MaturityRadarSection() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={recordSnapshot}
-            className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-2 hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-semibold bg-teal-900 text-white rounded-lg px-3 py-2 hover:opacity-90 transition-opacity"
           >
             <Camera size={13} />Record Snapshot ({overallScore}%)
           </motion.button>

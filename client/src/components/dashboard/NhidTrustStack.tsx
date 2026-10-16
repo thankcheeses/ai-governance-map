@@ -165,7 +165,7 @@ export default function NhidTrustStack() {
               transition={{ duration: 0.3, ease: EASE }}
               className="card-elevated p-5 border-l-2 border-l-[#0F172A]"
             >
-              <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-primary mb-1">Layer {active.layer}</p>
+              <p className="text-[0.65rem] font-semibold tracking-widest uppercase text-teal-900 mb-1">Layer {active.layer}</p>
               <h3 className="text-heading-sm text-foreground mb-1.5">{active.title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">{active.scope}</p>
 
@@ -183,8 +183,8 @@ export default function NhidTrustStack() {
                         className="inline-flex items-center gap-1.5 text-[0.65rem] bg-secondary border border-border rounded-full px-2.5 py-1 hover:border-primary/50 hover:text-primary transition-colors"
                       >
                         <span className="font-mono font-semibold">{c.code}</span>
-                        <span className="text-muted-foreground max-w-[150px] truncate">{c.title}</span>
-                        <span className="font-mono text-[0.55rem] bg-primary/10 text-primary rounded px-1">{c.ccmDomain}</span>
+                        <span className="text-slate-700 max-w-[150px] truncate">{c.title}</span>
+                        <span className="font-mono text-[0.55rem] bg-primary/10 text-teal-900 rounded px-1">{c.ccmDomain}</span>
                       </button>
                     ))}
                   </div>
@@ -203,7 +203,7 @@ export default function NhidTrustStack() {
                         href={`https://nhid-clinical.org/simulator.html?scenario=${c.code.toLowerCase()}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[0.65rem] font-mono font-semibold bg-primary/5 border border-primary/30 text-primary rounded-full px-2.5 py-1 hover:bg-primary/10 transition-colors"
+                        className="inline-flex items-center gap-1 text-[0.65rem] font-mono font-semibold bg-primary/5 border border-teal-700/40 text-teal-900 rounded-full px-2.5 py-1 hover:bg-primary/10 transition-colors"
                       >
                         {c.code}
                         <ExternalLink size={9} />
@@ -221,7 +221,7 @@ export default function NhidTrustStack() {
                 Permanent Controls — {NHID_CONFORMANCE_CONTROLS.length} / {NHID_CONFORMANCE_CONTROLS.length}
               </p>
               <span
-                className="inline-flex items-center gap-1.5 text-[0.65rem] font-mono font-semibold text-primary bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5"
+                className="inline-flex items-center gap-1.5 text-[0.65rem] font-mono font-semibold text-teal-900 bg-primary/10 border border-teal-700/30 rounded-full px-2 py-0.5"
                 title="Call Authorization Score — permanent controls met / total, in the conformant example trace"
               >
                 <CasGaugeIcon size={13} /> CAS {NHID_CONFORMANCE_CONTROLS.length}/{NHID_CONFORMANCE_CONTROLS.length}
@@ -270,11 +270,11 @@ export default function NhidTrustStack() {
                               <Zap size={10} />Performance Indicator
                             </p>
                             <div className="bg-primary/5 border border-dashed border-primary/40 rounded-lg p-3 mb-3">
-                              <p className="text-xs font-semibold text-primary mb-1">{c.indicator.name}</p>
+                              <p className="text-xs font-semibold text-teal-900 mb-1">{c.indicator.name}</p>
                               <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">Method</p>
                               <p className="text-[0.7rem] text-muted-foreground leading-relaxed">{c.indicator.method}</p>
                               <p className="text-[0.6rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-1.5">SLO Target</p>
-                              <span className="inline-block mt-0.5 font-mono text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
+                              <span className="inline-block mt-0.5 font-mono text-[0.65rem] bg-primary/10 text-teal-900 border border-primary/20 px-1.5 py-0.5 rounded">
                                 {c.indicator.slo}
                               </span>
                             </div>
@@ -294,7 +294,7 @@ export default function NhidTrustStack() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
-              className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg py-2.5 hover:opacity-90 transition-opacity"
+              className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold bg-teal-900 text-white rounded-lg py-2.5 hover:opacity-90 transition-opacity"
             >
               Test the Spoofed-Identity Gap — Open Simulator
               <ExternalLink size={13} />
@@ -322,7 +322,7 @@ export default function NhidTrustStack() {
                     className="inline-flex items-center gap-1.5 text-[0.65rem] bg-secondary border border-border rounded-full px-2.5 py-1 hover:border-primary/50 hover:text-primary transition-colors"
                   >
                     <span className="font-mono font-semibold">{c.code}</span>
-                    <span className="text-muted-foreground max-w-[160px] truncate">{c.title}</span>
+                    <span className="text-slate-700 max-w-[160px] truncate">{c.title}</span>
                   </button>
                 );
               })}
@@ -396,7 +396,7 @@ export default function NhidTrustStack() {
               onClick={() => setTraceMode('pass')}
               className={`font-mono text-[0.65rem] px-2.5 py-1 rounded-full border transition-all ${
                 traceMode === 'pass'
-                  ? 'bg-primary border-primary text-primary-foreground'
+                  ? 'bg-teal-900 border-teal-900 text-white'
                   : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary'
               }`}
             >

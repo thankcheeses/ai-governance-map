@@ -8,9 +8,9 @@ import SourceChip from './SourceChip';
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 const STATUS_STYLES: Record<string, string> = {
-  past: 'bg-muted text-muted-foreground border-border',
+  past: 'bg-muted text-slate-700 border-border',
   current: 'bg-amber-100 text-amber-900 border-amber-300',
-  upcoming: 'bg-primary/10 text-primary border-primary/30',
+  upcoming: 'bg-primary/10 text-teal-900 border-primary/40',
 };
 
 const SEVERITY_STYLES: Record<string, string> = {
@@ -134,7 +134,7 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
             <button
               onClick={() => onFrameworkFilterChange('all')}
               className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
-                frameworkFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
+                frameworkFilter === 'all' ? 'bg-teal-900 text-white border-teal-900' : 'border-border text-muted-foreground hover:border-primary/50'
               }`}
             >
               All
@@ -144,7 +144,7 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
                 key={fw.shortCode}
                 onClick={() => onFrameworkFilterChange(fw.shortCode)}
                 className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
-                  frameworkFilter === fw.shortCode ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:border-primary/50'
+                  frameworkFilter === fw.shortCode ? 'bg-teal-900 text-white border-teal-900' : 'border-border text-muted-foreground hover:border-primary/50'
                 }`}
               >
                 {fw.shortCode}
@@ -177,9 +177,9 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-1.5">{obl.summary}</p>
                 <div className="flex items-center gap-2 flex-wrap text-[0.65rem]">
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-mono">{obl.framework}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{obl.topic}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{obl.type}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-teal-900 border border-primary/20 font-mono">{obl.framework}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-slate-700">{obl.topic}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-slate-700">{obl.type}</span>
                   <span className="text-muted-foreground">Effective {obl.effective}</span>
                   <SourceChip source={obl.source} />
                 </div>

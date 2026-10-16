@@ -30,7 +30,7 @@ const BY_SUB = controlsBySubcategory(CONTROLS);
 const pill = (active: boolean) =>
   `font-mono text-xs px-2.5 py-1 rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 ${
     active
-      ? 'bg-primary border-primary text-primary-foreground'
+      ? 'bg-teal-900 border-teal-900 text-white'
       : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary'
   }`;
 
@@ -194,7 +194,7 @@ export default function NistPlaybookSection() {
             {filtersActive && (
               <button
                 type="button"
-                className="text-primary underline-offset-2 hover:underline"
+                className="text-teal-900 underline-offset-2 hover:underline"
                 onClick={() => {
                   setQuery('');
                   setFn('ALL');
@@ -226,7 +226,7 @@ export default function NistPlaybookSection() {
                         </span>
                       </span>
                       {cited.length > 0 ? (
-                        <span className="flex-shrink-0 font-mono text-[0.65rem] text-primary border border-primary/30 bg-primary/5 rounded px-1.5 py-0.5 whitespace-nowrap">
+                        <span className="flex-shrink-0 font-mono text-[0.65rem] text-teal-900 border border-teal-700/40 bg-primary/5 rounded px-1.5 py-0.5 whitespace-nowrap">
                           {cited.length} {cited.length === 1 ? 'control' : 'controls'}
                         </span>
                       ) : (

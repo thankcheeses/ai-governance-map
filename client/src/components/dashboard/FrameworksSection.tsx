@@ -48,7 +48,7 @@ export default function FrameworksSection({ frameworkFilter, onFrameworkFilterCh
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="font-mono text-[0.65rem] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                <span className="font-mono text-[0.65rem] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-teal-900 border border-primary/20">
                   {fw.shortCode}
                 </span>
                 <ArrowUpRight size={14} className={active ? 'text-primary' : 'text-muted-foreground'} />

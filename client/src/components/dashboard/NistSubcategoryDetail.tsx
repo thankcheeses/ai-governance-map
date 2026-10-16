@@ -15,7 +15,7 @@ export function PlaybookNote({ className = '' }: { className?: string }) {
           href={NIST_PLAYBOOK_URL}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-0.5 text-primary underline-offset-2 hover:underline"
+          className="inline-flex items-center gap-0.5 text-teal-900 underline-offset-2 hover:underline"
         >
           Source: NIST<ExternalLink size={11} aria-hidden />
         </a>
