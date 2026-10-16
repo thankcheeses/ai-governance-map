@@ -39,7 +39,6 @@ return {
       places: { type: 'geojson', data: placesGeoJSON() as never },
     },
     layers: [
-      { id: 'space', type: 'background', paint: { 'background-color': SPACE } },
       { id: 'satellite', type: 'raster', source: 'satellite', paint: { 'raster-opacity': 1 } },
       // Compliance overlay — tints binding/none countries, leaves "unknown" terrain bare.
       {

@@ -4,8 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Router as WouterRouter, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Dashboard from "./pages/Dashboard";
 import MapWorkspace from "./pages/MapWorkspace";
+import { Redirect } from "wouter";
 
 // GitHub Pages serves this project site from /<repo>/, so the client router has to
 // strip that prefix before matching. Derived from Vite's `base` (import.meta.env.BASE_URL)
@@ -17,10 +17,11 @@ const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 function AppRoutes() {
   return (
     <Switch>
-      {/* The map is the application. The scrolling register keeps every
-          non-geographic view — a standard has no borders — one click away. */}
+      {/* One shell, one look. /register was a second page with its own design, so
+          toggling into it felt like landing in a different app; every governance
+          view now opens as a panel inside the map. Old links still resolve. */}
       <Route path="/" component={MapWorkspace} />
-      <Route path="/register" component={Dashboard} />
+      <Route path="/register">{() => <Redirect to="/" />}</Route>
       <Route component={NotFound} />
     </Switch>
   );
