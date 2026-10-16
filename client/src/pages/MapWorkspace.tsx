@@ -92,6 +92,10 @@ export default function MapWorkspace() {
   const [projection, setProjection] = useState<Projection>('globe');
   const [placesOn, setPlacesOn] = useState(true);
   const [reliefOn, setReliefOn] = useState(true);
+  // Opt-in, and off on arrival. Satellite tiles are the only map host this app
+  // can contact, so leaving this off means a normal visit requests none and the
+  // tile provider is never told who is looking or where.
+  const [satelliteOn, setSatelliteOn] = useState(false);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
@@ -212,6 +216,12 @@ export default function MapWorkspace() {
     if (!ready || !m || !m.getLayer('country-extrusion')) return;
     m.setLayoutProperty('country-extrusion', 'visibility', reliefOn ? 'visible' : 'none');
   }, [reliefOn, ready]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m || !m.getLayer('satellite')) return;
+    m.setLayoutProperty('satellite', 'visibility', satelliteOn ? 'visible' : 'none');
+  }, [satelliteOn, ready]);
 
 
   const results = useMemo(() => {
@@ -410,6 +420,12 @@ export default function MapWorkspace() {
               hint="Extrusion height encodes verified status — binding law rises highest."
               on={reliefOn}
               onChange={setReliefOn}
+            />
+            <LayerToggle
+              label="Satellite imagery"
+              hint="Off by default. Turning it on streams photo tiles from Esri — the only outside map host this site can contact."
+              on={satelliteOn}
+              onChange={setSatelliteOn}
             />
             <LayerToggle
               label="Institutions"

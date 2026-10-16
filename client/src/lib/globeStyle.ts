@@ -1,6 +1,13 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { placesGeoJSON } from '@/data/places';
 
+// Esri World Imagery. Satellite photography cannot be bundled — the tiles stream
+// from a host, which is the only map host this application contacts. It is
+// therefore declared with `visibility: none` and stays dark until a viewer asks
+// for it: on a normal page load no tile is requested and Esri learns nothing.
+export const ESRI_IMAGERY =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
 export const SPACE = '#05070f';
 
 export const GLOBE_SKY = {
@@ -16,9 +23,9 @@ export const GLOBE_SKY = {
 /**
  * The one definition of how the governance globe looks.
  *
- * There is no basemap. Satellite photography fought the glass-globe design and
- * was the app's only map-tile dependency, so removing it both settles the look
- * and leaves the application with no map host to call at all. Both the register's globe
+ * The default is the glass globe: country shapes, borders, compliance relief and
+ * the starfield all render from bundled data, so a normal load contacts no map
+ * host. Satellite imagery exists as an opt-in layer, off until asked for. Both the register's globe
  * section and the full-screen map workspace build their map from this, so the two
  * can never drift into showing the same data two different ways.
  */
@@ -26,10 +33,26 @@ export function buildGlobeStyle(globeData: unknown): StyleSpecification {
 return {
     version: 8,
     sources: {
+      satellite: {
+        type: 'raster',
+        tiles: [ESRI_IMAGERY],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, NASA, NOAA, USGS',
+      },
       countries: { type: 'geojson', data: globeData as never, generateId: true },
       places: { type: 'geojson', data: placesGeoJSON() as never },
     },
     layers: [
+      // Hidden on load. MapLibre fetches no tiles for an invisible raster layer,
+      // so the opt-in is real rather than cosmetic.
+      {
+        id: 'satellite',
+        type: 'raster',
+        source: 'satellite',
+        layout: { visibility: 'none' },
+        paint: { 'raster-opacity': 1 },
+      },
       // Compliance overlay — tints binding/none countries, leaves "unknown" terrain bare.
       {
         id: 'country-fill',
