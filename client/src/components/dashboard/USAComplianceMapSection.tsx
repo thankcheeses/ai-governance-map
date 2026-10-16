@@ -11,9 +11,6 @@ import usStates from 'us-atlas/states-10m.json';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Esri World Imagery — same realistic satellite basemap used by the global map.
-const ESRI_IMAGERY =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 const SPACE = '#05070f';
 
 interface StateProps {
@@ -142,18 +139,10 @@ export default function USAComplianceMapSection() {
     const style: maplibregl.StyleSpecification = {
       version: 8,
       sources: {
-        satellite: {
-          type: 'raster',
-          tiles: [ESRI_IMAGERY],
-          tileSize: 256,
-          maxzoom: 19,
-          attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, NASA, NOAA, USGS',
-        },
         states: { type: 'geojson', data: statesData as never, generateId: true },
       },
       layers: [
         { id: 'space', type: 'background', paint: { 'background-color': SPACE } },
-        { id: 'satellite', type: 'raster', source: 'satellite' },
         {
           id: 'state-fill',
           type: 'fill',
@@ -277,7 +266,7 @@ export default function USAComplianceMapSection() {
       <SectionHeader
         icon={<MapIcon size={18} />}
         title="USA Compliance Map"
-        subtitle="State-level AI regulation on a live 3D satellite map — relief height encodes verified status; hover a state for a quick read, click for the full obligation detail"
+        subtitle="State-level AI regulation on a live 3D map — relief height encodes verified status; hover a state for a quick read, click for the full obligation detail"
       />
 
       <div className="card-elevated p-5">
