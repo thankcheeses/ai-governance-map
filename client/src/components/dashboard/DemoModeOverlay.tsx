@@ -61,13 +61,13 @@ export default function DemoModeOverlay({ active, onClose }: DemoModeOverlayProp
             <ArrowLeft size={13} />Back
           </button>
           {step === STEPS.length - 1 ? (
-            <button onClick={onClose} className="text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-1.5">
+            <button onClick={onClose} className="text-xs font-semibold bg-teal-900 text-white rounded-lg px-3 py-1.5">
               Finish
             </button>
           ) : (
             <button
               onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-              className="flex items-center gap-1 text-xs font-semibold bg-primary text-primary-foreground rounded-lg px-3 py-1.5"
+              className="flex items-center gap-1 text-xs font-semibold bg-teal-900 text-white rounded-lg px-3 py-1.5"
             >
               Next<ArrowRight size={13} />
             </button>

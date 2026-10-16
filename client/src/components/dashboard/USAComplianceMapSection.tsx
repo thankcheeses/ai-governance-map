@@ -41,7 +41,7 @@ const NATIONAL_FRAMEWORKS = FRAMEWORKS.filter((f) => f.jurisdiction === 'US' || 
 const GLOBAL_FRAMEWORKS = FRAMEWORKS.filter((f) => f.jurisdiction === 'Global');
 
 const TIER_STYLES: Record<'state' | 'national' | 'global', { badge: string; accent: string }> = {
-  state: { badge: 'bg-primary/10 text-primary border-primary/20', accent: 'border-l-[#0F172A]' },
+  state: { badge: 'bg-primary/10 text-teal-900 border-primary/20', accent: 'border-l-[#0F172A]' },
   national: { badge: 'bg-amber-100 text-amber-800 border-amber-300', accent: 'border-l-amber-500' },
   global: { badge: 'bg-violet-100 text-violet-800 border-violet-300', accent: 'border-l-violet-500' },
 };
@@ -64,8 +64,8 @@ function FrameworkCard({ framework, obligations, tier }: { framework: Framework;
             <p className="text-[0.7rem] text-muted-foreground leading-relaxed mb-2">{o.summary}</p>
             <div className="flex items-center gap-2 flex-wrap text-[0.65rem]">
               <span className={`px-2 py-0.5 rounded-full border font-mono ${style.badge}`}>{o.framework}</span>
-              <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{o.type}</span>
-              <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-muted-foreground">{o.severity}</span>
+              <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-slate-700">{o.type}</span>
+              <span className="px-2 py-0.5 rounded-full bg-secondary border border-border text-slate-700">{o.severity}</span>
               <span className="text-muted-foreground">Effective {o.effective}</span>
             </div>
           </div>

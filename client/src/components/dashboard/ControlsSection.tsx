@@ -74,7 +74,7 @@ export default function ControlsSection() {
               onClick={() => setSelectedTier(tier)}
               className={`font-mono text-xs px-2.5 py-1 rounded-full border transition-all ${
                 selectedTier === tier
-                  ? 'bg-primary border-primary text-primary-foreground'
+                  ? 'bg-teal-900 border-teal-900 text-white'
                   : 'border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-primary'
               }`}
             >
@@ -110,7 +110,7 @@ export default function ControlsSection() {
                   <div className={priorityColor(item.priority)} />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm text-foreground mb-1 flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[0.65rem] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
+                      <span className="font-mono text-[0.65rem] text-slate-700 bg-secondary px-1.5 py-0.5 rounded">
                         {item.code}
                       </span>
                       {item.title}
@@ -121,7 +121,7 @@ export default function ControlsSection() {
                         <Badge className="text-[0.6rem] px-1.5 py-0 h-4 bg-amber-100 text-amber-800 border-amber-300">High</Badge>
                       )}
                       {mat > 0 && (
-                        <Badge variant="outline" className="text-[0.6rem] px-1.5 py-0 h-4 text-primary border-primary/40">
+                        <Badge variant="outline" className="text-[0.6rem] px-1.5 py-0 h-4 text-teal-900 border-teal-700/50">
                           L{mat}·{MATURITY_LEVELS[mat].label}
                         </Badge>
                       )}
@@ -177,7 +177,7 @@ export default function ControlsSection() {
                         <p className="text-[0.65rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-2">Method</p>
                         <p className="text-xs text-muted-foreground leading-relaxed">{item.indicator.method}</p>
                         <p className="text-[0.65rem] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5 mt-2">SLO Target</p>
-                        <span className="inline-block mt-0.5 font-mono text-xs bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded">
+                        <span className="inline-block mt-0.5 font-mono text-xs bg-primary/10 text-teal-900 border border-primary/20 px-1.5 py-0.5 rounded">
                           {item.indicator.slo}
                         </span>
                       </div>
@@ -207,7 +207,7 @@ export default function ControlsSection() {
                           fw === NIST_MAPPING_KEY ? (
                             // Each subcategory opens the Playbook entry it cites, so the
                             // mapping can be checked against NIST's own wording.
-                            <span key={fw} className="flex flex-wrap items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 pl-2 pr-1 py-0.5 rounded font-mono">
+                            <span key={fw} className="flex flex-wrap items-center gap-1 text-[0.65rem] bg-primary/10 text-teal-900 border border-primary/20 pl-2 pr-1 py-0.5 rounded font-mono">
                               {fw}:
                               {codes.map((id) => (
                                 <button
@@ -222,7 +222,7 @@ export default function ControlsSection() {
                               ))}
                             </span>
                           ) : (
-                            <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded font-mono">
+                            <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-teal-900 border border-primary/20 px-2 py-0.5 rounded font-mono">
                               {fw === 'NHID-Clinical' && <ShieldWaveformIcon className="w-3 h-3 flex-shrink-0" />}
                               {fw}: {codes.join(', ')}
                             </span>

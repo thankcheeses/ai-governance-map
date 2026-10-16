@@ -332,7 +332,7 @@ export default function MapWorkspace() {
       {/* Side navigation: everything an AI governance map has to do, reachable
           without leaving the map. */}
       <nav className="w-14 lg:w-48 flex-shrink-0 border-r border-white/10 flex flex-col py-3 overflow-y-auto">
-        <p className="px-3 text-[0.6rem] font-semibold uppercase tracking-widest text-white/40 mb-3 hidden lg:block">
+        <p className="px-3 text-[0.72rem] font-semibold uppercase tracking-widest text-white/70 mb-3 hidden lg:block">
           Governance map
         </p>
         {PANELS.map((item) => {
@@ -345,7 +345,7 @@ export default function MapWorkspace() {
               aria-pressed={active}
               title={item.label}
               className={`flex items-center gap-2.5 px-3 py-2 text-xs text-left ${
-                active ? 'bg-white/12 text-white border-l-2 border-teal-300' : 'text-white/60 hover:text-white border-l-2 border-transparent'
+                active ? 'bg-white/12 text-white border-l-2 border-teal-300' : 'text-white/80 hover:text-white border-l-2 border-transparent'
               }`}
             >
               <item.icon size={15} className="flex-shrink-0" aria-hidden="true" />
@@ -355,7 +355,7 @@ export default function MapWorkspace() {
         })}
 
         <div className="mt-auto pt-3 px-3 hidden lg:block">
-          <p className="text-[0.6rem] text-white/30 leading-relaxed">
+          <p className="text-[0.72rem] text-white/70 leading-relaxed">
             Local-only. Your assessment data never leaves this browser.
           </p>
         </div>
@@ -364,13 +364,13 @@ export default function MapWorkspace() {
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="flex items-center gap-3 px-4 h-12 border-b border-white/10 flex-shrink-0">
           <div className="relative flex-1 max-w-sm">
-            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40" aria-hidden="true" />
+            <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/70" aria-hidden="true" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search a jurisdiction or institution"
               aria-label="Search a jurisdiction or institution"
-              className="w-full bg-white/5 border border-white/15 rounded-md pl-7 pr-2 py-1 text-xs text-white placeholder:text-white/35 focus:outline-none focus:border-white/40"
+              className="w-full bg-white/5 border border-white/15 rounded-md pl-7 pr-2 py-1 text-xs text-white placeholder:text-white/70 focus:outline-none focus:border-white/40"
             />
             {results.length > 0 && (
               <ul className="absolute top-full left-0 right-0 mt-1 bg-[#0b1220] border border-white/15 rounded-md overflow-hidden z-40">
@@ -382,7 +382,7 @@ export default function MapWorkspace() {
                       className="w-full text-left px-2.5 py-1.5 hover:bg-white/10"
                     >
                       <span className="block text-xs text-white">{r.label}</span>
-                      <span className="block text-[0.65rem] text-white/45">{r.sub}</span>
+                      <span className="block text-[0.75rem] text-white/70">{r.sub}</span>
                     </button>
                   </li>
                 ))}
@@ -414,7 +414,7 @@ export default function MapWorkspace() {
           <div ref={mapContainer} className="w-full h-full" />
 
           <div className="absolute top-3 left-3 w-52 bg-[#0b1220]/92 border border-white/12 rounded-md p-3 z-10">
-            <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-white/55 mb-2">Layers</p>
+            <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">Layers</p>
             <LayerToggle
               label="Compliance relief"
               hint="Extrusion height encodes verified status — binding law rises highest."
@@ -435,7 +435,7 @@ export default function MapWorkspace() {
             />
             {placesOn && unpinned.length > 0 && (
               <div className="mt-2 pt-2 border-t border-white/10">
-                <p className="text-[0.6rem] text-white/40 leading-snug mb-1.5">
+                <p className="text-[0.72rem] text-white/70 leading-snug mb-1.5">
                   No verified coordinate — listed, not pinned:
                 </p>
                 {unpinned.map((u) => (
@@ -443,7 +443,7 @@ export default function MapWorkspace() {
                     key={u.id}
                     type="button"
                     onClick={() => setSelection({ kind: 'place', id: u.id })}
-                    className="block w-full text-left text-[0.65rem] text-white/60 hover:text-white py-0.5"
+                    className="block w-full text-left text-[0.75rem] text-white/80 hover:text-white py-0.5"
                   >
                     {u.name}
                   </button>
@@ -452,7 +452,7 @@ export default function MapWorkspace() {
             )}
           </div>
 
-          <p className="absolute bottom-3 left-3 text-[0.6rem] text-white/35 max-w-xs pointer-events-none z-10">
+          <p className="absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-xs pointer-events-none z-10">
             Click a country or an institution. Standards have no borders — open them from the side navigation.
           </p>
 
@@ -520,7 +520,7 @@ function LayerToggle({
       <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 accent-teal-400" />
       <span className="min-w-0">
         <span className="block text-xs text-white/90 leading-tight">{label}</span>
-        <span className="block text-[0.6rem] text-white/40 leading-snug mt-0.5">{hint}</span>
+        <span className="block text-[0.72rem] text-white/70 leading-snug mt-0.5">{hint}</span>
       </span>
     </label>
   );

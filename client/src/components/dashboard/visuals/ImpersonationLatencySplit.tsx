@@ -127,11 +127,10 @@ export default function ImpersonationLatencySplit() {
           Disclosure + authorization gate (IDG-01 · PDX-01) · verified before data exchange · audited
         </text>
       </svg>
+      {/* Upgrade path for maintainers lives in client/public/3d-renders/PROMPTS.md;
+          it is not something a reader of the map needs to be told. */}
       <figcaption className="disclaimer-small">
-        Illustrative conceptual visualization for clarity — not a product diagram. To upgrade with a
-        committed high-resolution render, add{' '}
-        <code className="font-mono">client/public/3d-renders/impersonation-vs-verified.webp</code> (see
-        that folder&apos;s PROMPTS.md); assets must be self-hosted, never hotlinked.
+        Illustrative conceptual visualization for clarity — not a product diagram.
       </figcaption>
     </figure>
   );
