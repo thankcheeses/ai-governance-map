@@ -12,6 +12,7 @@ import {
   Network,
   Radar,
   Search,
+  ShieldAlert,
   ShieldCheck,
   Target,
   X,
@@ -34,6 +35,7 @@ import TimelineSection from '@/components/dashboard/TimelineSection';
 import CrosswalkSection from '@/components/dashboard/CrosswalkSection';
 import NistPlaybookSection from '@/components/dashboard/NistPlaybookSection';
 import FrameworksSection from '@/components/dashboard/FrameworksSection';
+import IncidentPracticesSection from '@/components/dashboard/IncidentPracticesSection';
 import NhidTrustStack from '@/components/dashboard/NhidTrustStack';
 import USAComplianceMapSection from '@/components/dashboard/USAComplianceMapSection';
 
@@ -54,6 +56,7 @@ type PanelId =
   | 'crosswalk'
   | 'playbook'
   | 'frameworks'
+  | 'incidents'
   | 'nhid'
   | 'usa';
 
@@ -74,6 +77,7 @@ const PANELS: PanelDef[] = [
   { id: 'crosswalk', label: 'Crosswalk', icon: Network, wide: true },
   { id: 'playbook', label: 'NIST playbook', icon: Target, wide: true },
   { id: 'frameworks', label: 'Frameworks', icon: BookOpenCheck, wide: true },
+  { id: 'incidents', label: 'Agent incidents', icon: ShieldAlert, wide: true },
   { id: 'nhid', label: 'Voice agent & NHID', icon: ShieldCheck, wide: true },
   { id: 'usa', label: 'USA map', icon: MapIcon, wide: true },
 ];
@@ -266,7 +270,7 @@ export default function MapWorkspace() {
 
   const footerColumns: FooterColumn[] = [
     { heading: 'Assess', links: [go('overview'), go('matrix'), go('controls'), go('maturity')] },
-    { heading: 'Obligations', links: [go('timeline'), go('frameworks'), go('crosswalk'), go('playbook')] },
+    { heading: 'Obligations', links: [go('timeline'), go('frameworks'), go('crosswalk'), go('playbook'), go('incidents')] },
     {
       heading: 'Map',
       links: [
@@ -288,7 +292,7 @@ export default function MapWorkspace() {
   ];
 
   // The views a first-time reader is most likely to go looking for.
-  const quickLinks: FooterLink[] = [go('matrix'), go('controls'), go('timeline'), go('frameworks'), go('nhid')];
+  const quickLinks: FooterLink[] = [go('matrix'), go('controls'), go('timeline'), go('frameworks'), go('incidents'), go('nhid')];
 
   const panelBody = () => {
     switch (panel) {
@@ -318,6 +322,8 @@ export default function MapWorkspace() {
         return <NistPlaybookSection />;
       case 'frameworks':
         return <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />;
+      case 'incidents':
+        return <IncidentPracticesSection />;
       case 'nhid':
         return <NhidTrustStack />;
       case 'usa':

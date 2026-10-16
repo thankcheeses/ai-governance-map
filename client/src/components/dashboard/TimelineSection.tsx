@@ -154,6 +154,29 @@ export default function TimelineSection({ frameworkFilter, onFrameworkFilterChan
         </div>
 
         <div className="flex flex-col gap-2">
+          {/* A filter that matches nothing used to leave a blank card, which reads
+              as a broken page rather than as an answer. Say which instrument was
+              selected, why its row count is zero, and how to get back. */}
+          {filteredObligations.length === 0 && (
+            <div className="p-4 bg-background border border-dashed border-border rounded-lg">
+              <p className="text-sm text-foreground font-semibold mb-1">
+                No dated obligations recorded for {FRAMEWORKS.find((f) => f.shortCode === frameworkFilter)?.name ?? frameworkFilter}.
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                This register tracks obligations that carry a date and a source. An instrument can
+                be in the map without any — voluntary guidance and principles set out practices
+                rather than dated duties. That is a property of the instrument, not a gap in the
+                data.
+              </p>
+              <button
+                type="button"
+                onClick={() => onFrameworkFilterChange('all')}
+                className="mt-2.5 text-xs font-semibold text-teal-900 underline decoration-teal-900/40 hover:decoration-teal-900"
+              >
+                Show all {OBLIGATIONS.length} obligations
+              </button>
+            </div>
+          )}
           {filteredObligations.map((obl, i) => (
             <motion.div
               key={obl.id}
