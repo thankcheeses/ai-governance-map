@@ -4,6 +4,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Globe } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 import GlobeDetailsPanel from './GlobeDetailsPanel';
+import PlaceCard from './PlaceCard';
+import { GOVERNANCE_PLACES, placesGeoJSON } from '@/data/places';
 import { useGlobeData } from '@/hooks/useGlobeData';
 
 // Esri World Imagery — realistic satellite basemap (land greens/browns, ocean blues).
@@ -19,6 +21,8 @@ export default function GlobalGlobeVisualization() {
   const spinRef = useRef<number | null>(null);
   const interactingRef = useRef(false);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
+  const [placesOn, setPlacesOn] = useState(true);
   const globeData = useGlobeData();
 
   useEffect(() => {
@@ -35,6 +39,7 @@ export default function GlobalGlobeVisualization() {
           attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, NASA, NOAA, USGS',
         },
         countries: { type: 'geojson', data: globeData as never, generateId: true },
+        places: { type: 'geojson', data: placesGeoJSON() as never },
       },
       layers: [
         { id: 'space', type: 'background', paint: { 'background-color': SPACE } },
@@ -101,6 +106,49 @@ export default function GlobalGlobeVisualization() {
             'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.8, 0.7],
           },
         },
+        // Institution pins. Zoom-gated so the globe stays quiet until someone
+        // actually goes looking: nothing shows at world view.
+        {
+          id: 'place-halo',
+          type: 'circle',
+          source: 'places',
+          minzoom: 2.6,
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 5, 6, 13],
+            'circle-color': '#5eead4',
+            'circle-opacity': 0.14,
+          },
+        },
+        {
+          id: 'place-dot',
+          type: 'circle',
+          source: 'places',
+          minzoom: 2.6,
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 2.6, 6, 5.5],
+            'circle-color': '#5eead4',
+            'circle-stroke-color': '#04231f',
+            'circle-stroke-width': 1,
+          },
+        },
+        {
+          id: 'place-label',
+          type: 'symbol',
+          source: 'places',
+          minzoom: 3.4,
+          layout: {
+            'text-field': ['get', 'name'],
+            'text-size': 11,
+            'text-offset': [0, 1.1],
+            'text-anchor': 'top',
+            'text-allow-overlap': false,
+          },
+          paint: {
+            'text-color': '#d7f5ef',
+            'text-halo-color': '#04231f',
+            'text-halo-width': 1.4,
+          },
+        },
       ],
     };
 
@@ -154,9 +202,22 @@ export default function GlobalGlobeVisualization() {
       clearHover();
       m.getCanvas().style.cursor = '';
     });
+    m.on('mouseenter', 'place-dot', () => { m.getCanvas().style.cursor = 'pointer'; });
+    m.on('mouseleave', 'place-dot', () => { m.getCanvas().style.cursor = ''; });
+    // Pins sit above countries, so this handler runs first and the country
+    // click below is suppressed for the same event.
+    m.on('click', 'place-dot', (e) => {
+      const id = e.features?.[0]?.properties?.id as string | undefined;
+      if (!id) return;
+      e.preventDefault();
+      setSelectedPlace((prev) => (prev === id ? null : id));
+      setSelectedCountry(null);
+    });
     m.on('click', 'country-fill', (e) => {
+      if (e.defaultPrevented) return;
       if (!e.features?.length) return;
       const name = e.features[0].properties?.name as string;
+      setSelectedPlace(null);
       setSelectedCountry((prev) => (prev === name ? null : name));
     });
 
@@ -186,8 +247,20 @@ export default function GlobalGlobeVisualization() {
   }, [globeData]);
 
   useEffect(() => {
-    interactingRef.current = selectedCountry !== null;
-  }, [selectedCountry]);
+    interactingRef.current = selectedCountry !== null || selectedPlace !== null;
+  }, [selectedCountry, selectedPlace]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!m?.isStyleLoaded()) return;
+    for (const id of ['place-halo', 'place-dot', 'place-label']) {
+      if (m.getLayer(id)) m.setLayoutProperty(id, 'visibility', placesOn ? 'visible' : 'none');
+    }
+    if (!placesOn) setSelectedPlace(null);
+  }, [placesOn]);
+
+  const place = GOVERNANCE_PLACES.find((p) => p.id === selectedPlace);
+  const unpinned = GOVERNANCE_PLACES.filter((p) => typeof p.lat !== 'number');
 
   return (
     <section id="global-map" className="scroll-mt-24">
@@ -195,6 +268,18 @@ export default function GlobalGlobeVisualization() {
         icon={<Globe size={18} />}
         title="Global Compliance Map"
         subtitle="Country-level AI regulation on a live 3D globe — relief height encodes verified status; drag to rotate, click a country for detail"
+        action={
+          <button
+            type="button"
+            onClick={() => setPlacesOn((v) => !v)}
+            aria-pressed={placesOn}
+            className={`text-xs font-medium px-2.5 py-1 rounded-md border ${
+              placesOn ? 'bg-foreground text-background border-foreground' : 'border-border text-muted-foreground'
+            }`}
+          >
+            Institutions
+          </button>
+        }
       />
 
       <div className="card-elevated relative overflow-hidden" ref={frameRef} style={{ background: SPACE }}>
@@ -208,6 +293,16 @@ export default function GlobalGlobeVisualization() {
         />
         <div ref={mapContainer} className="w-full h-[600px] relative" />
         <GlobeDetailsPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} />
+        {place && typeof place.lat === 'number' && (
+          <div className="absolute top-4 right-4 w-[20rem] max-w-[calc(100%-2rem)] z-10">
+            <PlaceCard place={place} onClose={() => setSelectedPlace(null)} />
+          </div>
+        )}
+        {placesOn && (
+          <p className="absolute bottom-3 right-4 text-[0.6rem] text-white/45 pointer-events-none">
+            Zoom in to reveal institutions
+          </p>
+        )}
       </div>
 
       {/* Legend */}
@@ -228,7 +323,38 @@ export default function GlobalGlobeVisualization() {
           <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-t from-slate-400 to-teal-400" />
           <span className="text-muted-foreground">Relief height = verified status (binding rises highest)</span>
         </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block w-3 h-3 rounded-full" style={{ background: '#5eead4' }} />
+          <span className="text-muted-foreground">Institution — click for its relation to the register</span>
+        </div>
       </div>
+
+      {/* A place with no verified coordinate gets no pin, so it would vanish
+          from the map entirely. It is listed here instead of being dropped. */}
+      {placesOn && unpinned.length > 0 && (
+        <div className="mt-3">
+          <p className="text-[0.65rem] text-muted-foreground mb-2">
+            Catalogued without a verified coordinate — listed rather than pinned at a guess:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {unpinned.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => setSelectedPlace((prev) => (prev === u.id ? null : u.id))}
+                className="text-[0.65rem] px-2 py-1 rounded border border-dashed border-border text-muted-foreground hover:text-foreground"
+              >
+                {u.name} · {u.city}
+              </button>
+            ))}
+          </div>
+          {place && typeof place.lat !== 'number' && (
+            <div className="mt-3 max-w-md">
+              <PlaceCard place={place} onClose={() => setSelectedPlace(null)} />
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
