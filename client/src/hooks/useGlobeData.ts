@@ -3,11 +3,14 @@ import { feature } from 'topojson-client';
 import type { FeatureCollection, Geometry } from 'geojson';
 import worldTopo from 'world-atlas/countries-110m.json';
 import { COUNTRY_AI_LAWS } from '@/data/governance';
+import { type LawFamily, lawFamilyById, resolveLawFamily } from '@/lib/lawPalette';
 
 export interface CountryProperties {
   name: string;
   status: 'binding' | 'none' | 'unknown';
   frameworkSlug?: string;
+  /** Which instrument binds this country — the globe's colour channel. */
+  lawFamily: LawFamily;
   fillColor: string;
 }
 
@@ -45,15 +48,13 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
       }
 
       let status: CountryProperties['status'] = 'unknown';
-      let fillColor = '#E2E8F0'; // slate-200 — not yet researched (recedes on light globe)
+      if (law?.status === 'binding') status = 'binding';
+      else if (law?.status === 'none') status = 'none';
 
-      if (law?.status === 'binding') {
-        status = 'binding';
-        fillColor = '#14B8A6'; // teal — binding AI law
-      } else if (law?.status === 'none') {
-        status = 'none';
-        fillColor = '#94A3B8'; // slate-400 — researched, no binding law
-      }
+      // Colour now says WHICH instrument binds the country, not merely that one
+      // does. `status` is untouched: extrusion height, the country panel and
+      // every existing test still read it.
+      const lawFamily = resolveLawFamily(status, law?.frameworkSlug);
 
       return {
         ...f,
@@ -62,7 +63,8 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
           name,
           status,
           frameworkSlug: law?.frameworkSlug,
-          fillColor,
+          lawFamily,
+          fillColor: lawFamilyById(lawFamily).color,
         },
       };
     });
