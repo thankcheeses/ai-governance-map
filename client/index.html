@@ -13,6 +13,52 @@
     <!-- Self-hosted. These faces were the last external host the site contacted;
          serving them from our own origin means a page load reaches nothing outside it. -->
     <link href="%BASE_URL%fonts/fonts.css" rel="stylesheet" />
+
+    <!--
+      Stale-index recovery.
+
+      Asset filenames carry a content hash, and each Pages deploy replaces the
+      whole site, so the previous deploy's bundles stop existing. A browser
+      still holding a cached index.html therefore asks for filenames that are
+      gone, gets 404s, and renders nothing at all — a blank page that looks
+      exactly like a broken deploy even though the server is serving the right
+      thing. A soft refresh often revalidates lazily and stays blank, so the
+      only cure has been knowing to hard-reload.
+
+      Resource errors do not bubble, so this listens in the capture phase. On a
+      missing bundle it reloads once against a URL the cache has never seen.
+      The guard is cleared only once the app actually mounts (see main.tsx), so
+      an asset that is genuinely missing fails once and stops rather than
+      looping forever.
+
+      Inline on purpose: it has to run even when every other file 404s.
+    -->
+    <script>
+      (function () {
+        window.__AGM_STALE_KEY = 'agm:stale-index-reload';
+        window.addEventListener(
+          'error',
+          function (e) {
+            var el = e.target;
+            if (!el || el === window) return;
+            if (el.tagName !== 'SCRIPT' && el.tagName !== 'LINK') return;
+            var href = el.src || el.href || '';
+            if (href.indexOf('/assets/') === -1 && href.indexOf('/fonts/') === -1) return;
+            try {
+              if (sessionStorage.getItem(window.__AGM_STALE_KEY)) return;
+              sessionStorage.setItem(window.__AGM_STALE_KEY, '1');
+            } catch (err) {
+              return; // No sessionStorage means no loop guard, so do nothing.
+            }
+            var sep = location.search ? '&' : '?';
+            location.replace(
+              location.pathname + location.search + sep + 'agm-refresh=' + Date.now() + location.hash
+            );
+          },
+          true
+        );
+      })();
+    </script>
   </head>
 
   <body>
