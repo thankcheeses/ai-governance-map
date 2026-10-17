@@ -30,6 +30,8 @@ import CountryPanel from '@/components/workspace/CountryPanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
+import DeepOcean from '@/components/workspace/DeepOcean';
+import { coastalProximityAt } from '@/lib/coastField';
 import SiteFooter, { type FooterColumn, type FooterLink } from '@/components/workspace/SiteFooter';
 import RiskMatrix from '@/components/dashboard/RiskMatrix';
 import StatusStrip from '@/components/dashboard/StatusStrip';
@@ -114,6 +116,8 @@ export default function MapWorkspace() {
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
+  const [deepOcean, setDeepOcean] = useState(false);
+  const deepOceanSeen = useRef(false);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
@@ -290,6 +294,27 @@ export default function MapWorkspace() {
   useEffect(() => {
     if (terrainOn && reliefOn) setReliefOn(false);
   }, [terrainOn, reliefOn]);
+
+  // Deep water. Zoom past 4.5 with the view centred well away from any coast
+  // and there is something down there. Deliberately hard to hit by accident:
+  // the coastal-proximity field has to read near zero, which only happens in
+  // the middle of an ocean basin. Shows once per session.
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m) return;
+    const check = () => {
+      if (deepOceanSeen.current) return;
+      if (m.getZoom() < 4.5) return;
+      const c = m.getCenter();
+      if (coastalProximityAt(c.lng, c.lat) > 0.02) return;
+      deepOceanSeen.current = true;
+      setDeepOcean(true);
+    };
+    m.on('moveend', check);
+    return () => {
+      m.off('moveend', check);
+    };
+  }, [ready]);
 
   useEffect(() => {
     const m = map.current;
@@ -640,6 +665,8 @@ export default function MapWorkspace() {
           <p className="absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10">
             Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
           </p>
+
+          {deepOcean && <DeepOcean onClose={() => setDeepOcean(false)} />}
 
           {selection?.kind === 'country' && (
             <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
