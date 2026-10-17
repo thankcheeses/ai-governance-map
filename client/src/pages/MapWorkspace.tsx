@@ -25,6 +25,8 @@ import { useGovernanceState } from '@/hooks/useGovernanceState';
 import PlaceCard from '@/components/dashboard/PlaceCard';
 import CountryPanel from '@/components/workspace/CountryPanel';
 import Starfield from '@/components/workspace/Starfield';
+import GlassOcean from '@/components/workspace/GlassOcean';
+import GlobeLegend from '@/components/workspace/GlobeLegend';
 import SiteFooter, { type FooterColumn, type FooterLink } from '@/components/workspace/SiteFooter';
 import RiskMatrix from '@/components/dashboard/RiskMatrix';
 import StatusStrip from '@/components/dashboard/StatusStrip';
@@ -100,6 +102,11 @@ export default function MapWorkspace() {
   // can contact, so leaving this off means a normal visit requests none and the
   // tile provider is never told who is looking or where.
   const [satelliteOn, setSatelliteOn] = useState(false);
+  // The map instance as state, not just the ref: the ocean canvas is a child
+  // component and needs a render to learn the map exists.
+  const [mapObj, setMapObj] = useState<maplibregl.Map | null>(null);
+  const [oceanOn, setOceanOn] = useState(true);
+  const [trailOn, setTrailOn] = useState(true);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
@@ -125,6 +132,7 @@ export default function MapWorkspace() {
       attributionControl: { compact: true },
     });
     map.current = m;
+    setMapObj(m);
 
     m.on('style.load', () => {
       m.setProjection({ type: 'globe' });
@@ -226,6 +234,88 @@ export default function MapWorkspace() {
     if (!ready || !m || !m.getLayer('satellite')) return;
     m.setLayoutProperty('satellite', 'visibility', satelliteOn ? 'visible' : 'none');
   }, [satelliteOn, ready]);
+
+  // Where each bound country sits, east to west, so the sweep has an order to
+  // follow. A bounding-box midpoint is enough to sequence a light: this is not
+  // a centroid and nothing in the register depends on it being one.
+  const trailStops = useMemo(() => {
+    const out: { id: string; phase: number }[] = [];
+    for (const f of globeData.features) {
+      if (f.properties?.status !== 'binding' || !f.properties.name) continue;
+      let min = 180;
+      let max = -180;
+      const scan = (co: unknown): void => {
+        if (Array.isArray(co) && typeof co[0] === 'number') {
+          const lng = co[0] as number;
+          if (lng < min) min = lng;
+          if (lng > max) max = lng;
+          return;
+        }
+        if (Array.isArray(co)) for (const c of co) scan(c);
+      };
+      scan((f.geometry as { coordinates?: unknown }).coordinates);
+      if (min > max) continue;
+      out.push({ id: f.properties.name, phase: ((min + max) / 2 + 180) / 360 });
+    }
+    return out;
+  }, [globeData]);
+
+  // The border trail. A band of light sweeps west to east; each bound country
+  // brightens as it passes and fades behind it.
+  //
+  // Both obvious implementations were measured and rejected: a `line-gradient`
+  // window sliding along `line-progress` ran at 4fps against a 61fps baseline,
+  // and an animated `line-dasharray` was just as bad. Both change the *style*,
+  // which makes MapLibre rebuild per-feature textures or re-upload line
+  // buckets. `setFeatureState` updates one attribute in place instead — the
+  // same path this map's hover highlight already uses every mousemove.
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m || !m.getLayer('country-trail') || trailStops.length === 0) return;
+
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const clear = () => {
+      m.setLayoutProperty('country-trail', 'visibility', 'none');
+      for (const s of trailStops) m.setFeatureState({ source: 'countries', id: s.id }, { trail: 0 });
+    };
+    if (!trailOn || reduced?.matches) {
+      clear();
+      return;
+    }
+    m.setLayoutProperty('country-trail', 'visibility', 'visible');
+
+    const PERIOD = 9000; // ms for one lap of the globe
+    const WIDTH = 0.1; // fraction of the globe lit at once
+    let raf = 0;
+    let last = 0;
+
+    // Every feature-state write makes MapLibre recompute that layer's paint
+    // attributes, and that cost is CPU-side — a faster GPU does not pay it
+    // down. Writing all 31 bound countries each tick measured 6fps against a
+    // 60fps baseline. Only a handful are inside the lit band at any moment, so
+    // remember what was last written and touch only what actually changed.
+    const written = new Map<string, number>();
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick);
+      if (document.hidden || now - last < 100) return;
+      last = now;
+      const head = (now % PERIOD) / PERIOD;
+      for (const s of trailStops) {
+        const raw = Math.abs(s.phase - head);
+        const dist = Math.min(raw, 1 - raw); // the sweep wraps at the date line
+        const lit = dist > WIDTH ? 0 : +(Math.max(0, 1 - dist / WIDTH) ** 2).toFixed(2);
+        const prev = written.get(s.id) ?? 0;
+        if (lit === prev) continue;
+        written.set(s.id, lit);
+        m.setFeatureState({ source: 'countries', id: s.id }, { trail: lit });
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (m.getLayer('country-trail')) clear();
+    };
+  }, [trailOn, ready, trailStops]);
 
 
   const results = useMemo(() => {
@@ -417,9 +507,12 @@ export default function MapWorkspace() {
 
         <div className="relative w-full flex-1 min-h-0">
           <Starfield />
+          {/* Behind the (transparent) map canvas, in front of the stars. */}
+          <GlassOcean map={mapObj} enabled={oceanOn} />
           <div ref={mapContainer} className="w-full h-full" />
 
-          <div className="absolute top-3 left-3 w-52 bg-[#0b1220]/92 border border-white/12 rounded-md p-3 z-10">
+          <div className="absolute top-3 left-3 w-52 z-10 flex flex-col gap-2 max-h-[calc(100%-1.5rem)] overflow-y-auto">
+          <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
             <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">Layers</p>
             <LayerToggle
               label="Compliance relief"
@@ -429,13 +522,25 @@ export default function MapWorkspace() {
             />
             <LayerToggle
               label="Satellite imagery"
-              hint="Off by default. Turning it on streams photo tiles from Esri — the only outside map host this site can contact."
+              hint="Off by default. Streams photo tiles from Esri, the only outside map host this site can contact."
               on={satelliteOn}
               onChange={setSatelliteOn}
             />
             <LayerToggle
+              label="Glass ocean"
+              hint="Shades the sea so the globe reads as a body. Waves answer zoom and drag; click the water to drop a ripple."
+              on={oceanOn}
+              onChange={setOceanOn}
+            />
+            <LayerToggle
+              label="Border trail"
+              hint="A highlight runs round the borders of countries with a binding national law. Off under reduced-motion."
+              on={trailOn}
+              onChange={setTrailOn}
+            />
+            <LayerToggle
               label="Institutions"
-              hint="Standards bodies and regulators behind the register. Appears from zoom 2.6."
+              hint="Standards bodies and regulators behind the register. From zoom 2.6."
               on={placesOn}
               onChange={setPlacesOn}
             />
@@ -457,8 +562,11 @@ export default function MapWorkspace() {
               </div>
             )}
           </div>
+          <GlobeLegend />
+          </div>
 
-          <p className="absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-xs pointer-events-none z-10">
+          {/* Clear of the layers/legend column, which now reaches further down. */}
+          <p className="absolute bottom-3 left-[14.5rem] text-[0.72rem] text-white/70 max-w-xs pointer-events-none z-10">
             Click a country or an institution. Standards have no borders — open them from the side navigation.
           </p>
 

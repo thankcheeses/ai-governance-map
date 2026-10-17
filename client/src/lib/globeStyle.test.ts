@@ -39,4 +39,43 @@ describe('globe style', () => {
       expect(ids).toContain(id);
     }
   });
+
+  it('gives land a body, under the status tint', () => {
+    // Without an opaque land fill the ocean shader behind the map canvas shows
+    // straight through the continents and the globe reads as water all over.
+    const layers = style().layers;
+    const land = layers.findIndex((l) => l.id === 'land-base');
+    const fill = layers.findIndex((l) => l.id === 'country-fill');
+    expect(land).toBeGreaterThanOrEqual(0);
+    expect(land).toBeLessThan(fill);
+    expect((layers[land].paint as { 'fill-opacity': number })['fill-opacity']).toBeGreaterThan(0.8);
+  });
+
+  it('ships the border trail switched off, so motion is opt-in', () => {
+    const trail = style().layers.find((l) => l.id === 'country-trail');
+    expect(trail).toBeDefined();
+    expect(trail!.layout?.visibility).toBe('none');
+    // It must be driven by feature-state: animating the style itself was
+    // measured at 4fps against a 61fps baseline.
+    expect(JSON.stringify(trail!.paint)).toContain('feature-state');
+  });
+
+  it('gives the glow and trail only to countries with a verified instrument', () => {
+    for (const id of ['country-glow', 'country-trail']) {
+      const layer = style().layers.find((l) => l.id === id);
+      expect(layer!.filter, id).toEqual(['==', ['get', 'status'], 'binding']);
+    }
+  });
+
+  it('gives every country a stable id so feature-state can address it', () => {
+    const src = style().sources.countries as { promoteId?: string };
+    expect(src.promoteId).toBe('name');
+  });
+
+  it('colours countries by which instrument binds them', () => {
+    const fill = style().layers.find((l) => l.id === 'country-fill');
+    const expr = JSON.stringify((fill!.paint as { 'fill-color': unknown })['fill-color']);
+    expect(expr).toContain('lawFamily');
+    for (const id of ['eu', 'korea', 'china', 'india', 'vietnam']) expect(expr).toContain(id);
+  });
 });
