@@ -12,6 +12,14 @@ export const ESRI_IMAGERY =
 
 export const SPACE = '#05070f';
 
+// AWS Terrain Tiles (Terrarium encoding) — open elevation data, no key. Like
+// the satellite imagery this is a second outside host, so it is declared and
+// never used until a viewer asks: terrain is a style property, not a layer,
+// and `buildGlobeStyle` deliberately does not set it. With terrain unset
+// MapLibre requests not one DEM tile, so a normal load still contacts nothing.
+export const TERRAIN_DEM =
+  'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
+
 export const GLOBE_SKY = {
   'sky-color': '#0a1a3a',
   'sky-horizon-blend': 0.5,
@@ -44,6 +52,15 @@ return {
       },
       // `promoteId` gives every country a stable id (its name) so feature-state
       // can be addressed without first querying the source for generated ids.
+      'terrain-dem': {
+        type: 'raster-dem',
+        tiles: [TERRAIN_DEM],
+        tileSize: 256,
+        maxzoom: 13,
+        encoding: 'terrarium',
+        attribution:
+          'Elevation: AWS Terrain Tiles (SRTM, GMTED2010, NED, and other public sources)',
+      },
       countries: { type: 'geojson', data: globeData as never, promoteId: 'name' },
       places: { type: 'geojson', data: placesGeoJSON() as never },
       states: {

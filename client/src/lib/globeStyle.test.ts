@@ -14,6 +14,25 @@ describe('globe style', () => {
     expect(layer!.layout?.visibility).toBe('none');
   });
 
+  it('ships terrain unset, so no elevation tile is fetched on a normal load', () => {
+    // Terrain is a style property, not a layer, so the "no visible network
+    // layer" rule below cannot see it. With it unset MapLibre requests not one
+    // DEM tile; setting it here would quietly add a second outside host to
+    // every visit.
+    const s = style() as unknown as { terrain?: unknown };
+    expect(s.terrain).toBeUndefined();
+  });
+
+  it('declares the elevation host and its attribution rather than hiding it', () => {
+    const dem = style().sources['terrain-dem'] as {
+      type?: string; tiles?: string[]; encoding?: string; attribution?: string;
+    };
+    expect(dem.type).toBe('raster-dem');
+    expect(dem.encoding).toBe('terrarium');
+    expect(dem.tiles?.[0]).toMatch(/^https:\/\/s3\.amazonaws\.com\/elevation-tiles-prod\//);
+    expect(dem.attribution).toMatch(/AWS Terrain Tiles/);
+  });
+
   it('names the tile host and its attribution rather than hiding the dependency', () => {
     const source = style().sources.satellite as { tiles?: string[]; attribution?: string };
     expect(source.tiles?.[0]).toMatch(/^https:\/\/server\.arcgisonline\.com\//);
