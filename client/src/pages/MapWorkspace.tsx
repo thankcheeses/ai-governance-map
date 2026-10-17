@@ -21,6 +21,7 @@ import { COUNTRY_AI_LAWS } from '@/data/governance';
 import { GOVERNANCE_PLACES } from '@/data/places';
 import { GLOBE_SKY, buildGlobeStyle } from '@/lib/globeStyle';
 import { useGlobeData } from '@/hooks/useGlobeData';
+import { useStatesLayer } from '@/hooks/useStatesLayer';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
 import PlaceCard from '@/components/dashboard/PlaceCard';
 import CountryPanel from '@/components/workspace/CountryPanel';
@@ -91,6 +92,7 @@ export default function MapWorkspace() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const globeData = useGlobeData();
+  const statesData = useStatesLayer();
   const { controlState, overallScore, assessedCount } = useGovernanceState();
 
   const [selection, setSelection] = useState<Selection>(null);
@@ -107,6 +109,7 @@ export default function MapWorkspace() {
   const [mapObj, setMapObj] = useState<maplibregl.Map | null>(null);
   const [oceanOn, setOceanOn] = useState(true);
   const [trailOn, setTrailOn] = useState(true);
+  const [statesOn, setStatesOn] = useState(true);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
@@ -121,7 +124,7 @@ export default function MapWorkspace() {
 
     const m = new maplibregl.Map({
       container: mapContainer.current,
-      style: buildGlobeStyle(globeData),
+      style: buildGlobeStyle(globeData, statesData),
       center: [-20, 20],
       zoom: 1.95,
       minZoom: 0.8,
@@ -259,6 +262,14 @@ export default function MapWorkspace() {
     }
     return out;
   }, [globeData]);
+
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m) return;
+    for (const id of ['state-fill', 'state-outline']) {
+      if (m.getLayer(id)) m.setLayoutProperty(id, 'visibility', statesOn ? 'visible' : 'none');
+    }
+  }, [statesOn, ready]);
 
   // The border trail. A band of light sweeps west to east; each bound country
   // brightens as it passes and fades behind it.
@@ -537,6 +548,12 @@ export default function MapWorkspace() {
               hint="A highlight runs round the borders of countries with a binding national law. Off under reduced-motion."
               on={trailOn}
               onChange={setTrailOn}
+            />
+            <LayerToggle
+              label="US state law"
+              hint="Six states have a binding AI statute. The country stays grey because there is no national one — both facts are true at once."
+              on={statesOn}
+              onChange={setStatesOn}
             />
             <LayerToggle
               label="Institutions"

@@ -1,4 +1,5 @@
 import { LAW_FAMILIES } from '@/lib/lawPalette';
+import { BINDING_STATES, STATE_BINDING_COLOR } from '@/hooks/useStatesLayer';
 
 /**
  * What the colours on the globe mean.
@@ -38,6 +39,31 @@ export default function GlobeLegend() {
           </li>
         ))}
       </ul>
+
+      {/* Kept as its own group on purpose. A state statute and the EU AI Act
+          are not the same kind of instrument, and folding them into one scale
+          would imply they are. */}
+      <div className="mt-3 pt-3 border-t border-white/10">
+        <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-1.5">
+          US state law
+        </p>
+        <div className="flex items-start gap-2">
+          <span
+            aria-hidden="true"
+            className="mt-[0.3rem] w-2.5 h-2.5 rounded-sm flex-shrink-0 border border-white/25"
+            style={{ backgroundColor: STATE_BINDING_COLOR }}
+          />
+          <span className="min-w-0">
+            <span className="block text-[0.75rem] text-white/90 leading-snug">
+              Binding state statute ({BINDING_STATES.length})
+            </span>
+            <span className="block text-[0.72rem] text-white/70 leading-snug">
+              {BINDING_STATES.map((s) => s.postalCode).join(' · ')}. Click a state for the
+              instrument.
+            </span>
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

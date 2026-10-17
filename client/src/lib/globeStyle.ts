@@ -1,6 +1,7 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { placesGeoJSON } from '@/data/places';
 import { familyMatch } from '@/lib/lawPalette';
+import { STATE_BINDING_COLOR, STATE_BINDING_EDGE, STATE_NONE_COLOR } from '@/hooks/useStatesLayer';
 
 // Esri World Imagery. Satellite photography cannot be bundled — the tiles stream
 // from a host, which is the only map host this application contacts. It is
@@ -30,7 +31,7 @@ export const GLOBE_SKY = {
  * section and the full-screen map workspace build their map from this, so the two
  * can never drift into showing the same data two different ways.
  */
-export function buildGlobeStyle(globeData: unknown): StyleSpecification {
+export function buildGlobeStyle(globeData: unknown, statesData?: unknown): StyleSpecification {
 return {
     version: 8,
     sources: {
@@ -45,6 +46,11 @@ return {
       // can be addressed without first querying the source for generated ids.
       countries: { type: 'geojson', data: globeData as never, promoteId: 'name' },
       places: { type: 'geojson', data: placesGeoJSON() as never },
+      states: {
+        type: 'geojson',
+        data: (statesData ?? { type: 'FeatureCollection', features: [] }) as never,
+        promoteId: 'name',
+      },
     },
     layers: [
       // Hidden on load. MapLibre fetches no tiles for an invisible raster layer,
@@ -101,6 +107,49 @@ return {
           ],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.82,
+        },
+      },
+      // US state law, over the grey United States. The country-level finding
+      // (no binding national statute) is unchanged underneath; this is the
+      // sub-national layer the legend has been pointing at all along.
+      //
+      // One colour, not six: a state statute and the EU AI Act are not the
+      // same kind of instrument, and eleven hues on one sphere cannot be told
+      // apart. Which statute it is gets named when you click the state.
+      {
+        id: 'state-fill',
+        type: 'fill',
+        source: 'states',
+        paint: {
+          'fill-color': [
+            'match', ['get', 'status'],
+            'binding', STATE_BINDING_COLOR,
+            STATE_NONE_COLOR,
+          ] as never,
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.66,
+            ['match', ['get', 'status'], 'binding', 0.44, 0.07],
+          ] as never,
+        },
+      },
+      {
+        id: 'state-outline',
+        type: 'line',
+        source: 'states',
+        paint: {
+          'line-color': [
+            'match', ['get', 'status'],
+            'binding', STATE_BINDING_EDGE,
+            'rgba(226,232,240,0.22)',
+          ] as never,
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1.6,
+            ['match', ['get', 'status'], 'binding', 0.7, 0.3],
+          ] as never,
         },
       },
       // Border glow. A wide, soft, low-opacity line under the crisp outline
