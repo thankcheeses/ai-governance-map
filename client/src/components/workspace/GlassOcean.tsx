@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type maplibregl from 'maplibre-gl';
+import { COAST_H, COAST_W, buildCoastField } from '@/lib/coastField';
 
 // ---------------------------------------------------------------------------
 // The ocean.
@@ -69,15 +70,18 @@ uniform vec2  u_resolution;
 uniform vec2  u_center;      // globe centre, px, y measured from the BOTTOM
 uniform float u_radius;      // globe silhouette radius, px
 uniform float u_time;
-uniform vec2  u_geo;         // map centre lon/lat in radians: waves advect with the globe
+uniform vec2  u_centerGeo;   // map centre lon/lat in radians
 uniform float u_freq;
 uniform float u_turb;
 uniform float u_amp;
 uniform float u_energy;      // 0..1 from wheel/drag, decays to calm
 uniform float u_dropRadius;
-uniform vec4  u_drops[${MAX_DROPS}];  // xy = sphere-normalised position, z = birth time, w = strength
+uniform float u_hasCoast;    // 0 when the coast field could not be built
+uniform sampler2D u_coast;   // R near-coast, G broad, B land
+uniform vec4  u_drops[${MAX_DROPS}];  // xy = sphere-normalised, z = birth, w = strength
 
-const float PI = 3.14159265359;
+const float PI  = 3.14159265359;
+const float TAU = 6.28318530718;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
@@ -90,13 +94,20 @@ float noise(vec2 p) {
              mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
 }
 
-// Swell height at a point on the sphere's surface, in radians of lon/lat.
+// Screen-space sphere normal -> true geographic direction. The globe is drawn
+// with the map centre at the sub-viewer point, so undoing that rotation gives
+// real longitude and latitude and lets the water be sampled and advected in
+// geographic space instead of sliding across the screen when you drag.
+vec3 toGeo(vec3 n, float lam0, float phi0) {
+  float cp = cos(phi0), sp = sin(phi0);
+  vec3 a = vec3(n.x, n.y * cp + n.z * sp, -n.y * sp + n.z * cp);
+  float cl = cos(lam0), sl = sin(lam0);
+  return vec3(a.x * cl + a.z * sl, a.y, -a.x * sl + a.z * cl);
+}
+
+// Swell height in radians of lon/lat.
 float swell(vec2 q, float t) {
   vec2 w = q;
-  // Domain warp. This is what stops the surface reading as a plain sine grid.
-  // One noise lookup, reused with an offset for the second axis: two lookups
-  // here cost six per pixel once the gradient taps are counted, and the
-  // difference is not visible.
   float warp = noise(q * 1.7 + t * 0.11);
   w += u_turb * vec2(warp, noise(q * 1.7 + vec2(37.2, 11.5) - t * 0.13)) * 1.4;
   float h = 0.0;
@@ -104,14 +115,25 @@ float swell(vec2 q, float t) {
   h += sin(w.y * 1.30 - t * 0.80) * 0.34;
   h += sin((w.x + w.y) * 2.10 + t * 1.55) * 0.21;
   h += sin((w.x - w.y) * 3.30 - t * 2.05) * 0.12;
-  h += sin((w.x * 0.7 + w.y * 1.9) * 5.1 + t * 2.9) * 0.06;
-  // Kept small and fine: a big, slow noise term reads as fog on the ocean,
-  // not as water. This only breaks up the regularity of the sines.
-  h += noise(w * 4.2 + t * 0.35) * 0.09;
+  h += sin((w.x * 0.7 + w.y * 1.9) * 3.4 + t * 2.9) * 0.06;
+  h += noise(w * 2.2 + t * 0.35) * 0.09;
   return h;
 }
 
-// Ripples from clicks, in sphere-normalised space so they sit on the globe.
+// Sunlight refracted through the surface onto a shallow bottom. Intersecting
+// wave sets make the bright filaments; the cube sharpens them into light
+// rather than a smear.
+float caustic(vec2 p, float t) {
+  float v = 0.0;
+  for (int i = 0; i < 3; i++) {
+    float fi = float(i);
+    vec2 q = p * (1.0 + fi * 0.65) + vec2(t * (0.30 + fi * 0.11), -t * (0.23 + fi * 0.09));
+    v += abs(sin(q.x) * sin(q.y));
+  }
+  v = v / 3.0;
+  return v * v * v;
+}
+
 float drops(vec2 d) {
   float h = 0.0;
   for (int i = 0; i < ${MAX_DROPS}; i++) {
@@ -120,7 +142,7 @@ float drops(vec2 d) {
     float age = u_time - born;
     if (age < 0.0 || age > 3.2) continue;
     float dist = distance(d, u_drops[i].xy);
-    float ring = sin(dist / max(u_dropRadius, 0.001) * PI * 2.0 - age * 7.0);
+    float ring = sin(dist / max(u_dropRadius, 0.001) * TAU - age * 7.0);
     float falloff = exp(-dist / (u_dropRadius * 2.2)) * exp(-age * 1.35);
     h += ring * falloff * u_drops[i].w;
   }
@@ -132,19 +154,28 @@ void main() {
   float r2 = dot(d, d);
   if (r2 > 1.0) discard;
 
-  // Sphere normal from the screen-space disc.
   float z = sqrt(max(1.0 - r2, 0.0));
   vec3 n = vec3(d, z);
 
-  // Surface coordinates, offset by the map centre so the swell travels with
-  // the globe when you drag it rather than sliding across the screen.
-  float lat = asin(clamp(n.y, -1.0, 1.0));
-  float lon = atan(n.x, max(n.z, 1e-4));
-  vec2 q = (vec2(lon, lat) + u_geo) * u_freq;
+  vec3 g = toGeo(n, u_centerGeo.x, u_centerGeo.y);
+  float lam = atan(g.x, g.z);
+  float phi = asin(clamp(g.y, -1.0, 1.0));
+  vec2 geoUV = vec2(lam / TAU + 0.5, 0.5 - phi / PI);
 
+  // How far out to sea this point is. Without the field everything is open
+  // ocean, which is the old flat look rather than a broken one.
+  float shelf = 0.0, basin = 0.0;
+  if (u_hasCoast > 0.5) {
+    vec3 c = texture2D(u_coast, geoUV).rgb;
+    shelf = c.r;
+    basin = c.g;
+  }
+  float depth = clamp(1.0 - (shelf * 0.62 + basin * 0.38), 0.0, 1.0);
+
+  vec2 q = vec2(lam, phi) * u_freq;
   float t = u_time * (1.0 + u_energy * 1.6);
   float e = 0.0012;
-  float h  = swell(q, t)                      + drops(d);
+  float h  = swell(q, t)                         + drops(d);
   float hx = swell(q + vec2(e * u_freq, 0.0), t) + drops(d + vec2(e, 0.0));
   float hy = swell(q + vec2(0.0, e * u_freq), t) + drops(d + vec2(0.0, e));
 
@@ -155,27 +186,33 @@ void main() {
   vec3 L = normalize(vec3(-0.42, 0.55, 0.72));
   vec3 H = normalize(L + V);
 
-  // A tighter fresnel exponent keeps the glass on the rim instead of washing
-  // the whole disc pale, and two specular lobes give both broad sheen and the
-  // small hard glints that make a surface read as liquid.
-  float fres = pow(1.0 - clamp(dot(nn, V), 0.0, 1.0), 4.5);
-  float spec = pow(max(dot(nn, H), 0.0), 140.0);
+  float fres  = pow(1.0 - clamp(dot(nn, V), 0.0, 1.0), 4.5);
+  float spec  = pow(max(dot(nn, H), 0.0), 140.0);
   float sheen = pow(max(dot(nn, H), 0.0), 18.0);
-  float diff = max(dot(nn, L), 0.0);
+  float diff  = max(dot(nn, L), 0.0);
 
-  // Body: deep navy in the troughs lifting to a teal-green shallow on the crests.
-  vec3 deep    = vec3(0.016, 0.058, 0.105);
-  vec3 shallow = vec3(0.043, 0.212, 0.231);
-  vec3 col = mix(deep, shallow, clamp(h * 0.42 + 0.45, 0.0, 1.0));
-  col += shallow * diff * 0.26;
+  // Depth ramp: sunlit sand, lagoon turquoise, shelf blue, then basin.
+  vec3 sand   = vec3(0.50, 0.83, 0.79);
+  vec3 lagoon = vec3(0.11, 0.62, 0.64);
+  vec3 shelfC = vec3(0.04, 0.29, 0.44);
+  vec3 abyss  = vec3(0.012, 0.062, 0.135);
+  vec3 col = mix(sand, lagoon, smoothstep(0.00, 0.22, depth));
+  col = mix(col, shelfC, smoothstep(0.18, 0.52, depth));
+  col = mix(col, abyss,  smoothstep(0.46, 0.92, depth));
 
-  // Glass: a cool rim that climbs toward the limb, plus specular glints.
+  // Crests lift toward the shallower tone; troughs sink toward the deeper one.
+  col *= 0.88 + 0.24 * clamp(h * 0.5 + 0.5, 0.0, 1.0);
+  col += lagoon * diff * 0.20 * (1.0 - depth * 0.7);
+
+  // Caustics only where light could reach a bottom.
+  float litFloor = (1.0 - depth) * (1.0 - depth);
+  col += vec3(0.72, 1.00, 0.94) * caustic(geoUV * 170.0, t) * litFloor * 0.45;
+
+  // Glass: rim, broad sheen, hard glints.
   col += vec3(0.33, 0.68, 0.76) * fres * 0.55;
   col += vec3(0.42, 0.78, 0.82) * sheen * 0.16;
-  col += vec3(1.0, 1.0, 1.0) * spec * (0.85 + u_energy * 0.6);
+  col += vec3(1.0) * spec * (0.85 + u_energy * 0.6);
 
-  // Let the limb hand over to MapLibre's atmosphere instead of ending on a
-  // hard circle, and keep a soft inner falloff so the sphere has depth.
   float edge = smoothstep(1.0, 0.975, sqrt(r2));
   gl_FragColor = vec4(col, edge * 0.95);
 }
@@ -244,9 +281,32 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
     const u = (name: string) => gl.getUniformLocation(prog, name);
     const U = {
       resolution: u('u_resolution'), center: u('u_center'), radius: u('u_radius'),
-      time: u('u_time'), geo: u('u_geo'), freq: u('u_freq'), turb: u('u_turb'),
+      time: u('u_time'), centerGeo: u('u_centerGeo'), freq: u('u_freq'), turb: u('u_turb'),
       amp: u('u_amp'), energy: u('u_energy'), dropRadius: u('u_dropRadius'), drops: u('u_drops'),
+      hasCoast: u('u_hasCoast'), coast: u('u_coast'),
     };
+
+    // Coastal proximity, built once. It drives the depth ramp that makes
+    // shelves read turquoise and open ocean read near-black. Built lazily and
+    // tolerated as absent: without it the uniform stays 0 and the ocean falls
+    // back to a single deep tone rather than failing.
+    const coastTex = gl.createTexture();
+    let hasCoast = 0;
+    const field = buildCoastField();
+    if (coastTex && field) {
+      gl.bindTexture(gl.TEXTURE_2D, coastTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, COAST_W, COAST_H, 0, gl.RGBA, gl.UNSIGNED_BYTE, field);
+      // Longitude wraps; latitude must not, or the poles bleed across.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      hasCoast = 1;
+    }
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, coastTex);
+    gl.uniform1i(U.coast, 0);
+    gl.uniform1f(U.hasCoast, hasCoast);
 
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)');
     let still = !!reduced?.matches;
@@ -388,7 +448,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       // Reduced motion freezes the clock: the ocean keeps its shading and
       // its glass rim, it just stops moving.
       gl.uniform1f(U.time, still ? 12.5 : clock() * p.speed);
-      gl.uniform2f(U.geo, geo[0], geo[1]);
+      gl.uniform2f(U.centerGeo, geo[0], geo[1]);
       gl.uniform1f(U.freq, p.waveFrequency);
       gl.uniform1f(U.turb, p.turbulence);
       gl.uniform1f(U.amp, p.amplitude);
@@ -414,6 +474,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       gl.deleteShader(vs);
       gl.deleteShader(fs);
       gl.deleteBuffer(buf);
+      if (coastTex) gl.deleteTexture(coastTex);
     };
   }, [map, enabled]);
 
