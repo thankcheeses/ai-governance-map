@@ -1,5 +1,6 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { placesGeoJSON } from '@/data/places';
+import { familyMatch } from '@/lib/lawPalette';
 
 // Esri World Imagery. Satellite photography cannot be bundled — the tiles stream
 // from a host, which is the only map host this application contacts. It is
@@ -40,7 +41,9 @@ return {
         maxzoom: 19,
         attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, NASA, NOAA, USGS',
       },
-      countries: { type: 'geojson', data: globeData as never, generateId: true },
+      // `promoteId` gives every country a stable id (its name) so feature-state
+      // can be addressed without first querying the source for generated ids.
+      countries: { type: 'geojson', data: globeData as never, promoteId: 'name' },
       places: { type: 'geojson', data: placesGeoJSON() as never },
     },
     layers: [
@@ -53,25 +56,31 @@ return {
         layout: { visibility: 'none' },
         paint: { 'raster-opacity': 1 },
       },
-      // Compliance overlay — tints binding/none countries, leaves "unknown" terrain bare.
+      // Land body. Without it every country is a transparent hole and the ocean
+      // shader behind the map shows through the continents, so the globe reads
+      // as water all the way round. This gives land something to be.
+      {
+        id: 'land-base',
+        type: 'fill',
+        source: 'countries',
+        paint: {
+          'fill-color': '#101d2c',
+          'fill-opacity': 0.92,
+        },
+      },
+      // Compliance overlay — colour now says WHICH instrument binds the country.
       {
         id: 'country-fill',
         type: 'fill',
         source: 'countries',
         paint: {
-          'fill-color': [
-            'match',
-            ['get', 'status'],
-            'binding', '#2dd4bf',
-            'none', '#cbd5e1',
-            'rgba(0,0,0,0)',
-          ],
+          'fill-color': familyMatch((f) => f.color, '#64748B') as never,
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            0.6,
-            ['match', ['get', 'status'], 'binding', 0.42, 'none', 0.2, 0],
-          ],
+            0.68,
+            familyMatch((f) => f.fillOpacity, 0.05),
+          ] as never,
         },
       },
       // 3D compliance relief — extrusion HEIGHT encodes the same verified status
@@ -83,13 +92,7 @@ return {
         source: 'countries',
         filter: ['!=', ['get', 'status'], 'unknown'],
         paint: {
-          'fill-extrusion-color': [
-            'match',
-            ['get', 'status'],
-            'binding', '#2dd4bf',
-            'none', '#94a3b8',
-            '#94a3b8',
-          ],
+          'fill-extrusion-color': familyMatch((f) => f.color, '#94a3b8') as never,
           'fill-extrusion-height': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
@@ -100,19 +103,58 @@ return {
           'fill-extrusion-opacity': 0.82,
         },
       },
+      // Border glow. A wide, soft, low-opacity line under the crisp outline
+      // reads as light bleeding off the edge. Only countries with a verified
+      // instrument glow, so the bloom marks where law exists rather than
+      // decorating every border on earth.
+      {
+        id: 'country-glow',
+        type: 'line',
+        source: 'countries',
+        filter: ['==', ['get', 'status'], 'binding'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': familyMatch((f) => f.edge, '#5eead4') as never,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 13] as never,
+          'line-blur': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 12] as never,
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.5, 0.26] as never,
+        },
+      },
       {
         id: 'country-outline',
         type: 'line',
         source: 'countries',
         paint: {
-          'line-color': [
-            'match',
-            ['get', 'status'],
-            'binding', '#5eead4',
-            'none', '#e2e8f0',
-            'rgba(255,255,255,0.25)',
-          ],
+          'line-color': familyMatch((f) => f.edge, 'rgba(255,255,255,0.25)') as never,
           'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.8, 0.7],
+        },
+      },
+      // The trail: a band of light that sweeps west to east around the globe,
+      // brightening each bound country's border as it passes.
+      //
+      // Two earlier versions were measured and thrown away. `line-gradient`
+      // sliding along `line-progress` ran at 4fps against a 61fps baseline —
+      // MapLibre rebuilds a gradient ramp texture per feature on every change.
+      // An animated `line-dasharray` was no better, because changing it
+      // re-uploads the line buckets. Both animate the *style*; the cheap path
+      // is to animate *data*. `feature-state` updates a per-feature attribute
+      // in place, which is exactly what this map's hover already does at
+      // 60fps, so the trail rides the same mechanism. Driven from MapWorkspace.
+      {
+        id: 'country-trail',
+        type: 'line',
+        source: 'countries',
+        filter: ['==', ['get', 'status'], 'binding'],
+        layout: { 'line-cap': 'round', visibility: 'none' },
+        paint: {
+          'line-color': familyMatch((f) => f.edge, '#ffffff') as never,
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            1, ['*', 3.0, ['coalesce', ['feature-state', 'trail'], 0]],
+            6, ['*', 6.0, ['coalesce', ['feature-state', 'trail'], 0]],
+          ] as never,
+          'line-blur': 1.6,
+          'line-opacity': ['*', 0.95, ['coalesce', ['feature-state', 'trail'], 0]] as never,
         },
       },
       // Institution pins. Zoom-gated so the globe stays quiet until someone
