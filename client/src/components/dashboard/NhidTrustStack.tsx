@@ -85,6 +85,25 @@ export default function NhidTrustStack() {
         subtitle="Healthcare-Voice Trust Stack Explorer — five permanent controls, a five-layer trust stack, and impersonation latency as a first-class risk primitive"
       />
 
+      {/* Conflict of interest, stated at the top rather than in a footnote.
+          NHID-Clinical is a framework inside a register built by the same
+          person who wrote NHID-Clinical. Disclaimers about it being voluntary
+          do not address that; only disclosure does, and a reader who finds out
+          later discounts everything else in the tool. */}
+      <div className="border border-amber-300 bg-amber-50 rounded-lg p-4 mb-4">
+        <p className="text-xs font-semibold tracking-widest uppercase text-amber-900 mb-1">
+          Conflict of interest
+        </p>
+        <p className="text-body-sm text-amber-900 leading-relaxed">
+          NHID-Clinical is authored by the same person who built this map. It is included here
+          as one framework among {'{'}31{'}'}, held to the same sourcing rules as the rest, and
+          nothing in the register scores or ranks it above any other instrument — but you should
+          weigh its presence knowing that, not discover it afterwards. It remains an open
+          voluntary proposal: not law, not a standard, not a certification, and not endorsed by
+          NIST or anyone else.
+        </p>
+      </div>
+
       {/* Print-only compact summary for the posture snapshot (hidden on screen) */}
       <div className="print-only border border-border rounded-lg p-4 mb-4 text-xs">
         <p className="font-bold mb-2">NHID-Clinical Trust Stack — print summary</p>
