@@ -3,7 +3,7 @@ import { ChevronUp, Github, Globe, X } from 'lucide-react';
 // ---------------------------------------------------------------------------
 // Site footer.
 //
-// It is also the answer to "where is such-and-such?". The side navigation shows
+// It is also the answer to "where is such-and-such?". The top navigation shows
 // icons; this names every view in plain groups, so nothing in the register is
 // something a reader has to go hunting for.
 //

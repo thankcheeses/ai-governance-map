@@ -11,6 +11,8 @@ import {
   Map as MapIcon,
   Network,
   Radar,
+  Layers as LayersIcon,
+  ChevronDown,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -111,6 +113,7 @@ export default function MapWorkspace() {
   const [trailOn, setTrailOn] = useState(true);
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
+  const [layersOpen, setLayersOpen] = useState(true);
   const [query, setQuery] = useState('');
   const [ready, setReady] = useState(false);
   const [frameworkFilter, setFrameworkFilter] = useState('all');
@@ -460,41 +463,12 @@ export default function MapWorkspace() {
   };
 
   return (
-    <div className="fixed inset-0 flex bg-[#04070e]">
-      {/* Side navigation: everything an AI governance map has to do, reachable
-          without leaving the map. */}
-      <nav className="w-14 lg:w-48 flex-shrink-0 border-r border-white/10 flex flex-col py-3 overflow-y-auto">
-        <p className="px-3 text-[0.72rem] font-semibold uppercase tracking-widest text-white/70 mb-3 hidden lg:block">
-          Governance map
-        </p>
-        {PANELS.map((item) => {
-          const active = panel === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPanel(active ? null : item.id)}
-              aria-pressed={active}
-              title={item.label}
-              className={`flex items-center gap-2.5 px-3 py-2 text-xs text-left ${
-                active ? 'bg-white/12 text-white border-l-2 border-teal-300' : 'text-white/80 hover:text-white border-l-2 border-transparent'
-              }`}
-            >
-              <item.icon size={15} className="flex-shrink-0" aria-hidden="true" />
-              <span className="hidden lg:inline truncate">{item.label}</span>
-            </button>
-          );
-        })}
-
-        <div className="mt-auto pt-3 px-3 hidden lg:block">
-          <p className="text-[0.72rem] text-white/70 leading-relaxed">
-            Local-only. Your assessment data never leaves this browser.
-          </p>
-        </div>
-      </nav>
-
+    <div className="fixed inset-0 flex flex-col bg-[#04070e]">
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="flex items-center gap-3 px-4 h-12 border-b border-white/10 flex-shrink-0">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 whitespace-nowrap hidden md:block">
+            Governance map
+          </p>
           <div className="relative flex-1 max-w-sm">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/70" aria-hidden="true" />
             <input
@@ -541,13 +515,59 @@ export default function MapWorkspace() {
           </div>
         </header>
 
+        {/* Every governance view, along the top. Horizontal so the map keeps
+            the full width of the window, and scrollable rather than wrapping
+            so the row stays one predictable line on a narrow screen. */}
+        <nav
+          aria-label="Governance views"
+          className="flex items-stretch gap-0 px-2 border-b border-white/10 flex-shrink-0 overflow-x-auto"
+        >
+          {PANELS.map((item) => {
+            const active = panel === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setPanel(active ? null : item.id)}
+                aria-pressed={active}
+                title={item.label}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs whitespace-nowrap border-b-2 ${
+                  active
+                    ? 'text-white border-teal-300 bg-white/10'
+                    : 'text-white/80 hover:text-white border-transparent'
+                }`}
+              >
+                <item.icon size={14} className="flex-shrink-0" aria-hidden="true" />
+                <span className="hidden sm:inline">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
         <div className="relative w-full flex-1 min-h-0">
           <Starfield />
           {/* Behind the (transparent) map canvas, in front of the stars. */}
           <GlassOcean map={mapObj} enabled={oceanOn} />
           <div ref={mapContainer} className="w-full h-full" />
 
+          {/* Layers and legend. Collapsible, because together they cover a
+              sixth of the window and most of the time you want the map. */}
           <div className="absolute top-3 left-3 w-52 z-10 flex flex-col gap-2 max-h-[calc(100%-1.5rem)] overflow-y-auto">
+          <button
+            type="button"
+            onClick={() => setLayersOpen((v) => !v)}
+            aria-expanded={layersOpen}
+            className="flex items-center gap-2 w-full bg-[#0b1220]/92 border border-white/12 rounded-md px-3 py-2 text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 hover:text-white"
+          >
+            <LayersIcon size={12} aria-hidden="true" />
+            <span>Layers &amp; legend</span>
+            <ChevronDown
+              size={13}
+              aria-hidden="true"
+              className={`ml-auto transition-transform ${layersOpen ? '' : '-rotate-90'}`}
+            />
+          </button>
+          {layersOpen && (
           <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
             <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">Layers</p>
             <LayerToggle
@@ -613,12 +633,12 @@ export default function MapWorkspace() {
               </div>
             )}
           </div>
-          <GlobeLegend />
+          )}
+          {layersOpen && <GlobeLegend />}
           </div>
 
-          {/* Clear of the layers/legend column, which now reaches further down. */}
-          <p className="absolute bottom-3 left-[14.5rem] text-[0.72rem] text-white/70 max-w-xs pointer-events-none z-10">
-            Click a country or an institution. Standards have no borders — open them from the side navigation.
+          <p className="absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10">
+            Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
           </p>
 
           {selection?.kind === 'country' && (

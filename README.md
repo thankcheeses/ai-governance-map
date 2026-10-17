@@ -1,14 +1,19 @@
 # AI Governance Map
 
-A local-only reference map for AI governance — **29 frameworks and standards**, **27
-CCM-mapped controls**, and an obligations register crosswalked across jurisdictions, with
-interactive USA and global compliance maps. Built for practitioners evaluating AI systems,
-with a first-class module for **AI voice agents and non-human identity** in healthcare.
+A local-only reference map for AI governance — **31 frameworks and standards**, **27
+CCM-mapped controls**, **75 dated obligations** and a **16-event timeline**, crosswalked
+across jurisdictions on an interactive globe and flat world map. Built for practitioners
+evaluating AI systems, with a first-class module for **AI voice agents and non-human
+identity** in healthcare.
 
 **Live:** [thankcheeses.github.io/ai-governance-map](https://thankcheeses.github.io/ai-governance-map/)
 
 > **Local-only, no tracking.** Everything runs in your browser. No data leaves the page,
-> no analytics, no external calls except the basemap tiles for the compliance maps.
+> no analytics, no third-party scripts — and on a normal visit, **no network request to any
+> outside host at all**. Fonts, map geometry and elevation-free basemap rendering are all
+> bundled. Two layers can reach outside and both ship switched off: *Satellite imagery*
+> (Esri tiles) and *Terrain relief* (AWS Terrain Tiles). Until you tick one, nothing is
+> requested — enforced by a test, not just a promise.
 
 ---
 
@@ -22,7 +27,14 @@ with a first-class module for **AI voice agents and non-human identity** in heal
 - **Controls** — 27 controls on the CCM v4.1.0 spine, each with performance indicators, SLO targets, and implementation guidance.
 - **Maturity & trend**, **Obligations timeline**, and a **framework crosswalk** (control coverage across NIST AI RMF, ISO/IEC 42001, EU AI Act, CCM, HIPAA).
 - **NIST AI RMF Playbook** — all 72 subcategories with NIST's verbatim outcome statements, suggested actions and documentation questions, searchable, with the controls that cite each and the subcategories no control maps to. Control mappings open the cited subcategory directly; the review behind them is in [`docs/nist-playbook-mapping-review.md`](docs/nist-playbook-mapping-review.md).
-- **USA & global compliance maps** — verified, sourced status per state and country. No speculative data is ever painted onto these maps.
+- **The map itself** — a glass globe with a shaded ocean, or a flat world map, both carrying
+  the same data. Countries are coloured by *which instrument binds them* (EU AI Act, Korea,
+  China, India, Vietnam each distinct), US states by whether they carry a binding statute, and
+  a band of light sweeps the borders of countries with binding national law. All 52 states and
+  every country render verified, sourced status only — no speculative data is ever painted on.
+- **Agent incident readiness** — the ten voluntary practices and 50 sub-practices from the
+  NIST CAISSI / NSA SISC / CISA joint publication, transcribed verbatim, with their NIST CSF
+  2.0 crosswalk and the open problems the document names.
 - **Exports** — CSV, JSON, and a print/PDF posture snapshot.
 
 ## NHID-Clinical — first-class in the map
@@ -115,8 +127,24 @@ destination that the reader came from this tool.
 
 ## Tech stack
 
-React 19 · Vite 7 · TypeScript · Tailwind CSS 4 · framer-motion · react-simple-maps.
+React 19 · Vite 7 · TypeScript · Tailwind CSS 4 · MapLibre GL 5 · framer-motion ·
+topojson-client · world-atlas / us-atlas.
+
 All assets are self-hosted — no CDNs, no external fonts-as-tracking, no third-party scripts.
+The ocean is a WebGL layer drawn behind the (transparent) MapLibre canvas; it measures the
+globe's silhouette from `map.project()` on every move rather than assuming a formula, because
+MapLibre blends globe into mercator as you zoom. Water colour comes from a coastal-proximity
+field built in-browser from the bundled land outline — a lighting treatment, **not**
+bathymetry, and the module says so.
+
+## Cache recovery
+
+Asset filenames carry a content hash and each deploy replaces the whole site, so a browser
+holding a cached `index.html` would request bundles that no longer exist and render a blank
+page — indistinguishable from a broken deploy. `client/index.html` carries a small inline
+script that catches the missing bundle and reloads **once** against a URL the cache has never
+seen. The guard is released on mount rather than on `load`, so a genuinely missing asset fails
+once instead of looping. Both behaviours are covered by tests.
 
 ## Local development
 
