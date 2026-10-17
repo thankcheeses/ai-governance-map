@@ -52,8 +52,8 @@ export const OCEAN_DEFAULTS: OceanParams = {
   waveFrequency: 14.0,
   dropRadius: 0.17,
   turbulence: 0.28,
-  speed: 0.42,
-  amplitude: 0.7,
+  speed: 0.55,
+  amplitude: 0.95,
 };
 
 const MAX_DROPS = 6;
@@ -77,6 +77,9 @@ uniform float u_amp;
 uniform float u_energy;      // 0..1 from wheel/drag, decays to calm
 uniform float u_dropRadius;
 uniform float u_hasCoast;    // 0 when the coast field could not be built
+uniform float u_flat;        // 1 in mercator, 0 on the globe
+uniform vec4  u_merc;        // flat mode: west lon, east lon, top mercY, bottom mercY (radians)
+uniform vec2  u_slosh;       // drag direction, decaying — the water lags the hand
 uniform sampler2D u_coast;   // R near-coast, G broad, B land
 uniform vec4  u_drops[${MAX_DROPS}];  // xy = sphere-normalised, z = birth, w = strength
 
@@ -150,16 +153,34 @@ float drops(vec2 d) {
 }
 
 void main() {
-  vec2 d = (gl_FragCoord.xy - u_center) / u_radius;
-  float r2 = dot(d, d);
-  if (r2 > 1.0) discard;
+  vec3 n;
+  vec2 d;
+  float lam, phi, r2;
 
-  float z = sqrt(max(1.0 - r2, 0.0));
-  vec3 n = vec3(d, z);
+  if (u_flat > 0.5) {
+    // Mercator. There is no limb and no sphere: the water fills the viewport,
+    // and longitude/latitude come straight back out of the projection. x is
+    // linear in longitude, y is linear in mercator-y, so inverting is exact.
+    vec2 uv = gl_FragCoord.xy / u_resolution;
+    lam = mix(u_merc.x, u_merc.y, uv.x);
+    float my = mix(u_merc.w, u_merc.z, uv.y);
+    phi = 2.0 * atan(exp(my)) - PI * 0.5;
+    n = vec3(0.0, 0.0, 1.0);
+    // Ripples still want a stable local frame; use screen space scaled to the
+    // viewport's short side so a drop is round rather than stretched.
+    d = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y);
+    r2 = 0.0;
+  } else {
+    d = (gl_FragCoord.xy - u_center) / u_radius;
+    r2 = dot(d, d);
+    if (r2 > 1.0) discard;
+    float z = sqrt(max(1.0 - r2, 0.0));
+    n = vec3(d, z);
+    vec3 g = toGeo(n, u_centerGeo.x, u_centerGeo.y);
+    lam = atan(g.x, g.z);
+    phi = asin(clamp(g.y, -1.0, 1.0));
+  }
 
-  vec3 g = toGeo(n, u_centerGeo.x, u_centerGeo.y);
-  float lam = atan(g.x, g.z);
-  float phi = asin(clamp(g.y, -1.0, 1.0));
   vec2 geoUV = vec2(lam / TAU + 0.5, 0.5 - phi / PI);
 
   // How far out to sea this point is. Without the field everything is open
@@ -172,7 +193,7 @@ void main() {
   }
   float depth = clamp(1.0 - (shelf * 0.62 + basin * 0.38), 0.0, 1.0);
 
-  vec2 q = vec2(lam, phi) * u_freq;
+  vec2 q = vec2(lam, phi) * u_freq + u_slosh;
   float t = u_time * (1.0 + u_energy * 1.6);
   float e = 0.0012;
   float h  = swell(q, t)                         + drops(d);
@@ -182,11 +203,18 @@ void main() {
   float amp = u_amp * (1.0 + u_energy * 1.1);
   vec3 nn = normalize(n + vec3(-(hx - h), -(hy - h), 0.0) * amp * 18.0);
 
-  vec3 V = vec3(0.0, 0.0, 1.0);
+  // On a sphere every pixel has its own normal, so a hard specular lands as a
+  // scatter of glints. On a plane every pixel shares one normal, so the same
+  // highlight fires along whole slope contours at once and the ocean fills
+  // with long diagonal streaks. Giving the flat view a camera above the plane
+  // — a view vector that fans out from the centre — breaks that coherence the
+  // way perspective would, and the sharp lobe is damped on top of it.
+  vec2 fanUV = gl_FragCoord.xy / u_resolution - 0.5;
+  vec3 V = normalize(mix(vec3(0.0, 0.0, 1.0), vec3(fanUV * 1.25, 1.0), u_flat));
   vec3 L = normalize(vec3(-0.42, 0.55, 0.72));
   vec3 H = normalize(L + V);
 
-  float fres  = pow(1.0 - clamp(dot(nn, V), 0.0, 1.0), 4.5);
+  float fres  = (1.0 - u_flat) * pow(1.0 - clamp(dot(nn, V), 0.0, 1.0), 4.5);
   float spec  = pow(max(dot(nn, H), 0.0), 140.0);
   float sheen = pow(max(dot(nn, H), 0.0), 18.0);
   float diff  = max(dot(nn, L), 0.0);
@@ -206,14 +234,14 @@ void main() {
 
   // Caustics only where light could reach a bottom.
   float litFloor = (1.0 - depth) * (1.0 - depth);
-  col += vec3(0.72, 1.00, 0.94) * caustic(geoUV * 170.0, t) * litFloor * 0.45;
+  col += vec3(0.72, 1.00, 0.94) * caustic(geoUV * 120.0, t) * litFloor * 0.45;
 
   // Glass: rim, broad sheen, hard glints.
   col += vec3(0.33, 0.68, 0.76) * fres * 0.55;
-  col += vec3(0.42, 0.78, 0.82) * sheen * 0.16;
-  col += vec3(1.0) * spec * (0.85 + u_energy * 0.6);
+  col += vec3(0.42, 0.78, 0.82) * sheen * mix(0.16, 0.26, u_flat);
+  col += vec3(1.0) * spec * (0.85 + u_energy * 0.6) * mix(1.0, 0.22, u_flat);
 
-  float edge = smoothstep(1.0, 0.975, sqrt(r2));
+  float edge = u_flat > 0.5 ? 1.0 : smoothstep(1.0, 0.975, sqrt(r2));
   gl_FragColor = vec4(col, edge * 0.95);
 }
 `;
@@ -284,6 +312,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       time: u('u_time'), centerGeo: u('u_centerGeo'), freq: u('u_freq'), turb: u('u_turb'),
       amp: u('u_amp'), energy: u('u_energy'), dropRadius: u('u_dropRadius'), drops: u('u_drops'),
       hasCoast: u('u_hasCoast'), coast: u('u_coast'),
+      flat: u('u_flat'), merc: u('u_merc'), slosh: u('u_slosh'),
     };
 
     // Coastal proximity, built once. It drives the depth ramp that makes
@@ -319,6 +348,8 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
     let center = { x: 0, y: 0 };
     let radius = 1;
     let geo: [number, number] = [0, 0];
+    let flat = false;
+    let merc: [number, number, number, number] = [-Math.PI, Math.PI, 1, -1];
 
     const destination = (lng: number, lat: number, bearingDeg: number, distDeg: number) => {
       const R = Math.PI / 180;
@@ -328,11 +359,52 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       return [((l2 / R + 540) % 360) - 180, p2 / R] as [number, number];
     };
 
+    // Mercator y, in radians, for the flat-mode inverse in the shader.
+    const mercY = (lat: number) => {
+      const p = Math.max(-85.05112878, Math.min(85.05112878, lat)) * (Math.PI / 180);
+      return Math.log(Math.tan(Math.PI / 4 + p / 2));
+    };
+
+    // Radians of arc per screen pixel at the reference view (globe, z1.95,
+    // 267px radius). Frequencies are scaled against this so a wave is the same
+    // size on screen in every projection and at every zoom.
+    const REF_RAD_PER_PX = Math.PI / (2 * 267);
+    let radPerPx = REF_RAD_PER_PX;
+
     const measure = () => {
       const c = map.getCenter();
       const cp = map.project(c);
       center = { x: cp.x, y: cp.y };
       geo = [(c.lng * Math.PI) / 180, (c.lat * Math.PI) / 180];
+
+      // The flat map is a plain rectangle, so the shader needs its geographic
+      // extent rather than a silhouette. Linear interpolation across the
+      // viewport is exact for mercator only while the camera is square-on, so
+      // a pitched or rotated view turns the water off rather than drawing it
+      // in the wrong place.
+      flat = map.getProjection?.()?.type === 'mercator';
+      if (flat) {
+        const square = Math.abs(map.getPitch()) < 1 && Math.abs(map.getBearing()) < 1;
+        if (!square) {
+          flat = false;
+          radius = 0;
+          return;
+        }
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        const tl = map.unproject([0, 0]);
+        const br = map.unproject([w, h]);
+        merc = [
+          (tl.lng * Math.PI) / 180,
+          (br.lng * Math.PI) / 180,
+          mercY(tl.lat),
+          mercY(br.lat),
+        ];
+        radPerPx = Math.abs(merc[1] - merc[0]) / Math.max(1, w);
+        radius = Math.max(w, h); // non-zero so the frame loop draws
+        return;
+      }
+
       let max = 0;
       for (const dist of [55, 70, 80, 86, 89]) {
         for (const bearing of [0, 90, 180, 270]) {
@@ -341,6 +413,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
         }
       }
       radius = max;
+      radPerPx = radius > 0 ? Math.PI / (2 * radius) : REF_RAD_PER_PX;
     };
 
     // --- interaction energy -------------------------------------------------
@@ -354,13 +427,46 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
 
     const pump = (amount: number) => { energy = Math.min(1, energy + amount); };
 
+    // How far the water lags the hand, and in which direction. Dragging shears
+    // the wave field; it springs back when you let go. This is the part that
+    // reads as "jelly" rather than as a texture sliding past.
+    let slosh: [number, number] = [0, 0];
+    let wakeDebt = 0;
+
     const onMove = () => {
       measure();
       const z = map.getZoom();
       const cp = map.project(map.getCenter());
+      const dz = Math.abs(z - lastZoom);
+      const dx = cp.x - lastCenterPx.x;
+      const dy = cp.y - lastCenterPx.y;
+      const travel = Math.hypot(dx, dy);
+
       // Wheel-zoom and drag are this map's "scroll". Both stir the water.
-      pump(Math.abs(z - lastZoom) * 1.5);
-      pump(Math.min(0.25, Math.hypot(cp.x - lastCenterPx.x, cp.y - lastCenterPx.y) / 900));
+      pump(dz * 2.2);
+      pump(Math.min(0.4, travel / 420));
+
+      // The surface shears opposite the drag and relaxes back, so spinning the
+      // globe visibly drags the water with it.
+      slosh[0] = Math.max(-0.5, Math.min(0.5, slosh[0] - dx / 260));
+      slosh[1] = Math.max(-0.5, Math.min(0.5, slosh[1] + dy / 260));
+
+      // A wake: drop ripples along the path so motion throws spray rather than
+      // just rippling in place. Spaced by distance, not by frame, so a fast
+      // flick and a slow drag leave the same trail density.
+      if (!still && radius > 0) {
+        wakeDebt += travel;
+        if (wakeDebt > 55) {
+          wakeDebt = 0;
+          const jitter = () => (Math.random() - 0.5) * 0.55;
+          const i = (dropCursor++ % MAX_DROPS) * 4;
+          drops[i] = jitter();
+          drops[i + 1] = jitter();
+          drops[i + 2] = clock();
+          drops[i + 3] = 0.55;
+        }
+      }
+
       lastZoom = z;
       lastCenterPx = cp;
     };
@@ -440,6 +546,10 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       if (radius <= 0) return;
 
       energy *= 0.94; // settle back to calm
+      // Springs back a little slower than the energy fades, so the water is
+      // still settling after the globe has stopped.
+      slosh[0] *= 0.955;
+      slosh[1] *= 0.955;
 
       gl.uniform2f(U.resolution, canvas.width, canvas.height);
       // MapLibre's y grows downward, gl_FragCoord's grows upward.
@@ -449,11 +559,17 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       // its glass rim, it just stops moving.
       gl.uniform1f(U.time, still ? 12.5 : clock() * p.speed);
       gl.uniform2f(U.centerGeo, geo[0], geo[1]);
-      gl.uniform1f(U.freq, p.waveFrequency);
+      // Clamped: past these bounds the swell either aliases into moire or
+      // stretches into featureless bands.
+      const freqScale = Math.max(0.35, Math.min(2.2, REF_RAD_PER_PX / radPerPx));
+      gl.uniform1f(U.freq, p.waveFrequency * freqScale);
       gl.uniform1f(U.turb, p.turbulence);
       gl.uniform1f(U.amp, p.amplitude);
       gl.uniform1f(U.energy, still ? 0 : energy);
       gl.uniform1f(U.dropRadius, p.dropRadius);
+      gl.uniform1f(U.flat, flat ? 1 : 0);
+      gl.uniform4f(U.merc, merc[0], merc[1], merc[2], merc[3]);
+      gl.uniform2f(U.slosh, still ? 0 : slosh[0], still ? 0 : slosh[1]);
       gl.uniform4fv(U.drops, still ? new Float32Array(MAX_DROPS * 4) : drops);
 
       gl.drawArrays(gl.TRIANGLES, 0, 3);
