@@ -11,6 +11,7 @@ import {
   Map as MapIcon,
   Network,
   Radar,
+  Compass,
   Layers as LayersIcon,
   ChevronDown,
   Search,
@@ -43,6 +44,7 @@ import CrosswalkSection from '@/components/dashboard/CrosswalkSection';
 import NistPlaybookSection from '@/components/dashboard/NistPlaybookSection';
 import FrameworksSection from '@/components/dashboard/FrameworksSection';
 import IncidentPracticesSection from '@/components/dashboard/IncidentPracticesSection';
+import StartHereSection from '@/components/dashboard/StartHereSection';
 import NhidTrustStack from '@/components/dashboard/NhidTrustStack';
 import USAComplianceMapSection from '@/components/dashboard/USAComplianceMapSection';
 
@@ -55,6 +57,7 @@ import USAComplianceMapSection from '@/components/dashboard/USAComplianceMapSect
 // ---------------------------------------------------------------------------
 
 type PanelId =
+  | 'start'
   | 'overview'
   | 'matrix'
   | 'controls'
@@ -76,6 +79,7 @@ interface PanelDef {
 }
 
 const PANELS: PanelDef[] = [
+  { id: 'start', label: 'Start here', icon: Compass, wide: true },
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, wide: true },
   { id: 'matrix', label: 'Risk matrix', icon: Grid3x3, wide: true },
   { id: 'controls', label: 'Controls', icon: ListChecks, wide: true },
@@ -100,7 +104,13 @@ export default function MapWorkspace() {
   const { controlState, overallScore, assessedCount } = useGovernanceState();
 
   const [selection, setSelection] = useState<Selection>(null);
-  const [panel, setPanel] = useState<PanelId | null>(null);
+  const [panel, setPanel] = useState<PanelId | null>(() => {
+    try {
+      return localStorage.getItem('agm:seen-start') ? null : 'start';
+    } catch {
+      return 'start';
+    }
+  });
   const [projection, setProjection] = useState<Projection>('globe');
   const [placesOn, setPlacesOn] = useState(true);
   const [reliefOn, setReliefOn] = useState(true);
@@ -116,6 +126,21 @@ export default function MapWorkspace() {
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
+
+  // MapLibre needs WebGL and throws without it. On a locked-down corporate or
+  // hospital laptop — GPU blocked by policy, no software fallback — that throw
+  // took the whole application down: an error boundary, no navigation, and
+  // none of the governance surfaces, even though the matrix, the controls, the
+  // timeline and the register need no GPU at all. The map is one view of this
+  // data, not the price of admission to it.
+  const webglOk = useMemo(() => {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }, []);
   const [deepOcean, setDeepOcean] = useState(false);
   const deepOceanSeen = useRef(false);
   const [query, setQuery] = useState('');
@@ -128,9 +153,11 @@ export default function MapWorkspace() {
   }, []);
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current || map.current || !webglOk) return;
 
-    const m = new maplibregl.Map({
+    let m: maplibregl.Map;
+    try {
+      m = new maplibregl.Map({
       container: mapContainer.current,
       style: buildGlobeStyle(globeData, statesData),
       center: [-20, 20],
@@ -140,8 +167,14 @@ export default function MapWorkspace() {
       pitch: 0,
       maxPitch: 75,
       renderWorldCopies: false,
-      attributionControl: { compact: true },
-    });
+        attributionControl: { compact: true },
+      });
+    } catch (err) {
+      // Belt and braces: a driver that advertises WebGL and then fails still
+      // must not cost the reader the rest of the tool.
+      console.warn('[MapWorkspace] map unavailable:', err);
+      return;
+    }
     map.current = m;
     setMapObj(m);
 
@@ -414,6 +447,17 @@ export default function MapWorkspace() {
   const unpinned = GOVERNANCE_PLACES.filter((p) => typeof p.lat !== 'number');
   const activePanel = PANELS.find((p) => p.id === panel);
 
+  // Only auto-open once. After that the map is the landing surface again.
+  useEffect(() => {
+    if (panel === 'start') {
+      try {
+        localStorage.setItem('agm:seen-start', '1');
+      } catch {
+        /* private mode: it simply opens again next time */
+      }
+    }
+  }, [panel]);
+
   const go = (id: PanelId): FooterLink => ({
     label: PANELS.find((p) => p.id === id)!.label,
     onSelect: () => {
@@ -450,6 +494,8 @@ export default function MapWorkspace() {
 
   const panelBody = () => {
     switch (panel) {
+      case 'start':
+        return <StartHereSection onOpenAll={() => setPanel('timeline')} />;
       case 'overview':
         return (
           <div className="flex flex-col gap-5">
@@ -522,7 +568,7 @@ export default function MapWorkspace() {
           </div>
 
           {/* Projection toggle. Same style, same data — only the geometry changes. */}
-          <div className="ml-auto flex items-center gap-1" role="group" aria-label="Projection">
+          <div className={`ml-auto flex items-center gap-1 ${webglOk ? '' : 'hidden'}`} role="group" aria-label="Projection">
             {(['globe', 'flat'] as const).map((p) => (
               <button
                 key={p}
@@ -575,9 +621,40 @@ export default function MapWorkspace() {
           <GlassOcean map={mapObj} enabled={oceanOn} />
           <div ref={mapContainer} className="w-full h-full" />
 
+          {!webglOk && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center p-6">
+              <div className="max-w-md bg-[#0b1220]/95 border border-white/15 rounded-lg p-5">
+                <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">
+                  Map unavailable on this device
+                </p>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  This browser has WebGL switched off, which is common on managed work
+                  laptops. The globe needs it; nothing else here does.
+                </p>
+                <p className="text-sm text-white/75 leading-relaxed mt-2">
+                  Every register is still available from the views along the top — the risk
+                  matrix, controls, obligations timeline, frameworks, crosswalk and the NIST
+                  playbook all work without a GPU.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {(['overview', 'matrix', 'frameworks', 'timeline'] as PanelId[]).map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setPanel(id)}
+                      className="text-xs px-2.5 py-1 rounded-md border border-white/25 text-white hover:bg-white/10"
+                    >
+                      {PANELS.find((p) => p.id === id)!.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Layers and legend. Collapsible, because together they cover a
               sixth of the window and most of the time you want the map. */}
-          <div className="absolute top-3 left-3 w-52 z-10 flex flex-col gap-2 max-h-[calc(100%-1.5rem)] overflow-y-auto">
+          <div className={`absolute top-3 left-3 w-52 z-10 flex-col gap-2 max-h-[calc(100%-1.5rem)] overflow-y-auto ${webglOk ? 'flex' : 'hidden'}`}>
           <button
             type="button"
             onClick={() => setLayersOpen((v) => !v)}
@@ -662,7 +739,7 @@ export default function MapWorkspace() {
           {layersOpen && <GlobeLegend />}
           </div>
 
-          <p className="absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10">
+          <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 ${webglOk ? '' : 'hidden'}`}>
             Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
           </p>
 
