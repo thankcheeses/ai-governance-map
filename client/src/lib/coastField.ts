@@ -127,3 +127,28 @@ export function buildCoastField(): Uint8Array | null {
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// Reading the field back on the CPU.
+//
+// The shader samples this as a texture; anything outside WebGL needs the same
+// numbers. Built once and cached, because it costs a few canvas blurs.
+// ---------------------------------------------------------------------------
+
+let cached: Uint8Array | null | undefined;
+
+/**
+ * How close to land a point is, 0 (open ocean) to 1 (on or beside a coast).
+ * Returns 1 where the field could not be built, so callers that use this to
+ * unlock something treat "unknown" as "not open ocean" rather than firing by
+ * accident.
+ */
+export function coastalProximityAt(lng: number, lat: number): number {
+  if (cached === undefined) cached = buildCoastField();
+  if (!cached) return 1;
+  const x = Math.min(COAST_W - 1, Math.max(0, Math.round(((lng + 180) / 360) * COAST_W)));
+  const y = Math.min(COAST_H - 1, Math.max(0, Math.round(((90 - lat) / 180) * COAST_H)));
+  const o = (y * COAST_W + x) * 4;
+  // Broad proximity (G) plus the land mask (B): being ON land is maximal.
+  return Math.max(cached[o + 1], cached[o + 2]) / 255;
+}

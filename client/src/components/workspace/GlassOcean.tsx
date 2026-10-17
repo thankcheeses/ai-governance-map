@@ -68,7 +68,9 @@ precision highp float;
 
 uniform vec2  u_resolution;
 uniform vec2  u_center;      // globe centre, px, y measured from the BOTTOM
-uniform float u_radius;      // globe silhouette radius, px
+uniform float u_radius;      // globe silhouette radius, px (drop coordinates)
+uniform float u_camDist;     // camera distance from globe centre, in globe radii
+uniform float u_k;           // projection scale: r_px = u_k * sin(theta)/(D - cos(theta))
 uniform float u_time;
 uniform vec2  u_centerGeo;   // map centre lon/lat in radians
 uniform float u_freq;
@@ -171,14 +173,34 @@ void main() {
     d = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y);
     r2 = 0.0;
   } else {
-    d = (gl_FragCoord.xy - u_center) / u_radius;
+    // MapLibre's globe is a PERSPECTIVE view of a sphere, not an orthographic
+    // one. Treating it as orthographic put the water's silhouette in a
+    // different place from the land's, and zooming in showed the two edges
+    // apart — the globe appeared to double.
+    //
+    // For a camera D globe-radii from the centre, a surface point at angular
+    // distance theta from the sub-viewer point projects to
+    //     r = k * sin(theta) / (D - cos(theta))
+    // which inverts exactly:
+    //     theta = asin( u*D / sqrt(1+u*u) ) - atan(u),   u = r / k
+    // and the horizon is where that asin argument reaches 1. Same geometry
+    // MapLibre uses, so the two limbs now coincide at every zoom.
+    vec2 pv = gl_FragCoord.xy - u_center;
+    float rpx = length(pv);
+    d = pv / max(u_radius, 1.0);
     r2 = dot(d, d);
-    if (r2 > 1.0) discard;
-    float z = sqrt(max(1.0 - r2, 0.0));
-    n = vec3(d, z);
+
+    float u = rpx / max(u_k, 1e-4);
+    float sArg = u * u_camDist / sqrt(1.0 + u * u);
+    if (sArg >= 1.0) discard;                 // beyond the horizon
+    float theta = asin(sArg) - atan(u);
+    float az = atan(pv.y, pv.x);
+    n = vec3(sin(theta) * cos(az), sin(theta) * sin(az), cos(theta));
+
     vec3 g = toGeo(n, u_centerGeo.x, u_centerGeo.y);
     lam = atan(g.x, g.z);
     phi = asin(clamp(g.y, -1.0, 1.0));
+    r2 = sArg * sArg;                          // 1 exactly at the limb
   }
 
   vec2 geoUV = vec2(lam / TAU + 0.5, 0.5 - phi / PI);
@@ -313,6 +335,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       amp: u('u_amp'), energy: u('u_energy'), dropRadius: u('u_dropRadius'), drops: u('u_drops'),
       hasCoast: u('u_hasCoast'), coast: u('u_coast'),
       flat: u('u_flat'), merc: u('u_merc'), slosh: u('u_slosh'),
+      camDist: u('u_camDist'), k: u('u_k'),
     };
 
     // Coastal proximity, built once. It drives the depth ramp that makes
@@ -348,6 +371,8 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
     let center = { x: 0, y: 0 };
     let radius = 1;
     let geo: [number, number] = [0, 0];
+    let camDist = 4;
+    let projK = 1;
     let flat = false;
     let merc: [number, number, number, number] = [-Math.PI, Math.PI, 1, -1];
 
@@ -405,14 +430,44 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
         return;
       }
 
-      let max = 0;
-      for (const dist of [55, 70, 80, 86, 89]) {
+      // Fit the perspective projection rather than assuming an orthographic
+      // one. Two points at known angular distance, both comfortably inside the
+      // horizon at any zoom, determine the camera distance D and the scale k in
+      //     r = k * sin(theta) / (D - cos(theta))
+      // and the visible limb then falls out as k / sqrt(D^2 - 1). Taking the
+      // widest projected sample instead — the old approach — picked up points
+      // BEHIND the horizon, which project outside the limb, so the water disc
+      // came out too big and the globe looked doubled.
+      const sample = (deg: number) => {
+        let sum = 0;
         for (const bearing of [0, 90, 180, 270]) {
-          const p = map.project(destination(c.lng, c.lat, bearing, dist));
-          max = Math.max(max, Math.hypot(p.x - center.x, p.y - center.y));
+          const p = map.project(destination(c.lng, c.lat, bearing, deg));
+          sum += Math.hypot(p.x - center.x, p.y - center.y);
         }
+        return sum / 4;
+      };
+
+      const t1 = (20 * Math.PI) / 180;
+      const t2 = (50 * Math.PI) / 180;
+      const r1 = sample(20);
+      const r2 = sample(50);
+      const ratio = r2 > 0 ? r1 / r2 : 0;
+      const denom = ratio * Math.sin(t2) - Math.sin(t1);
+      const D = Math.abs(denom) > 1e-9
+        ? (ratio * Math.sin(t2) * Math.cos(t1) - Math.sin(t1) * Math.cos(t2)) / denom
+        : NaN;
+
+      if (Number.isFinite(D) && D > 1.0005 && r1 > 0) {
+        camDist = D;
+        projK = (r1 * (D - Math.cos(t1))) / Math.sin(t1);
+        radius = projK / Math.sqrt(D * D - 1);
+      } else {
+        // Degenerate fit (the globe-to-mercator blend at high zoom can produce
+        // one): fall back to something that still draws rather than vanishing.
+        camDist = 1e4;
+        projK = r1 > 0 ? (r1 * camDist) / Math.sin(t1) : 1;
+        radius = Math.max(canvas.clientWidth, canvas.clientHeight) * 4;
       }
-      radius = max;
       radPerPx = radius > 0 ? Math.PI / (2 * radius) : REF_RAD_PER_PX;
     };
 
@@ -555,6 +610,8 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       // MapLibre's y grows downward, gl_FragCoord's grows upward.
       gl.uniform2f(U.center, center.x * dpr, canvas.height - center.y * dpr);
       gl.uniform1f(U.radius, radius * dpr);
+      gl.uniform1f(U.camDist, camDist);
+      gl.uniform1f(U.k, projK * dpr);
       // Reduced motion freezes the clock: the ocean keeps its shading and
       // its glass rim, it just stops moving.
       gl.uniform1f(U.time, still ? 12.5 : clock() * p.speed);
