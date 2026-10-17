@@ -18,11 +18,6 @@ export interface Framework {
 
 export const FRAMEWORKS: Framework[] = [
   {
-    slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v1.3',
-    type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v1.3 — public comment NIST-2025-0035-0026', coverage: 100,
-    summary: 'Open behavioral baseline for AI voice agents on B2B healthcare payer–provider administrative calls — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. Scope is administrative calls only: patient-facing calls and clinical decision support are expressly out of scope. A voluntary, testable proposal (CC BY 4.0) — not law, not an official standard, not a certification, and not a general healthcare AI mandate. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains. Conflict of interest: authored by the same person who built this register, disclosed here and at the top of its panel rather than in a footnote.',
-  },
-  {
     slug: 'eu-ai-act', shortCode: 'EU', name: 'EU Artificial Intelligence Act',
     type: 'Regulation (Binding)', jurisdiction: 'EU', version: 'Regulation (EU) 2024/1689', coverage: 72,
     summary: 'Risk-based legal framework. Prohibited practices from Feb 2025 and GPAI rules from Aug 2025 are in force. Article 50 transparency has applied since 2 Aug 2026. Annex III high-risk application was deferred to 2 Dec 2027, and product-integrated high-risk to 2 Aug 2028, by Regulation (EU) 2026/1744.',
@@ -177,6 +172,11 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'Vietnam', version: 'Law No. 134/2025/QH15, in force 1 Mar 2026', coverage: 22,
     summary: 'Binding, risk-based national AI statute applying to domestic and foreign entities across the AI lifecycle. High-risk AI must meet impact-assessment, risk-management, technical-documentation, logging, transparency, and incident-reporting duties; unacceptable-risk uses are prohibited. Enforced with system suspension/recall and administrative fines up to 2% of annual revenue (grace periods to 2027).',
   },
+  {
+    slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v1.3',
+    type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v1.3 — public comment NIST-2025-0035-0026', coverage: 0,
+    summary: 'Open behavioral baseline for AI voice agents on B2B healthcare payer–provider administrative calls — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. Scope is administrative calls only: patient-facing calls and clinical decision support are expressly out of scope. A voluntary, testable proposal (CC BY 4.0) — not law, not an official standard, not a certification, and not a general healthcare AI mandate. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains. Conflict of interest: authored by the same person who built this register, disclosed here and at the top of its panel rather than in a footnote. Listed here as one framework among the rest, not first, and its reference module is off by default. Coverage reads 0%: none of the register\u2019s 27 controls maps to any of its five v1.3 controls by code; two cite its Layer 3 authentication layer, which is not one of the five. It previously read 100% only because its own module supplied its own controls.',
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -237,11 +237,6 @@ export interface Obligation {
 }
 
 export const OBLIGATIONS: Obligation[] = [
-  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'IDG-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'PDX-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'DBC-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'EIT-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'ATR-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
   // In force since 2026-08-02 (EU AI Act Art. 50 transparency obligations applicable).
   { id: 'obl1', title: 'Disclose AI interaction at first contact', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-08-02', severity: 'high', summary: 'In force since 2 Aug 2026. Art. 50 transparency: providers must ensure people are informed they are interacting with an AI system unless it is obvious to a reasonably well-informed person, and AI-generated content must be marked machine-readably.', source: { tier: 'primary', citation: 'Regulation (EU) 2024/1689 (AI Act)', provision: 'Art. 50(1)', url: OJ_AI_ACT, checked: '2026-10-01' } },
   { id: 'obl-art50-mark', title: 'Machine-readable marking grace ends', framework: 'EU', topic: 'Transparency', type: 'mandatory', effective: '2026-12-02', severity: 'high', summary: 'Article 50(2) marking applies now to generative systems placed on the market from 2 Aug 2026. Systems already on the market before that date have until 2 Dec 2026. Not legal advice.', source: { tier: 'official-guidance', citation: 'European Commission — Transparency obligations under Article 50 of the AI Act (FAQ)', provision: 'Art. 50(2)', url: EC_ART50_FAQ, checked: '2026-10-01', note: 'The Commission FAQ states the grace period applies only to systems placed on the market before 2 Aug 2026 and only to the Art. 50(2) marking and detection duty.' } },
@@ -332,6 +327,12 @@ export const OBLIGATIONS: Obligation[] = [
   // Vietnam Law on AI
   { id: 'obl68', title: 'Risk management & documentation for high-risk AI', framework: 'VN', topic: 'Risk Management', type: 'mandatory', effective: '2026-03-01', severity: 'critical', summary: 'Providers/deployers of high-risk AI must conduct impact assessments and maintain a risk-management system, technical documentation, and logging (grace periods to 2027 for existing systems in finance, healthcare, and education).' },
   { id: 'obl69', title: 'Transparency & serious-incident reporting', framework: 'VN', topic: 'Transparency', type: 'mandatory', effective: '2026-03-01', severity: 'high', summary: 'Deployers must disclose how high-risk AI systems operate and report serious AI-caused incidents to the regulator; unacceptable-risk uses are prohibited.' },
+  // NHID-Clinical (author's own voluntary proposal) — listed last, like any other voluntary entry.
+  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'IDG-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'PDX-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'DBC-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'EIT-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'ATR-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
 ];
 
 export interface StateAILaw {
@@ -922,4 +923,81 @@ export function sourceCoverage(rows: { source?: SourceRef }[]): SourceCoverage {
     byTier[row.source.tier] += 1;
   }
   return { total: rows.length, sourced, unsourced: rows.length - sourced, byTier };
+}
+
+// ---------------------------------------------------------------------------
+// Freshness.
+//
+// Every sourced row records the date it was last reconciled against its
+// document. Sourcing says "this came from somewhere"; freshness says "and
+// someone checked it recently". The second is the one a reader actually needs
+// before trusting a date, and it decays on its own.
+//
+// A stale flag only builds trust if stale rows actually get re-checked. If
+// they do not, it turns into a wall of warnings that trains readers to ignore
+// the one signal it exists to protect. So the threshold is generous, stale is
+// shown in amber rather than red, and the register publishes its oldest rows
+// first — which doubles as the maintainer's work queue.
+// ---------------------------------------------------------------------------
+
+/** Rows not reconciled in roughly six months are flagged stale. */
+export const STALE_AFTER_DAYS = 183;
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const todayISO = () => new Date().toISOString().slice(0, 10);
+
+/** Whole days since a row was reconciled. NaN when the date is not ISO. */
+export function reconciledAgeDays(checked: string, today: string = todayISO()): number {
+  if (!ISO_DATE.test(checked) || !ISO_DATE.test(today)) return NaN;
+  const ms = Date.parse(`${today}T00:00:00Z`) - Date.parse(`${checked}T00:00:00Z`);
+  return Math.max(0, Math.round(ms / 86_400_000));
+}
+
+export const isStale = (days: number) => Number.isFinite(days) && days > STALE_AFTER_DAYS;
+
+/** "today", "16d ago", "7mo ago", "2y ago". */
+export function formatAge(days: number): string {
+  if (!Number.isFinite(days)) return 'date unknown';
+  if (days < 1) return 'today';
+  if (days < 60) return `${days}d ago`;
+  if (days < 730) return `${Math.round(days / 30.44)}mo ago`;
+  return `${Math.round(days / 365.25)}y ago`;
+}
+
+export interface FreshnessRow {
+  label: string;
+  checked: string;
+  days: number;
+  stale: boolean;
+}
+
+export interface Freshness {
+  /** Rows with a source, and so with a reconciliation date to age. */
+  sourced: number;
+  fresh: number;
+  stale: number;
+  /** Every sourced row, oldest reconciliation first. */
+  oldestFirst: FreshnessRow[];
+}
+
+/**
+ * Ages a set of rows by their last reconciliation. Unsourced rows are left out
+ * on purpose: they are not stale, they were never checked at all, and the
+ * evidence-coverage count already publishes them as their own gap.
+ */
+export function freshness<T extends { source?: SourceRef }>(
+  rows: T[],
+  labelOf: (row: T) => string,
+  today: string = todayISO(),
+): Freshness {
+  const aged: FreshnessRow[] = [];
+  for (const row of rows) {
+    if (!row.source) continue;
+    const days = reconciledAgeDays(row.source.checked, today);
+    aged.push({ label: labelOf(row), checked: row.source.checked, days, stale: isStale(days) });
+  }
+  aged.sort((a, b) => (b.days || 0) - (a.days || 0) || a.label.localeCompare(b.label));
+  const stale = aged.filter((r) => r.stale).length;
+  return { sourced: aged.length, fresh: aged.length - stale, stale, oldestFirst: aged };
 }

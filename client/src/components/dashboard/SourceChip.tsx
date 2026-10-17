@@ -1,5 +1,14 @@
 import { ExternalLink, FileText, Landmark, Newspaper, HelpCircle } from 'lucide-react';
-import { EVIDENCE_TIER_DESCRIPTION, EVIDENCE_TIER_LABEL, type EvidenceTier, type SourceRef } from '@/data/governance';
+import {
+  EVIDENCE_TIER_DESCRIPTION,
+  EVIDENCE_TIER_LABEL,
+  STALE_AFTER_DAYS,
+  formatAge,
+  isStale,
+  reconciledAgeDays,
+  type EvidenceTier,
+  type SourceRef,
+} from '@/data/governance';
 
 // Tier is encoded three ways over — icon, short label text and border weight —
 // so the chip never depends on colour alone to say how strong the citation is.
@@ -38,11 +47,18 @@ export default function SourceChip({ source }: { source?: SourceRef }) {
   }
 
   const Icon = TIER_ICON[source.tier];
+  // How long ago someone last checked this row against its document. It sits
+  // in the chip itself, beside the date it vouches for, because a reader
+  // decides whether to trust a date before they think to hover anything.
+  const days = reconciledAgeDays(source.checked);
+  const stale = isStale(days);
+  const age = formatAge(days);
   const tooltip = [
     source.citation,
     source.provision ? `Provision: ${source.provision}` : null,
     `${EVIDENCE_TIER_LABEL[source.tier]} — ${EVIDENCE_TIER_DESCRIPTION[source.tier]}`,
-    `Last reconciled ${source.checked}`,
+    `Last reconciled ${source.checked} (${age})`,
+    stale ? `Not re-checked in over ${Math.round(STALE_AFTER_DAYS / 30.44)} months — treat the date as unverified until it is.` : null,
     source.note,
   ]
     .filter(Boolean)
@@ -53,11 +69,16 @@ export default function SourceChip({ source }: { source?: SourceRef }) {
       <Icon size={10} aria-hidden="true" />
       <span className="font-semibold">{EVIDENCE_TIER_LABEL[source.tier]}</span>
       {source.provision && <span className="font-mono opacity-80">{source.provision}</span>}
+      <span className={stale ? 'font-semibold' : 'opacity-80'}>
+        {stale ? `stale · reconciled ${age}` : `reconciled ${age}`}
+      </span>
       {source.url && <ExternalLink size={9} aria-hidden="true" />}
     </>
   );
 
-  const className = `inline-flex items-center gap-1 text-[0.6rem] px-1.5 py-0.5 rounded border ${TIER_CLASS[source.tier]}`;
+  // Stale is amber, never red: it means "re-check me", not "this is wrong".
+  const tone = stale ? 'border-amber-400 bg-amber-50 text-amber-900' : TIER_CLASS[source.tier];
+  const className = `inline-flex items-center gap-1 text-[0.6rem] px-1.5 py-0.5 rounded border ${tone}`;
 
   if (!source.url) {
     return (
@@ -74,7 +95,7 @@ export default function SourceChip({ source }: { source?: SourceRef }) {
       rel="noreferrer noopener"
       className={`${className} hover:underline`}
       title={tooltip}
-      aria-label={`Source: ${source.citation}${source.provision ? `, ${source.provision}` : ''} (opens in a new tab)`}
+      aria-label={`Source: ${source.citation}${source.provision ? `, ${source.provision}` : ''}, last reconciled ${age}${stale ? ', stale' : ''} (opens in a new tab)`}
     >
       {body}
     </a>

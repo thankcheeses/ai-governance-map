@@ -31,7 +31,7 @@ import CountryPanel from '@/components/workspace/CountryPanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
-import DeepOcean from '@/components/workspace/DeepOcean';
+import DeepOcean, { deepOceanReady } from '@/components/workspace/DeepOcean';
 import { coastalProximityAt } from '@/lib/coastField';
 import SiteFooter, { type FooterColumn, type FooterLink } from '@/components/workspace/SiteFooter';
 import RiskMatrix from '@/components/dashboard/RiskMatrix';
@@ -126,6 +126,26 @@ export default function MapWorkspace() {
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
+  // The NHID-Clinical reference module is opt-in. Its author built this map,
+  // so it is not part of the default tour; a reader who wants it switches it
+  // on from the Frameworks view and the choice is remembered in this browser.
+  const [nhidOn, setNhidOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('agm:nhid-module') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const setNhidModule = (on: boolean) => {
+    setNhidOn(on);
+    try {
+      localStorage.setItem('agm:nhid-module', on ? '1' : '0');
+    } catch {
+      /* private mode: the choice lasts this visit */
+    }
+    if (!on && panel === 'nhid') setPanel(null);
+  };
+  const visiblePanels = PANELS.filter((p) => p.id !== 'nhid' || nhidOn);
 
   // MapLibre needs WebGL and throws without it. On a locked-down corporate or
   // hospital laptop — GPU blocked by policy, no software fallback — that throw
@@ -335,6 +355,8 @@ export default function MapWorkspace() {
   useEffect(() => {
     const m = map.current;
     if (!ready || !m) return;
+    // Nothing to find until the card is written; see deepOceanReady.
+    if (!deepOceanReady()) return;
     const check = () => {
       if (deepOceanSeen.current) return;
       if (m.getZoom() < 4.5) return;
@@ -468,7 +490,10 @@ export default function MapWorkspace() {
 
   const footerColumns: FooterColumn[] = [
     { heading: 'Assess', links: [go('overview'), go('matrix'), go('controls'), go('maturity')] },
-    { heading: 'Obligations', links: [go('timeline'), go('frameworks'), go('crosswalk'), go('playbook'), go('incidents')] },
+    {
+      heading: 'Obligations',
+      links: [go('timeline'), go('frameworks'), go('crosswalk'), go('playbook'), go('incidents'), ...(nhidOn ? [go('nhid')] : [])],
+    },
     {
       heading: 'Map',
       links: [
@@ -478,19 +503,10 @@ export default function MapWorkspace() {
         { label: 'Institutions layer', onSelect: () => { setPlacesOn(true); setFooterOpen(false); } },
       ],
     },
-    {
-      heading: 'NHID-Clinical',
-      links: [
-        go('nhid'),
-        { label: 'Specification v1.3', href: 'https://nhid-clinical.org/specification.html' },
-        { label: 'Governance simulator', href: 'https://nhid-clinical.org/simulator.html' },
-        { label: 'NHID-Clinical site', href: 'https://nhid-clinical.org/' },
-      ],
-    },
   ];
 
   // The views a first-time reader is most likely to go looking for.
-  const quickLinks: FooterLink[] = [go('matrix'), go('controls'), go('timeline'), go('frameworks'), go('incidents'), go('nhid')];
+  const quickLinks: FooterLink[] = [go('start'), go('matrix'), go('controls'), go('timeline'), go('frameworks')];
 
   const panelBody = () => {
     switch (panel) {
@@ -521,7 +537,14 @@ export default function MapWorkspace() {
       case 'playbook':
         return <NistPlaybookSection />;
       case 'frameworks':
-        return <FrameworksSection frameworkFilter={frameworkFilter} onFrameworkFilterChange={setFrameworkFilter} />;
+        return (
+          <FrameworksSection
+            frameworkFilter={frameworkFilter}
+            onFrameworkFilterChange={setFrameworkFilter}
+            nhidModuleOn={nhidOn}
+            onNhidModuleChange={setNhidModule}
+          />
+        );
       case 'incidents':
         return <IncidentPracticesSection />;
       case 'nhid':
@@ -593,7 +616,7 @@ export default function MapWorkspace() {
           aria-label="Governance views"
           className="flex items-stretch gap-0 px-2 border-b border-white/10 flex-shrink-0 overflow-x-auto"
         >
-          {PANELS.map((item) => {
+          {visiblePanels.map((item) => {
             const active = panel === item.id;
             return (
               <button

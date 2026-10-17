@@ -8,7 +8,6 @@ import { CONTROLS, MATURITY_LEVELS } from '@/data/governance';
 import { NIST_MAPPING_KEY } from '@/data/nist-playbook';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
 import NistSubcategorySheet from './NistSubcategorySheet';
-import { ShieldWaveformIcon } from './icons';
 import SectionHeader from './SectionHeader';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -223,7 +222,6 @@ export default function ControlsSection() {
                             </span>
                           ) : (
                             <span key={fw} className="flex items-center gap-1 text-[0.65rem] bg-primary/10 text-teal-900 border border-primary/20 px-2 py-0.5 rounded font-mono">
-                              {fw === 'NHID-Clinical' && <ShieldWaveformIcon className="w-3 h-3 flex-shrink-0" />}
                               {fw}: {codes.join(', ')}
                             </span>
                           ),

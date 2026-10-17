@@ -82,7 +82,7 @@ export default function NhidTrustStack() {
       <SectionHeader
         icon={<ShieldWaveformIcon className="w-5 h-5" />}
         title="NHID-Clinical v1.3 — Voice Agent & Non-Human Identity"
-        subtitle="Healthcare-Voice Trust Stack Explorer — five permanent controls, a five-layer trust stack, and impersonation latency as a first-class risk primitive"
+        subtitle="Optional reference module, off by default — the v1.3 voice-agent controls, a five-layer trust stack, and the impersonation-latency concept"
       />
 
       {/* Conflict of interest, stated at the top rather than in a footnote.
