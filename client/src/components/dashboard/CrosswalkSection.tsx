@@ -79,8 +79,9 @@ export default function CrosswalkSection() {
                 </tbody>
               </table>
               <p className="text-xs text-muted-foreground mt-4 leading-relaxed border-l-2 border-l-primary pl-3">
-                NHID-Clinical's 4-layer voice-agent conformance (see the NHID Trust Stack section above) complements this
-                CCM coverage rather than duplicating it — it governs B2B healthcare voice-channel behavior, not CCM domains.
+                NHID-Clinical governs B2B healthcare voice-channel behaviour rather than CCM domains, so its five
+                conformance controls are not scored in this crosswalk; its reference module is opt-in from the
+                Frameworks view.
               </p>
             </motion.div>
           </TabsContent>

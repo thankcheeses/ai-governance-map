@@ -3,8 +3,17 @@
 A local-only reference map for AI governance — **31 frameworks and standards**, **27
 CCM-mapped controls**, **75 dated obligations** and a **16-event timeline**, crosswalked
 across jurisdictions on an interactive globe and flat world map. Built for practitioners
-evaluating AI systems, with a first-class module for **AI voice agents and non-human
-identity** in healthcare.
+evaluating AI systems in any sector.
+
+> **Conflict of interest.** The author of this map also wrote
+> [NHID-Clinical](https://nhid-clinical.org), one of the 31 frameworks in it. It is listed
+> as one framework among the rest, not first, and its reference module is **off by default**.
+> See [below](#nhid-clinical--optional-reference-module).
+
+**Start here** opens on a first visit: say what you are building and where, and it narrows
+the register to the rows most likely to be relevant — *relevance, not applicability*, with
+its reasoning shown. The registers work without WebGL, so the tool still opens on managed
+laptops where the GPU is blocked; only the globe needs it.
 
 **Live:** [thankcheeses.github.io/ai-governance-map](https://thankcheeses.github.io/ai-governance-map/)
 
@@ -37,26 +46,24 @@ identity** in healthcare.
   2.0 crosswalk and the open problems the document names.
 - **Exports** — CSV, JSON, and a print/PDF posture snapshot.
 
-## NHID-Clinical — first-class in the map
+## NHID-Clinical — optional reference module
 
 [NHID-Clinical](https://nhid-clinical.org) is an **open voluntary proposal and reference
 implementation** for transparent AI voice agents in healthcare — **not a product, not a
-certification, not an organization** (public comment NIST-2025-0035-0026, CC BY 4.0). The
-map treats it as a first-class framework:
+certification, not an organization** (public comment NIST-2025-0035-0026, CC BY 4.0).
 
-- **Five permanent controls** — `IDG-01` (identity disclosure), `PDX-01` (pre-data-exchange
-  authorization), `DBC-01` (no mimicry), `EIT-01` (human handoff), `ATR-01` (audit trail).
-- **Five-Layer Trust Stack** — an interactive stack (Layers 1–5) resting on the NPI Registry
-  foundation, with NHID-Clinical v1.3 as the behavioral baseline at Layer 2.
-- **Impersonation latency** — surfaced as a first-class risk primitive: the measurable trust
-  delay between an agent initiating a call and the receiving system verifying authorization,
-  which is effectively infinite today because no standard verification pathway exists.
-- **Call Authorization Score (CAS)** and honest **evidence indicators** (NHID's controls are
-  labeled *Prototype / Simulation only* — a reference implementation, not deployed-at-scale
-  conformance).
+**It is written by the same person who built this map**, so it is handled like this:
 
-Every NHID surface links back to the open spec, the governance simulator, and GitHub — and
-carries the open-proposal disclaimers. No product, pricing, or certification language.
+- **One framework among 31.** It sits in the register like any other entry — not first, no
+  dedicated card behaviour, no special badge. Its five obligations are listed last.
+- **Coverage 0%, stated plainly.** None of the register's 27 controls maps to any of its five
+  v1.3 controls by code. It used to read 100% only because its own module supplied its own
+  controls.
+- **The module is opt-in.** A view with its trust stack, five controls and the
+  impersonation-latency concept exists, but it is off by default and switched on from the
+  Frameworks view. The default tour never passes through it.
+- **The conflict is disclosed at the top** of that module and of this README, not in a
+  footnote.
 
 ## Data integrity
 
@@ -121,6 +128,19 @@ unattested row reads as a known gap instead of inheriting the credibility of its
 The **Evidence coverage** panel on the decision desk publishes the resulting ratio for the
 register as a whole. The number is deliberately unflattering; closing it is ordinary editorial
 work, and hiding it would not be.
+
+### Freshness
+
+Sourced is not the same as checked recently. Every sourced row carries the date it was last
+reconciled against its document, and that age is printed **on the source chip itself**, next
+to the date it vouches for — `reconciled 16d ago` — because a reader decides whether to trust a
+date before they think to hover anything.
+
+Rows not re-checked in about six months are marked **stale**, in amber rather than red: it
+means *re-check me*, not *this is wrong*. The Overview publishes the share of rows reconciled
+within six months and lists every sourced row **oldest first**, which doubles as the
+maintainer's re-check queue. A stale flag only builds trust if stale rows actually get
+reconciled; the threshold is deliberately generous so that it can be honoured.
 
 Citation links carry `rel="noreferrer"` by design: following a source must not tell the
 destination that the reader came from this tool.

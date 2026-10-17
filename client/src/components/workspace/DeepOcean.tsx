@@ -55,6 +55,15 @@ export const DEEP_OCEAN_CARD: DeepOceanCard = {
   ],
 };
 
+/**
+ * Whether the card has anything worth finding. A résumé card with the résumé
+ * missing is half a thing, and a half-finished surface on a tool whose whole
+ * argument is auditability costs more than it earns — so until both fields are
+ * written, the easter egg simply does not exist.
+ */
+export const deepOceanReady = (card: DeepOceanCard = DEEP_OCEAN_CARD) =>
+  card.headline.trim().length > 0 && card.about.trim().length > 0;
+
 export default function DeepOcean({ onClose }: { onClose: () => void }) {
   const card = DEEP_OCEAN_CARD;
   return (
