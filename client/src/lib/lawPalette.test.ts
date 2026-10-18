@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FRAMEWORKS, COUNTRY_AI_LAWS } from '@/data/governance';
 import {
   BINDING_FAMILIES,
+  LAND_PAPER,
   LAW_FAMILIES,
   familyMatch,
   lawFamilyById,
@@ -90,9 +91,11 @@ describe('law family palette', () => {
     }
   });
 
-  it('keeps every swatch legible against the dark legend panel', () => {
-    for (const f of LAW_FAMILIES) {
-      expect(contrast(f.color, '#0b1220'), f.id).toBeGreaterThan(3);
+  it('keeps every instrument legible on the land paper it is printed on', () => {
+    // The map and the legend both show ink on LAND_PAPER, so that is the
+    // background that matters.
+    for (const f of BINDING_FAMILIES) {
+      expect(contrast(f.color, LAND_PAPER), f.id).toBeGreaterThan(1.8);
     }
   });
 

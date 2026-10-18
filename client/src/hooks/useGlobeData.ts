@@ -15,6 +15,34 @@ export interface CountryProperties {
 }
 
 /**
+ * Rings that cross the date line jump from +180 to -180 between two vertices.
+ * MapLibre draws that jump as an edge all the way round the planet, which put
+ * a band across the Arctic (Russia) and a line across the South Atlantic
+ * (Fiji). Unwrapping each ring so consecutive points never differ by more
+ * than 180 degrees of longitude keeps every polygon in one piece.
+ */
+export function unwrapAntimeridian(geometry: Geometry): Geometry {
+  const ring = (pts: number[][]) => {
+    let shift = 0;
+    return pts.map((pt, i) => {
+      if (i > 0) {
+        const d = pt[0] - pts[i - 1][0];
+        if (d > 180) shift -= 360;
+        else if (d < -180) shift += 360;
+      }
+      return [pt[0] + shift, pt[1]];
+    });
+  };
+  if (geometry.type === 'Polygon') {
+    return { ...geometry, coordinates: geometry.coordinates.map((r) => ring(r as number[][])) };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return { ...geometry, coordinates: geometry.coordinates.map((poly) => poly.map((r) => ring(r as number[][]))) };
+  }
+  return geometry;
+}
+
+/**
  * Convert the bundled world-atlas topojson into a GeoJSON FeatureCollection of
  * country polygons, attaching AI-law compliance status to each feature.
  *
@@ -46,6 +74,8 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
         });
         geometry = { ...geometry, coordinates: polys } as Geometry;
       }
+
+      geometry = unwrapAntimeridian(geometry);
 
       let status: CountryProperties['status'] = 'unknown';
       if (law?.status === 'binding') status = 'binding';

@@ -10,7 +10,7 @@ evaluating AI systems in any sector.
 > as one framework among the rest, not first, and its reference module is **off by default**.
 > See [below](#nhid-clinical--optional-reference-module).
 
-**Start here** opens on a first visit: say what you are building and where, and it narrows
+**Start here** (first item in the top bar) asks what you are building and where, and narrows
 the register to the rows most likely to be relevant — *relevance, not applicability*, with
 its reasoning shown. The registers work without WebGL, so the tool still opens on managed
 laptops where the GPU is blocked; only the globe needs it.
@@ -39,7 +39,8 @@ laptops where the GPU is blocked; only the globe needs it.
 - **The map itself** — a glass globe with a shaded ocean, or a flat world map, both carrying
   the same data. Countries are coloured by *which instrument binds them* (EU AI Act, Korea,
   China, India, Vietnam each distinct), US states by whether they carry a binding statute, and
-  a band of light sweeps the borders of countries with binding national law. All 52 states and
+  clicking a state (or searching it) opens *that state's* instruments, obligations and the
+  federal rules that apply there — not the national "no AI law" answer. A band of light sweeps the borders of countries with binding national law. All 52 states and
   every country render verified, sourced status only — no speculative data is ever painted on.
 - **Agent incident readiness** — the ten voluntary practices and 50 sub-practices from the
   NIST CAISSI / NSA SISC / CISA joint publication, transcribed verbatim, with their NIST CSF
@@ -153,9 +154,12 @@ topojson-client · world-atlas / us-atlas.
 All assets are self-hosted — no CDNs, no external fonts-as-tracking, no third-party scripts.
 The ocean is a WebGL layer drawn behind the (transparent) MapLibre canvas; it measures the
 globe's silhouette from `map.project()` on every move rather than assuming a formula, because
-MapLibre blends globe into mercator as you zoom. Water colour comes from a coastal-proximity
-field built in-browser from the bundled land outline — a lighting treatment, **not**
-bathymetry, and the module says so.
+MapLibre blends globe into mercator as you zoom. The water is shaded as a clear body over a
+pale floor, following the *Atoll Jelly* material study: red light is absorbed fast and
+green-blue slowly, so shallows read as sand and depth turns turquoise, with a refracted caustic
+net, a fresnel reflection and shore foam. Depth comes from a coastal-proximity field built
+in-browser from the bundled land outline — a lighting treatment, **not** bathymetry, and the
+module says so.
 
 ## Cache recovery
 

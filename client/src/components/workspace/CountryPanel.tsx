@@ -45,6 +45,14 @@ export default function CountryPanel({ country, onClose }: { country: string; on
         </button>
       </div>
 
+      {country === 'United States of America' && (
+        <p className="text-xs text-foreground leading-relaxed mt-4 border border-border rounded-md p-3">
+          There is no national AI statute, but states legislate on their own. Click a state on the
+          map, or search it by name, to see that state’s instruments and the federal rules that
+          apply there.
+        </p>
+      )}
+
       {!law && (
         <p className="text-xs text-muted-foreground leading-relaxed mt-4 border border-dashed border-border rounded-md p-3">
           This register has not researched {country}. That is a gap here, not a finding about the

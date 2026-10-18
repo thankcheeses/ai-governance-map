@@ -9,7 +9,7 @@ import { FRAMEWORKS, STATE_AI_LAWS } from '@/data/governance';
 //
 // The globe paints the United States grey, because there is no binding
 // national AI law — true, and the legend says so. But grey next to a coloured
-// Europe reads as "nothing is happening here", which is wrong: six states have
+// Europe reads as "nothing is happening here", which is wrong: several states have
 // binding statutes, and this project keeps a whole register of them. Until now
 // that fact only existed inside the USA panel, two clicks away.
 //
@@ -34,9 +34,9 @@ export interface StateLayerProps {
 }
 
 /** One colour, one meaning: this state has a binding AI statute. */
-export const STATE_BINDING_COLOR = '#FBBF24';
-export const STATE_BINDING_EDGE = '#FDE68A';
-export const STATE_NONE_COLOR = '#64748B';
+export const STATE_BINDING_COLOR = '#B7811C';
+export const STATE_BINDING_EDGE = '#7E5812';
+export const STATE_NONE_COLOR = '#0F172A';
 
 export function useStatesLayer(): FeatureCollection<Geometry, StateLayerProps> {
   return useMemo(() => {
