@@ -120,8 +120,11 @@ return {
           'fill-extrusion-height': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            ['match', ['get', 'status'], 'binding', 180000, 0],
-            ['match', ['get', 'status'], 'binding', 140000, 0],
+            // Low enough to read as relief rather than slabs. At 140 km the
+            // walls of countries near the limb swept across the sphere as it
+            // turned, so each one appeared to drag a shadow behind it.
+            ['match', ['get', 'status'], 'binding', 60000, 0],
+            ['match', ['get', 'status'], 'binding', 40000, 0],
           ],
           'fill-extrusion-base': 0,
           // Opaque, with the built-in vertical shade for the walls. Translucent
