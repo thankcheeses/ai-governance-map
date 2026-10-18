@@ -264,8 +264,12 @@ void main() {
   // green-blue slowly. Shallow water is therefore sand-coloured, and depth
   // alone turns it turquoise — no colour ramp is chosen by hand. Absorption,
   // scatter tint and sand are the reference's own "Turquoise" palette values.
-  const vec3 ABSORB = vec3(1.65, 0.22, 0.28);
-  const vec3 TINT   = vec3(0.015, 0.44, 0.40);
+  //
+  // Bluer than the reference: green is now absorbed faster than blue, so
+  // open water goes to a clear ocean blue instead of jade, and only the
+  // shallowest shelf keeps a hint of turquoise.
+  const vec3 ABSORB = vec3(1.90, 0.62, 0.16);
+  const vec3 TINT   = vec3(0.02, 0.26, 0.66);
   const vec3 SAND   = vec3(0.89, 0.82, 0.65);
 
   // Water crossed, from distance to the coast: lagoon shallows on the shelf,
@@ -602,11 +606,24 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
+    // WHY TWO DRIVERS
+    // The ocean is a separate canvas, and its coast shading (shallows, surf)
+    // is what outlines every country. Drawn on its own timer it showed the
+    // land where it was a frame or two ago, so while the globe turned each
+    // coastline left a ghost behind it. While the camera moves, the water is
+    // therefore drawn from MapLibre's own `render` event, in the same
+    // animation frame as the land, so both canvases present together. Only
+    // when the map is still does the throttled timer below keep the waves
+    // moving.
+    let moving = false;
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
-      if (document.hidden) return;
+      if (document.hidden || moving) return;
       if (lastFrameAt && now - lastFrameAt < MIN_FRAME_MS) return;
+      draw(now);
+    };
 
+    const draw = (now: number) => {
       if (lastFrameAt) {
         const dt = now - lastFrameAt;
         // A single catastrophic frame means this machine is never going to
@@ -672,6 +689,20 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
     };
     raf = requestAnimationFrame(frame);
 
+    const onMoveStart = () => { moving = true; };
+    const onMoveEnd = () => { moving = false; };
+    // Fires inside MapLibre's frame, after the land has been drawn for the
+    // camera it is about to present. Unthrottled: lagging the land by even
+    // one frame is the artefact this exists to remove.
+    const onRender = () => {
+      if (!moving || document.hidden) return;
+      measure();
+      draw(performance.now());
+    };
+    map.on('movestart', onMoveStart);
+    map.on('moveend', onMoveEnd);
+    map.on('render', onRender);
+
     const onLost = (e: Event) => { e.preventDefault(); cancelAnimationFrame(raf); };
     canvas.addEventListener('webglcontextlost', onLost);
 
@@ -680,6 +711,9 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       canvas.removeEventListener('webglcontextlost', onLost);
       reduced?.removeEventListener?.('change', onReduced);
       map.off('move', onMove);
+      map.off('movestart', onMoveStart);
+      map.off('moveend', onMoveEnd);
+      map.off('render', onRender);
       map.off('resize', measure);
       map.off('click', onClick);
       gl.deleteProgram(prog);

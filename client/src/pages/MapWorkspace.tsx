@@ -124,7 +124,9 @@ export default function MapWorkspace() {
   // component and needs a render to learn the map exists.
   const [mapObj, setMapObj] = useState<maplibregl.Map | null>(null);
   const [oceanOn, setOceanOn] = useState(true);
-  const [trailOn, setTrailOn] = useState(true);
+  // Off by default: a light sweeping the borders read as countries smearing
+  // behind the globe as it turned. It stays one click away in Layers.
+  const [trailOn, setTrailOn] = useState(false);
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
   const [layersOpen, setLayersOpen] = useState(true);
@@ -456,9 +458,17 @@ export default function MapWorkspace() {
     // 60fps baseline. Only a handful are inside the lit band at any moment, so
     // remember what was last written and touch only what actually changed.
     const written = new Map<string, number>();
+    // Feature-state writes repaint every layer on the countries source, so
+    // the sweep holds still while the globe is being turned rather than
+    // competing with the drag for the frame.
+    let moving = false;
+    const onMoveStart = () => { moving = true; };
+    const onMoveEnd = () => { moving = false; };
+    m.on('movestart', onMoveStart);
+    m.on('moveend', onMoveEnd);
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
-      if (document.hidden || now - last < 100) return;
+      if (document.hidden || moving || now - last < 100) return;
       last = now;
       const head = (now % PERIOD) / PERIOD;
       for (const s of trailStops) {
@@ -474,6 +484,8 @@ export default function MapWorkspace() {
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
+      m.off('movestart', onMoveStart);
+      m.off('moveend', onMoveEnd);
       if (m.getLayer('country-trail')) clear();
     };
   }, [trailOn, ready, trailStops]);
