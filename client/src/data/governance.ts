@@ -385,7 +385,7 @@ export const STATE_AI_LAWS: StateAILaw[] = [
   { name: 'Rhode Island', postalCode: 'RI', status: 'none' },
   { name: 'South Carolina', postalCode: 'SC', status: 'none' },
   { name: 'South Dakota', postalCode: 'SD', status: 'none' },
-  { name: 'Tennessee', postalCode: 'TN', status: 'none' },
+  { name: 'Tennessee', postalCode: 'TN', status: 'binding', frameworkSlug: 'tn-elvis-act' },
   { name: 'Texas', postalCode: 'TX', status: 'binding', frameworkSlug: 'texas-traiga' },
   { name: 'Utah', postalCode: 'UT', status: 'binding', frameworkSlug: 'utah-ai-policy-act' },
   { name: 'Vermont', postalCode: 'VT', status: 'none' },

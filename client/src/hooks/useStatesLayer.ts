@@ -9,7 +9,7 @@ import { FRAMEWORKS, STATE_AI_LAWS } from '@/data/governance';
 //
 // The globe paints the United States grey, because there is no binding
 // national AI law — true, and the legend says so. But grey next to a coloured
-// Europe reads as "nothing is happening here", which is wrong: six states have
+// Europe reads as "nothing is happening here", which is wrong: several states have
 // binding statutes, and this project keeps a whole register of them. Until now
 // that fact only existed inside the USA panel, two clicks away.
 //

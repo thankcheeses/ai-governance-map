@@ -74,6 +74,7 @@ uniform float u_k;           // projection scale: r_px = u_k * sin(theta)/(D - c
 uniform float u_time;
 uniform vec2  u_centerGeo;   // map centre lon/lat in radians
 uniform float u_freq;
+uniform float u_cfreq;      // caustic cells per radian: about 30px on screen at any zoom
 uniform float u_turb;
 uniform float u_amp;
 uniform float u_energy;      // 0..1 from wheel/drag, decays to calm
@@ -125,18 +126,32 @@ float swell(vec2 q, float t) {
   return h;
 }
 
-// Sunlight refracted through the surface onto a shallow bottom. Intersecting
-// wave sets make the bright filaments; the cube sharpens them into light
-// rather than a smear.
-float caustic(vec2 p, float t) {
-  float v = 0.0;
-  for (int i = 0; i < 3; i++) {
-    float fi = float(i);
-    vec2 q = p * (1.0 + fi * 0.65) + vec2(t * (0.30 + fi * 0.11), -t * (0.23 + fi * 0.09));
-    v += abs(sin(q.x) * sin(q.y));
+// Sunlight focused by the surface into a net of bright lines on the floor —
+// the reference's look, not a grid of blobs. Each pass bends the sample point
+// by the previous one, which is what draws the cells together into filaments.
+float caustic(vec2 uv, float t) {
+  vec2 p = mod(uv * TAU, TAU) - 250.0;
+  vec2 i = p;
+  float c = 1.0;
+  const float inten = 0.005;
+  for (int n = 0; n < 4; n++) {
+    float tt = t * (1.0 - 3.5 / float(n + 1));
+    i = p + vec2(cos(tt - i.x) + sin(tt + i.y), sin(tt - i.y) + cos(tt + i.x));
+    c += 1.0 / length(vec2(p.x / (sin(i.x + tt) / inten), p.y / (cos(i.y + tt) / inten)));
   }
-  v = v / 3.0;
-  return v * v * v;
+  c /= 4.0;
+  c = 1.17 - pow(c, 1.4);
+  return clamp(pow(abs(c), 8.0), 0.0, 1.5);
+}
+
+// A pale studio sky for the surface to reflect: warm below the horizon,
+// cool above, two soft lamps. Taken from the reference's own environment.
+vec3 environment(vec3 r) {
+  float up = smoothstep(-0.1, 0.7, r.y);
+  vec3 c = mix(vec3(0.51, 0.48, 0.42), vec3(0.86, 0.92, 0.93), up);
+  c += vec3(1.2, 1.15, 1.0) * pow(clamp(dot(r, normalize(vec3(-0.7, 1.2, 0.4))), 0.0, 1.0), 54.0);
+  c += vec3(0.52, 0.64, 0.69) * pow(clamp(dot(r, normalize(vec3(0.8, 0.6, -0.7))), 0.0, 1.0), 100.0);
+  return c;
 }
 
 float drops(vec2 d) {
@@ -223,7 +238,9 @@ void main() {
   float hy = swell(q + vec2(0.0, e * u_freq), t) + drops(d + vec2(0.0, e));
 
   float amp = u_amp * (1.0 + u_energy * 1.1);
-  vec3 nn = normalize(n + vec3(-(hx - h), -(hy - h), 0.0) * amp * 18.0);
+  // Gentle, glassy slopes: the reference reads as a smooth jelly surface, and
+  // steep normals turned every crest into a bright scribble.
+  vec3 nn = normalize(n + vec3(-(hx - h), -(hy - h), 0.0) * amp * 6.0);
 
   // On a sphere every pixel has its own normal, so a hard specular lands as a
   // scatter of glints. On a plane every pixel shares one normal, so the same
@@ -235,33 +252,47 @@ void main() {
   vec3 V = normalize(mix(vec3(0.0, 0.0, 1.0), vec3(fanUV * 1.25, 1.0), u_flat));
   vec3 L = normalize(vec3(-0.42, 0.55, 0.72));
   vec3 H = normalize(L + V);
+  float spec = pow(max(dot(nn, H), 0.0), 140.0);
 
-  float fres  = (1.0 - u_flat) * pow(1.0 - clamp(dot(nn, V), 0.0, 1.0), 4.5);
-  float spec  = pow(max(dot(nn, H), 0.0), 140.0);
-  float sheen = pow(max(dot(nn, H), 0.0), 18.0);
-  float diff  = max(dot(nn, L), 0.0);
+  // THE WATER IS CLEAR, NOT PAINTED. This follows the reference (Atoll
+  // Jelly) term for term: light reaches a pale sand floor, crosses some
+  // length of water on the way back, and that water absorbs red fast and
+  // green-blue slowly. Shallow water is therefore sand-coloured, and depth
+  // alone turns it turquoise — no colour ramp is chosen by hand. Absorption,
+  // scatter tint and sand are the reference's own "Turquoise" palette values.
+  const vec3 ABSORB = vec3(1.65, 0.22, 0.28);
+  const vec3 TINT   = vec3(0.015, 0.44, 0.40);
+  const vec3 SAND   = vec3(0.89, 0.82, 0.65);
 
-  // Depth ramp: sunlit sand, lagoon turquoise, shelf blue, then basin.
-  vec3 sand   = vec3(0.50, 0.83, 0.79);
-  vec3 lagoon = vec3(0.11, 0.62, 0.64);
-  vec3 shelfC = vec3(0.04, 0.29, 0.44);
-  vec3 abyss  = vec3(0.012, 0.062, 0.135);
-  vec3 col = mix(sand, lagoon, smoothstep(0.00, 0.22, depth));
-  col = mix(col, shelfC, smoothstep(0.18, 0.52, depth));
-  col = mix(col, abyss,  smoothstep(0.46, 0.92, depth));
+  // Water crossed, from distance to the coast: lagoon shallows on the shelf,
+  // a long path over the open basin.
+  float path = mix(0.03, 1.7, pow(depth, 1.1));
 
-  // Crests lift toward the shallower tone; troughs sink toward the deeper one.
-  col *= 0.88 + 0.24 * clamp(h * 0.5 + 0.5, 0.0, 1.0);
-  col += lagoon * diff * 0.20 * (1.0 - depth * 0.7);
+  // Refraction: the floor is seen through a tilted surface, so the caustic
+  // net is sampled where the bent ray lands, and it wobbles with the waves.
+  vec2 floorUV = geoUV + (nn.xy - n.xy) * 0.0035 * min(path, 3.0);
+  vec2 cq = (floorUV * vec2(TAU, PI)) * u_cfreq;
+  float cz = caustic(cq, t * 0.9);
+  vec3 floorLight = SAND * 0.98 + vec3(0.45, 0.40, 0.25) * cz * 2.4 * exp(-path * 0.5);
 
-  // Caustics only where light could reach a bottom.
-  float litFloor = (1.0 - depth) * (1.0 - depth);
-  col += vec3(0.72, 1.00, 0.94) * caustic(geoUV * 120.0, t) * litFloor * 0.45;
+  vec3 trans = exp(-ABSORB * path);
+  vec3 col = floorLight * trans + TINT * (vec3(1.0) - trans) * 0.76;
 
-  // Glass: rim, broad sheen, hard glints.
-  col += vec3(0.33, 0.68, 0.76) * fres * 0.55;
-  col += vec3(0.42, 0.78, 0.82) * sheen * mix(0.16, 0.26, u_flat);
-  col += vec3(1.0) * spec * (0.85 + u_energy * 0.6) * mix(1.0, 0.22, u_flat);
+  // Light shafts: a faint glow of the caustics through the body of the water.
+  col += TINT * cz * 0.12 * (1.0 - trans.g);
+
+  // Glass. Schlick fresnel toward a pale sky, as the reference does: little
+  // reflection looking straight down, a bright rim at grazing angles. The
+  // flat map looks straight down everywhere, so it keeps only a trace.
+  float ndv  = clamp(dot(nn, V), 0.0, 1.0);
+  float fres = (0.026 + 0.974 * pow(1.0 - ndv, 5.0)) * mix(1.0, 0.25, u_flat);
+  col = mix(col, environment(reflect(-V, nn)), clamp(fres, 0.0, 0.92));
+  col += vec3(1.0, 0.96, 0.84) * spec * (0.6 + u_energy * 0.4) * mix(1.0, 0.25, u_flat);
+
+  // Lace foam where the water meets land, broken up so it reads as surf.
+  float lace = smoothstep(0.78, 0.97, shelf) * u_hasCoast;
+  lace *= 0.40 + 0.60 * smoothstep(0.25, 0.65, noise(geoUV * vec2(1400.0, 700.0) + t * 0.16));
+  col = mix(col, vec3(0.92, 0.98, 0.94), clamp(lace * 0.65, 0.0, 0.96));
 
   float edge = u_flat > 0.5 ? 1.0 : smoothstep(1.0, 0.975, sqrt(r2));
   gl_FragColor = vec4(col, edge * 0.95);
@@ -331,7 +362,7 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
     const u = (name: string) => gl.getUniformLocation(prog, name);
     const U = {
       resolution: u('u_resolution'), center: u('u_center'), radius: u('u_radius'),
-      time: u('u_time'), centerGeo: u('u_centerGeo'), freq: u('u_freq'), turb: u('u_turb'),
+      time: u('u_time'), centerGeo: u('u_centerGeo'), freq: u('u_freq'), cfreq: u('u_cfreq'), turb: u('u_turb'),
       amp: u('u_amp'), energy: u('u_energy'), dropRadius: u('u_dropRadius'), drops: u('u_drops'),
       hasCoast: u('u_hasCoast'), coast: u('u_coast'),
       flat: u('u_flat'), merc: u('u_merc'), slosh: u('u_slosh'),
@@ -620,6 +651,10 @@ export default function GlassOcean({ map, enabled = true, params }: Props) {
       // stretches into featureless bands.
       const freqScale = Math.max(0.35, Math.min(2.2, REF_RAD_PER_PX / radPerPx));
       gl.uniform1f(U.freq, p.waveFrequency * freqScale);
+      // Caustics keep a constant on-screen size instead: a light net on the
+      // sea floor that grew to the size of a state when zoomed in read as
+      // scattered scribbles, not as light.
+      gl.uniform1f(U.cfreq, 1 / (30 * radPerPx));
       gl.uniform1f(U.turb, p.turbulence);
       gl.uniform1f(U.amp, p.amplitude);
       gl.uniform1f(U.energy, still ? 0 : energy);

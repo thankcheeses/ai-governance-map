@@ -20,14 +20,16 @@ import {
   Target,
   X,
 } from 'lucide-react';
-import { COUNTRY_AI_LAWS } from '@/data/governance';
+import { COUNTRY_AI_LAWS, STATE_AI_LAWS } from '@/data/governance';
+import { stateHasBindingLaw } from '@/data/stateLaw';
 import { GOVERNANCE_PLACES } from '@/data/places';
 import { GLOBE_SKY, buildGlobeStyle } from '@/lib/globeStyle';
 import { useGlobeData } from '@/hooks/useGlobeData';
-import { useStatesLayer } from '@/hooks/useStatesLayer';
+import { BINDING_STATES, useStatesLayer } from '@/hooks/useStatesLayer';
 import { useGovernanceState } from '@/hooks/useGovernanceState';
 import PlaceCard from '@/components/dashboard/PlaceCard';
 import CountryPanel from '@/components/workspace/CountryPanel';
+import StatePanel from '@/components/workspace/StatePanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
@@ -93,7 +95,11 @@ const PANELS: PanelDef[] = [
   { id: 'usa', label: 'USA map', icon: MapIcon, wide: true },
 ];
 
-type Selection = { kind: 'country'; id: string } | { kind: 'place'; id: string } | null;
+type Selection =
+  | { kind: 'country'; id: string }
+  | { kind: 'state'; id: string }
+  | { kind: 'place'; id: string }
+  | null;
 type Projection = 'globe' | 'flat';
 
 export default function MapWorkspace() {
@@ -104,13 +110,9 @@ export default function MapWorkspace() {
   const { controlState, overallScore, assessedCount } = useGovernanceState();
 
   const [selection, setSelection] = useState<Selection>(null);
-  const [panel, setPanel] = useState<PanelId | null>(() => {
-    try {
-      return localStorage.getItem('agm:seen-start') ? null : 'start';
-    } catch {
-      return 'start';
-    }
-  });
+  // The map is the landing surface. "Start here" stays one click away in the
+  // top bar; it no longer opens over the map on a first visit.
+  const [panel, setPanel] = useState<PanelId | null>(null);
   const [projection, setProjection] = useState<Projection>('globe');
   const [placesOn, setPlacesOn] = useState(true);
   const [reliefOn, setReliefOn] = useState(true);
@@ -229,6 +231,25 @@ export default function MapWorkspace() {
       clearHover();
       m.getCanvas().style.cursor = '';
     });
+    // States sit above the country fill. Hover lights the state, not all of
+    // the United States, so the click target is visible before the click.
+    let hoveredState: string | number | undefined;
+    const clearStateHover = () => {
+      if (hoveredState !== undefined) {
+        m.setFeatureState({ source: 'states', id: hoveredState }, { hover: false });
+        hoveredState = undefined;
+      }
+    };
+    m.on('mousemove', 'state-fill', (e) => {
+      const f = e.features?.[0];
+      if (!f || f.id === hoveredState) return;
+      clearStateHover();
+      clearHover();
+      hoveredState = f.id;
+      m.setFeatureState({ source: 'states', id: hoveredState }, { hover: true });
+      m.getCanvas().style.cursor = 'pointer';
+    });
+    m.on('mouseleave', 'state-fill', clearStateHover);
     m.on('mouseenter', 'place-dot', () => { m.getCanvas().style.cursor = 'pointer'; });
     m.on('mouseleave', 'place-dot', () => { m.getCanvas().style.cursor = ''; });
 
@@ -239,8 +260,23 @@ export default function MapWorkspace() {
       e.preventDefault();
       setSelection({ kind: 'place', id });
     });
+    // A click inside the US answers for the state under the pointer, not for
+    // the country: each state has its own law, and "no national AI law" is
+    // the least useful thing to tell someone standing in Colorado. Layer
+    // handlers fire in registration order, not draw order, so the country
+    // handler asks the map what is on top rather than trusting the order.
+    const onTop = (point: maplibregl.PointLike) =>
+      m.queryRenderedFeatures(point, {
+        layers: ['place-dot', 'state-fill'].filter((id) => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none'),
+      })[0];
+    m.on('click', 'state-fill', (e) => {
+      if (onTop(e.point)?.layer.id === 'place-dot') return;
+      const name = e.features?.[0]?.properties?.name as string | undefined;
+      if (!name) return;
+      setSelection((prev) => (prev?.kind === 'state' && prev.id === name ? null : { kind: 'state', id: name }));
+    });
     m.on('click', 'country-fill', (e) => {
-      if (e.defaultPrevented) return;
+      if (e.defaultPrevented || onTop(e.point)) return;
       const name = e.features?.[0]?.properties?.name as string | undefined;
       if (!name) return;
       setSelection((prev) => (prev?.kind === 'country' && prev.id === name ? null : { kind: 'country', id: name }));
@@ -453,32 +489,47 @@ export default function MapWorkspace() {
         label: c.name,
         sub: c.status === 'binding' ? 'Binding AI law' : 'No binding AI law',
       }));
-    return [...places, ...countries];
+    const states = STATE_AI_LAWS.filter((st) => st.name.toLowerCase().includes(q) || st.postalCode.toLowerCase() === q)
+      .slice(0, 5)
+      .map((st) => ({
+        kind: 'state' as const,
+        id: st.name,
+        label: st.name,
+        sub: stateHasBindingLaw(st.name) ? 'US state · binding AI law' : 'US state',
+      }));
+    return [...places, ...states, ...countries];
   }, [query]);
 
-  const openResult = (r: { kind: 'country' | 'place'; id: string }) => {
+  const openResult = (r: { kind: 'country' | 'state' | 'place'; id: string }) => {
     setSelection({ kind: r.kind, id: r.id } as Selection);
     setQuery('');
     if (r.kind === 'place') {
       const p = GOVERNANCE_PLACES.find((x) => x.id === r.id);
       if (p && typeof p.lat === 'number' && typeof p.lon === 'number') flyTo(p.lon, p.lat);
     }
+    if (r.kind === 'state') {
+      // Fly to the middle of the state's bounding box. Alaska crosses the date
+      // line, so its western islands are ignored rather than averaged with Maine.
+      const f = statesData.features.find((x) => x.properties.name === r.id);
+      if (!f) return;
+      let w = 180, e = -180, so = 90, n = -90;
+      const scan = (co: unknown): void => {
+        if (Array.isArray(co) && typeof co[0] === 'number') {
+          const [lng, lat] = co as number[];
+          if (lng > 0) return;
+          w = Math.min(w, lng); e = Math.max(e, lng); so = Math.min(so, lat); n = Math.max(n, lat);
+          return;
+        }
+        if (Array.isArray(co)) for (const c of co) scan(c);
+      };
+      scan((f.geometry as { coordinates?: unknown }).coordinates);
+      if (w <= e) flyTo((w + e) / 2, (so + n) / 2, 4.6);
+    }
   };
 
   const selectedPlace = selection?.kind === 'place' ? GOVERNANCE_PLACES.find((p) => p.id === selection.id) : undefined;
   const unpinned = GOVERNANCE_PLACES.filter((p) => typeof p.lat !== 'number');
   const activePanel = PANELS.find((p) => p.id === panel);
-
-  // Only auto-open once. After that the map is the landing surface again.
-  useEffect(() => {
-    if (panel === 'start') {
-      try {
-        localStorage.setItem('agm:seen-start', '1');
-      } catch {
-        /* private mode: it simply opens again next time */
-      }
-    }
-  }, [panel]);
 
   const go = (id: PanelId): FooterLink => ({
     label: PANELS.find((p) => p.id === id)!.label,
@@ -730,7 +781,7 @@ export default function MapWorkspace() {
             />
             <LayerToggle
               label="US state law"
-              hint="Six states have a binding AI statute. The country stays grey because there is no national one — both facts are true at once."
+              hint={`${BINDING_STATES.length} states have a binding AI statute in this register. The country stays grey because there is no national one — both facts are true at once.`}
               on={statesOn}
               onChange={setStatesOn}
             />
@@ -768,6 +819,11 @@ export default function MapWorkspace() {
 
           {deepOcean && <DeepOcean onClose={() => setDeepOcean(false)} />}
 
+          {selection?.kind === 'state' && (
+            <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
+              <StatePanel state={selection.id} onClose={() => setSelection(null)} />
+            </aside>
+          )}
           {selection?.kind === 'country' && (
             <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
               <CountryPanel country={selection.id} onClose={() => setSelection(null)} />
