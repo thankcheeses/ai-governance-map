@@ -1,0 +1,29 @@
+{
+  "skill": "jelly-material-studies",
+  "test_cases": [
+    {
+      "input": "make an atoll jelly scene",
+      "should_trigger": true
+    },
+    {
+      "input": "I want a material studies jelly diorama",
+      "should_trigger": true
+    },
+    {
+      "input": "design a webgpu jelly island like the ones on twitter",
+      "should_trigger": true
+    },
+    {
+      "input": "build me a soft body citrus jelly I can pull apart",
+      "should_trigger": true
+    },
+    {
+      "input": "write a linkedin post about ai governance",
+      "should_trigger": false
+    },
+    {
+      "input": "optimize my resume",
+      "should_trigger": false
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "skill": "jelly-material-studies",
+  "test_cases": [
+    {
+      "name": "atoll_style_request",
+      "input": "Make me an Atoll Jelly style scene with bungalows and a seaplane",
+      "assertions": [
+        "Produces or plans a single self-contained HTML file",
+        "Uses WebGPU + WGSL",
+        "Includes editorial Material Studies layout",
+        "Mentions shallow water or jelly physics"
+      ]
+    },
+    {
+      "name": "general_jelly_diorama",
+      "input": "I want a Material Studies jelly diorama of a pirate cove",
+      "assertions": [
+        "Follows the series aesthetic (paper background, italic title, glass panel)",
+        "Plans or produces interactive physics",
+        "No external libraries"
+      ]
+    },
+    {
+      "name": "soft_body_specimen",
+      "input": "Create a citrus jelly slice I can stretch and cut",
+      "assertions": [
+        "References XPBD or soft body simulation",
+        "Includes grab/stretch interaction",
+        "Editorial UI treatment"
+      ]
+    },
+    {
+      "name": "claude_code_preference",
+      "input": "Use Claude Code to build a villa jelly scene",
+      "assertions": [
+        "Prioritizes complete single-file HTML output",
+        "Mentions iterative refinement if appropriate"
+      ]
+    }
+  ]
+}
