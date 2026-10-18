@@ -333,6 +333,9 @@ export default function MapWorkspace() {
     const m = map.current;
     if (!ready || !m || !m.getLayer('satellite')) return;
     m.setLayoutProperty('satellite', 'visibility', satelliteOn ? 'visible' : 'none');
+    // The paper land would cover the photograph; with imagery on, the laws
+    // stay as ink over the satellite view and the paper steps aside.
+    if (m.getLayer('land-base')) m.setLayoutProperty('land-base', 'visibility', satelliteOn ? 'none' : 'visible');
   }, [satelliteOn, ready]);
 
   // Where each bound country sits, east to west, so the sweep has an order to
@@ -373,7 +376,10 @@ export default function MapWorkspace() {
     const m = map.current;
     if (!ready || !m) return;
     try {
-      m.setTerrain(terrainOn ? { source: 'terrain-dem', exaggeration: 1.25 } : null);
+      if (m.getLayer('terrain-hillshade')) {
+        m.setLayoutProperty('terrain-hillshade', 'visibility', terrainOn ? 'visible' : 'none');
+      }
+      m.setTerrain(terrainOn ? { source: 'terrain-dem', exaggeration: 1.0 } : null);
     } catch {
       // A browser or GPU that cannot do terrain keeps the flat globe; nothing
       // else on the map depends on it.
@@ -748,7 +754,7 @@ export default function MapWorkspace() {
             <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">Layers</p>
             <LayerToggle
               label="Compliance relief"
-              hint="Extrusion height encodes verified status — binding law rises highest. Mutually exclusive with Terrain relief."
+              hint="Countries bound by a national AI law rise; nothing else does. Mutually exclusive with Terrain relief."
               on={reliefOn}
               onChange={(v) => {
                 setReliefOn(v);
@@ -813,7 +819,7 @@ export default function MapWorkspace() {
           {layersOpen && <GlobeLegend />}
           </div>
 
-          <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 ${webglOk ? '' : 'hidden'}`}>
+          <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 ${webglOk && !layersOpen ? '' : 'hidden'}`}>
             Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
           </p>
 
@@ -884,11 +890,13 @@ function LayerToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-start gap-2 py-1 cursor-pointer">
+    // One line per layer; the explanation appears on hover or keyboard focus.
+    // Seven always-open paragraphs covered a third of the map.
+    <label className="group flex items-start gap-2 py-1 cursor-pointer">
       <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 accent-teal-400" />
       <span className="min-w-0">
         <span className="block text-xs text-white/90 leading-tight">{label}</span>
-        <span className="block text-[0.72rem] text-white/70 leading-snug mt-0.5">{hint}</span>
+        <span className="sr-only group-hover:not-sr-only group-focus-within:not-sr-only group-hover:block group-focus-within:block text-[0.72rem] text-white/70 leading-snug mt-0.5">{hint}</span>
       </span>
     </label>
   );

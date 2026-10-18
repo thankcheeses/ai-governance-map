@@ -1,4 +1,4 @@
-import { LAW_FAMILIES } from '@/lib/lawPalette';
+import { LAND_PAPER, LAW_FAMILIES } from '@/lib/lawPalette';
 import { BINDING_STATES, STATE_BINDING_COLOR } from '@/hooks/useStatesLayer';
 
 /**
@@ -13,6 +13,22 @@ import { BINDING_STATES, STATE_BINDING_COLOR } from '@/hooks/useStatesLayer';
  * here", which the state register would contradict — and the dimmest swatch
  * means "nobody has checked", not "no law exists".
  */
+/**
+ * Each swatch is shown as it appears on the map: ink on a chip of the land
+ * paper. Dark inks laid straight onto this dark panel disappeared.
+ */
+function Swatch({ color }: { color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="mt-[0.2rem] flex-shrink-0 rounded-[3px] p-[2px]"
+      style={{ backgroundColor: LAND_PAPER }}
+    >
+      <span className="block w-2.5 h-2.5 rounded-[2px] border border-black/15" style={{ backgroundColor: color }} />
+    </span>
+  );
+}
+
 export default function GlobeLegend() {
   return (
     <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
@@ -25,11 +41,7 @@ export default function GlobeLegend() {
       <ul className="flex flex-col gap-1">
         {LAW_FAMILIES.map((f) => (
           <li key={f.id} className="flex items-start gap-2">
-            <span
-              aria-hidden="true"
-              className="mt-[0.3rem] w-2.5 h-2.5 rounded-sm flex-shrink-0 border border-white/25"
-              style={{ backgroundColor: f.color }}
-            />
+            <Swatch color={f.color} />
             <span className="min-w-0">
               <span className="block text-[0.75rem] text-white/90 leading-snug">{f.label}</span>
               {f.note && (
@@ -48,11 +60,7 @@ export default function GlobeLegend() {
           US state law
         </p>
         <div className="flex items-start gap-2">
-          <span
-            aria-hidden="true"
-            className="mt-[0.3rem] w-2.5 h-2.5 rounded-sm flex-shrink-0 border border-white/25"
-            style={{ backgroundColor: STATE_BINDING_COLOR }}
-          />
+          <Swatch color={STATE_BINDING_COLOR} />
           <span className="min-w-0">
             <span className="block text-[0.75rem] text-white/90 leading-snug">
               Binding state statute ({BINDING_STATES.length})

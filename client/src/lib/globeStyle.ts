@@ -1,6 +1,6 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { placesGeoJSON } from '@/data/places';
-import { familyMatch } from '@/lib/lawPalette';
+import { LAND_PAPER, familyMatch } from '@/lib/lawPalette';
 import { STATE_BINDING_COLOR, STATE_BINDING_EDGE, STATE_NONE_COLOR } from '@/hooks/useStatesLayer';
 
 // Esri World Imagery. Satellite photography cannot be bundled — the tiles stream
@@ -21,9 +21,9 @@ export const TERRAIN_DEM =
   'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
 
 export const GLOBE_SKY = {
-  'sky-color': '#0a1a3a',
+  'sky-color': '#0B1426',
   'sky-horizon-blend': 0.5,
-  'horizon-color': '#4a7fb5',
+  'horizon-color': '#2E5A7A',
   'horizon-fog-blend': 0.7,
   'fog-color': '#0a1a3a',
   'fog-ground-blend': 0.2,
@@ -87,8 +87,8 @@ return {
         type: 'fill',
         source: 'countries',
         paint: {
-          'fill-color': '#101d2c',
-          'fill-opacity': 0.92,
+          'fill-color': LAND_PAPER,
+          'fill-opacity': 1,
         },
       },
       // Compliance overlay — colour now says WHICH instrument binds the country.
@@ -101,8 +101,9 @@ return {
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            0.68,
-            familyMatch((f) => f.fillOpacity, 0.05),
+            // Hover deepens the ink a step; it never changes the hue.
+            1,
+            familyMatch((f) => f.fillOpacity, 0),
           ] as never,
         },
       },
@@ -113,17 +114,20 @@ return {
         id: 'country-extrusion',
         type: 'fill-extrusion',
         source: 'countries',
-        filter: ['!=', ['get', 'status'], 'unknown'],
+        filter: ['==', ['get', 'status'], 'binding'],
         paint: {
-          'fill-extrusion-color': familyMatch((f) => f.color, '#94a3b8') as never,
+          'fill-extrusion-color': familyMatch((f) => f.color, LAND_PAPER) as never,
           'fill-extrusion-height': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            ['match', ['get', 'status'], 'binding', 340000, 'none', 150000, 0],
-            ['match', ['get', 'status'], 'binding', 230000, 'none', 80000, 0],
+            ['match', ['get', 'status'], 'binding', 180000, 0],
+            ['match', ['get', 'status'], 'binding', 140000, 0],
           ],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.82,
+          // Opaque, with the built-in vertical shade for the walls. Translucent
+          // extrusions showed pale ghost walls along every coast.
+          'fill-extrusion-opacity': 1,
+          'fill-extrusion-vertical-gradient': true,
         },
       },
       // US state law, over the grey United States. The country-level finding
@@ -146,8 +150,8 @@ return {
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            0.66,
-            ['match', ['get', 'status'], 'binding', 0.44, 0.07],
+            ['match', ['get', 'status'], 'binding', 1, 0.1],
+            ['match', ['get', 'status'], 'binding', 0.92, 0],
           ] as never,
         },
       },
@@ -159,13 +163,13 @@ return {
           'line-color': [
             'match', ['get', 'status'],
             'binding', STATE_BINDING_EDGE,
-            'rgba(226,232,240,0.22)',
+            'rgba(15,23,42,0.22)',
           ] as never,
           'line-width': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
             1.6,
-            ['match', ['get', 'status'], 'binding', 0.7, 0.3],
+            ['match', ['get', 'status'], 'binding', 0.8, 0.4],
           ] as never,
         },
       },
@@ -173,6 +177,22 @@ return {
       // reads as light bleeding off the edge. Only countries with a verified
       // instrument glow, so the bloom marks where law exists rather than
       // decorating every border on earth.
+      // Terrain as a printed atlas does it: hillshade, light from the
+      // north-west, inked over the paper and the law colours alike rather than a second colour scheme.
+      // Off until the reader asks — it is the only layer that reads DEM tiles.
+      {
+        id: 'terrain-hillshade',
+        type: 'hillshade',
+        source: 'terrain-dem',
+        layout: { visibility: 'none' },
+        paint: {
+          'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 6, 0.6] as never,
+          'hillshade-illumination-direction': 315,
+          'hillshade-shadow-color': 'rgba(42,36,24,0.55)',
+          'hillshade-highlight-color': 'rgba(255,252,244,0.45)',
+          'hillshade-accent-color': 'rgba(42,36,24,0.25)',
+        },
+      },
       {
         id: 'country-glow',
         type: 'line',
@@ -180,10 +200,11 @@ return {
         filter: ['==', ['get', 'status'], 'binding'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': familyMatch((f) => f.edge, '#5eead4') as never,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 13] as never,
-          'line-blur': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 12] as never,
-          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.5, 0.26] as never,
+          // A crisp keyline in the instrument's own darker ink — no blur, no
+          // neon. Binding countries are marked by a firmer edge, not by bloom.
+          'line-color': familyMatch((f) => f.edge, '#0F172A') as never,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.1, 6, 2.2] as never,
+          'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.85] as never,
         },
       },
       {
@@ -191,8 +212,8 @@ return {
         type: 'line',
         source: 'countries',
         paint: {
-          'line-color': familyMatch((f) => f.edge, 'rgba(255,255,255,0.25)') as never,
-          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.8, 0.7],
+          'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#0F172A', 'rgba(15,23,42,0.32)'] as never,
+          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.6, 0.5],
         },
       },
       // The trail: a band of light that sweeps west to east around the globe,
@@ -213,14 +234,14 @@ return {
         filter: ['==', ['get', 'status'], 'binding'],
         layout: { 'line-cap': 'round', visibility: 'none' },
         paint: {
-          'line-color': familyMatch((f) => f.edge, '#ffffff') as never,
+          'line-color': '#F8FAFC',
           'line-width': [
             'interpolate', ['linear'], ['zoom'],
             1, ['*', 3.0, ['coalesce', ['feature-state', 'trail'], 0]],
             6, ['*', 6.0, ['coalesce', ['feature-state', 'trail'], 0]],
           ] as never,
-          'line-blur': 1.6,
-          'line-opacity': ['*', 0.95, ['coalesce', ['feature-state', 'trail'], 0]] as never,
+          'line-blur': 0.8,
+          'line-opacity': ['*', 0.8, ['coalesce', ['feature-state', 'trail'], 0]] as never,
         },
       },
       // Institution pins. Zoom-gated so the globe stays quiet until someone
@@ -232,8 +253,8 @@ return {
         minzoom: 2.6,
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 5, 6, 13],
-          'circle-color': '#5eead4',
-          'circle-opacity': 0.14,
+          'circle-color': '#0F172A',
+          'circle-opacity': 0.12,
         },
       },
       {
@@ -243,9 +264,9 @@ return {
         minzoom: 2.6,
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 2.6, 6, 5.5],
-          'circle-color': '#5eead4',
-          'circle-stroke-color': '#04231f',
-          'circle-stroke-width': 1,
+          'circle-color': '#0F172A',
+          'circle-stroke-color': '#F8FAFC',
+          'circle-stroke-width': 1.5,
         },
       },
       {
@@ -261,8 +282,8 @@ return {
           'text-allow-overlap': false,
         },
         paint: {
-          'text-color': '#d7f5ef',
-          'text-halo-color': '#04231f',
+          'text-color': '#0F172A',
+          'text-halo-color': 'rgba(248,250,252,0.92)',
           'text-halo-width': 1.4,
         },
       },

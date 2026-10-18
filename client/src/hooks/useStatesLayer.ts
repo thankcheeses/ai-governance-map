@@ -34,9 +34,9 @@ export interface StateLayerProps {
 }
 
 /** One colour, one meaning: this state has a binding AI statute. */
-export const STATE_BINDING_COLOR = '#FBBF24';
-export const STATE_BINDING_EDGE = '#FDE68A';
-export const STATE_NONE_COLOR = '#64748B';
+export const STATE_BINDING_COLOR = '#B7811C';
+export const STATE_BINDING_EDGE = '#7E5812';
+export const STATE_NONE_COLOR = '#0F172A';
 
 export function useStatesLayer(): FeatureCollection<Geometry, StateLayerProps> {
   return useMemo(() => {

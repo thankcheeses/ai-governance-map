@@ -149,8 +149,10 @@ float caustic(vec2 uv, float t) {
 vec3 environment(vec3 r) {
   float up = smoothstep(-0.1, 0.7, r.y);
   vec3 c = mix(vec3(0.51, 0.48, 0.42), vec3(0.86, 0.92, 0.93), up);
-  c += vec3(1.2, 1.15, 1.0) * pow(clamp(dot(r, normalize(vec3(-0.7, 1.2, 0.4))), 0.0, 1.0), 54.0);
-  c += vec3(0.52, 0.64, 0.69) * pow(clamp(dot(r, normalize(vec3(0.8, 0.6, -0.7))), 0.0, 1.0), 100.0);
+  // The key lamp is kept small and soft: at full strength it painted a white
+  // patch across a whole ocean basin on the globe.
+  c += vec3(0.35, 0.34, 0.30) * pow(clamp(dot(r, normalize(vec3(-0.7, 1.2, 0.4))), 0.0, 1.0), 220.0);
+  c += vec3(0.20, 0.25, 0.27) * pow(clamp(dot(r, normalize(vec3(0.8, 0.6, -0.7))), 0.0, 1.0), 200.0);
   return c;
 }
 
@@ -252,7 +254,9 @@ void main() {
   vec3 V = normalize(mix(vec3(0.0, 0.0, 1.0), vec3(fanUV * 1.25, 1.0), u_flat));
   vec3 L = normalize(vec3(-0.42, 0.55, 0.72));
   vec3 H = normalize(L + V);
-  float spec = pow(max(dot(nn, H), 0.0), 140.0);
+  // A tight glint, not a soft patch: on a smooth sphere a low exponent lit a
+  // whole basin white.
+  float spec = pow(max(dot(nn, H), 0.0), 600.0);
 
   // THE WATER IS CLEAR, NOT PAINTED. This follows the reference (Atoll
   // Jelly) term for term: light reaches a pale sand floor, crosses some
@@ -287,7 +291,7 @@ void main() {
   float ndv  = clamp(dot(nn, V), 0.0, 1.0);
   float fres = (0.026 + 0.974 * pow(1.0 - ndv, 5.0)) * mix(1.0, 0.25, u_flat);
   col = mix(col, environment(reflect(-V, nn)), clamp(fres, 0.0, 0.92));
-  col += vec3(1.0, 0.96, 0.84) * spec * (0.6 + u_energy * 0.4) * mix(1.0, 0.25, u_flat);
+  col += vec3(1.0, 0.96, 0.84) * spec * (0.45 + u_energy * 0.4) * mix(1.0, 0.25, u_flat);
 
   // Lace foam where the water meets land, broken up so it reads as surf.
   float lace = smoothstep(0.78, 0.97, shelf) * u_hasCoast;

@@ -55,58 +55,66 @@ export interface LawFamilyStyle {
   note?: string;
 }
 
+// ONE SYSTEM, PRINTED-ATLAS STYLE. Land is pale sand paper; an instrument is
+// ink on that paper. The five inks sit on a lightness ramp (so they survive
+// colour-blindness and greyscale print), all muted to the same chroma so no
+// one law shouts louder than another, and all dark enough to read against
+// both the paper and the turquoise sea. Earlier pastel/neon fills were
+// translucent over navy and turned muddy where they overlapped the relief.
+export const LAND_PAPER = '#CBC4B3';
+
 export const LAW_FAMILIES: LawFamilyStyle[] = [
   {
     id: 'eu',
     label: 'EU AI Act',
     frameworkSlug: 'eu-ai-act',
-    color: '#5EEAD4',
-    edge: '#CCFBF1',
-    fillOpacity: 0.46,
+    color: '#1D3B70',
+    edge: '#13284D',
+    fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'korea',
     label: 'Korea — AI Basic Act',
     frameworkSlug: 'korea-ai-basic-act',
-    color: '#C4B5FD',
-    edge: '#EDE9FE',
-    fillOpacity: 0.46,
+    color: '#7D6EC2',
+    edge: '#544896',
+    fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'china',
     label: 'China — GenAI Interim Measures',
     frameworkSlug: 'china-genai-interim-measures',
-    color: '#F97316',
-    edge: '#FDBA74',
-    fillOpacity: 0.46,
+    color: '#9C4022',
+    edge: '#6E2C17',
+    fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'india',
     label: 'India — IT Rules (synthetic media)',
     frameworkSlug: 'india-it-rules-synthetic-media',
-    color: '#D9F99D',
-    edge: '#ECFCCB',
-    fillOpacity: 0.46,
+    color: '#7F9236',
+    edge: '#5A6825',
+    fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'vietnam',
     label: 'Vietnam — Law on AI',
     frameworkSlug: 'vietnam-ai-law',
-    color: '#EC4899',
-    edge: '#F9A8D4',
-    fillOpacity: 0.46,
+    color: '#7C2F57',
+    edge: '#55203C',
+    fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'no-national-law',
     label: 'No binding national AI law',
-    color: '#94A3B8',
-    edge: '#E2E8F0',
-    fillOpacity: 0.22,
+    color: '#EEE9DD',
+    edge: 'rgba(15,23,42,0.38)',
+    fillOpacity: 0.9,
     height: 80000,
     // Without this the United States reads as "nothing is happening here",
     // which the register's own state-law panel disproves.
@@ -115,9 +123,9 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
   {
     id: 'unresearched',
     label: 'Not yet researched',
-    color: '#64748B',
-    edge: 'rgba(226,232,240,0.28)',
-    fillOpacity: 0.05,
+    color: '#CBC4B3',
+    edge: 'rgba(15,23,42,0.22)',
+    fillOpacity: 0.0,
     height: 0,
     note: 'Nobody has checked — not evidence that no law exists.',
   },
