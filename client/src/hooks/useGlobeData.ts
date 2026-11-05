@@ -3,6 +3,7 @@ import { feature } from 'topojson-client';
 import type { FeatureCollection, Geometry } from 'geojson';
 import worldTopo from 'world-atlas/countries-110m.json';
 import { COUNTRY_AI_LAWS } from '@/data/governance';
+import { metricProperties } from '@/lib/countryMetrics';
 import { type LawFamily, lawFamilyById, resolveLawFamily } from '@/lib/lawPalette';
 
 export interface CountryProperties {
@@ -12,6 +13,8 @@ export interface CountryProperties {
   /** Which instrument binds this country — the globe's colour channel. */
   lawFamily: LawFamily;
   fillColor: string;
+  /** Choropleth metric values, keyed by `MetricDef.property`. */
+  [metric: `m_${string}`]: number | null;
 }
 
 /**
@@ -95,6 +98,8 @@ export function useGlobeData(): FeatureCollection<Geometry, CountryProperties> {
           frameworkSlug: law?.frameworkSlug,
           lawFamily,
           fillColor: lawFamilyById(lawFamily).color,
+          // One numeric property per choropleth metric (null = not researched).
+          ...metricProperties(name),
         },
       };
     });

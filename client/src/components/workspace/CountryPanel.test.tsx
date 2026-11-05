@@ -36,6 +36,14 @@ describe('CountryPanel', () => {
     expect(screen.getAllByText(/Primary text|Official guidance|No source recorded/).length).toBeGreaterThan(0);
   });
 
+  it('shows every map metric at a glance and marks the one the map is coloured by', () => {
+    render(<CountryPanel country="France" metric="obligations" onClose={vi.fn()} />);
+    const glance = screen.getByRole('region', { name: 'At a glance' });
+    expect(glance).toHaveTextContent(/Obligations/);
+    expect(glance).toHaveTextContent(/Next deadline/);
+    expect(glance.querySelector('[data-active]')).toHaveTextContent(/Obligations/);
+  });
+
   it('lists institutions located in the selected jurisdiction', () => {
     show('United States');
     expect(screen.getByText('Institutions here')).toBeInTheDocument();

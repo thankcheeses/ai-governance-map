@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { COUNTRY_AI_LAWS, FRAMEWORKS, OBLIGATIONS, daysUntil } from '@/data/governance';
 import { GOVERNANCE_PLACES } from '@/data/places';
 import SourceChip from '@/components/dashboard/SourceChip';
+import { METRICS, type MetricId, binFor, describeMetric } from '@/lib/countryMetrics';
 
 const STATUS_COPY: Record<string, string> = {
   binding: 'Binding AI-specific law in effect',
@@ -14,7 +15,16 @@ const STATUS_COPY: Record<string, string> = {
  * The third is a gap in this register, not a finding about the country, and the
  * copy says so rather than letting blank read as "no law".
  */
-export default function CountryPanel({ country, onClose }: { country: string; onClose: () => void }) {
+export default function CountryPanel({
+  country,
+  onClose,
+  metric = 'law',
+}: {
+  country: string;
+  onClose: () => void;
+  /** The metric the map is coloured by; its row is highlighted below. */
+  metric?: MetricId;
+}) {
   const law = COUNTRY_AI_LAWS.find((c) => c.name === country);
   const framework = law?.frameworkSlug ? FRAMEWORKS.find((f) => f.slug === law.frameworkSlug) : undefined;
   const obligations = framework ? OBLIGATIONS.filter((o) => o.framework === framework.shortCode) : [];
@@ -58,6 +68,42 @@ export default function CountryPanel({ country, onClose }: { country: string; on
           This register has not researched {country}. That is a gap here, not a finding about the
           country — treat it as unknown rather than as an absence of law.
         </p>
+      )}
+
+      {law && (
+        <section className="mt-4" aria-label="At a glance">
+          <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            At a glance
+          </p>
+          {/* Every map metric for this country, so switching "Colour by" is
+              never the only way to read them. The one the map shows is marked. */}
+          <dl className="grid grid-cols-1 gap-1">
+            {METRICS.filter((m) => m.id !== 'law').map((m) => {
+              const v = describeMetric(m.id, country);
+              const bin = binFor(m, v.value);
+              const active = m.id === metric;
+              return (
+                <div
+                  key={m.id}
+                  data-active={active || undefined}
+                  className={`flex items-center gap-2 rounded-md px-2 py-1.5 ${
+                    active ? 'bg-muted ring-1 ring-border' : ''
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-2.5 w-2.5 flex-shrink-0 rounded-[2px] border border-black/15"
+                    style={{ backgroundColor: bin?.color ?? 'transparent' }}
+                  />
+                  <dt className="text-[0.7rem] text-muted-foreground w-24 flex-shrink-0">{m.label}</dt>
+                  <dd className={`text-xs ${active ? 'font-semibold text-foreground' : 'text-foreground'}`}>
+                    {v.display}
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+        </section>
       )}
 
       {framework && (
