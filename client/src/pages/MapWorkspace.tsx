@@ -33,6 +33,10 @@ import StatePanel from '@/components/workspace/StatePanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
+import { MetricLegend, MetricSwitcher } from '@/components/workspace/MetricControls';
+import CountryTooltip, { type HoverState } from '@/components/workspace/CountryTooltip';
+import { type MetricId, metricById, metricFillExpression } from '@/lib/countryMetrics';
+import { LAND_PAPER } from '@/lib/lawPalette';
 import DeepOcean, { deepOceanReady } from '@/components/workspace/DeepOcean';
 import { coastalProximityAt } from '@/lib/coastField';
 import SiteFooter, { type FooterColumn, type FooterLink } from '@/components/workspace/SiteFooter';
@@ -110,6 +114,9 @@ export default function MapWorkspace() {
   const { controlState, overallScore, assessedCount } = useGovernanceState();
 
   const [selection, setSelection] = useState<Selection>(null);
+  // What the countries are coloured by. 'law' is the original instrument map.
+  const [metric, setMetric] = useState<MetricId>('law');
+  const [hover, setHover] = useState<(HoverState & { w: number; h: number }) | null>(null);
   // The map is the landing surface. "Start here" stays one click away in the
   // top bar; it no longer opens over the map on a first visit.
   const [panel, setPanel] = useState<PanelId | null>(null);
@@ -221,6 +228,23 @@ export default function MapWorkspace() {
         hovered = undefined;
       }
     };
+    // The tooltip follows the pointer, one state update per animation frame
+    // at most, so a fast sweep across the map costs at most one render a frame.
+    let hoverFrame = 0;
+    m.on('mousemove', 'country-fill', (e) => {
+      const name = e.features?.[0]?.properties?.name as string | undefined;
+      const { x, y } = e.point;
+      cancelAnimationFrame(hoverFrame);
+      hoverFrame = requestAnimationFrame(() => {
+        const c = m.getContainer();
+        setHover(name ? { country: name, x, y, w: c.clientWidth, h: c.clientHeight } : null);
+      });
+    });
+    // Hidden while the map moves: a tooltip trailing a spinning globe reads as lag.
+    m.on('movestart', () => {
+      cancelAnimationFrame(hoverFrame);
+      setHover(null);
+    });
     m.on('mousemove', 'country-fill', (e) => {
       const f = e.features?.[0];
       if (!f || f.id === hovered) return;
@@ -230,6 +254,8 @@ export default function MapWorkspace() {
       m.getCanvas().style.cursor = 'pointer';
     });
     m.on('mouseleave', 'country-fill', () => {
+      cancelAnimationFrame(hoverFrame);
+      setHover(null);
       clearHover();
       m.getCanvas().style.cursor = '';
     });
@@ -278,6 +304,9 @@ export default function MapWorkspace() {
       setSelection((prev) => (prev?.kind === 'state' && prev.id === name ? null : { kind: 'state', id: name }));
     });
     m.on('click', 'country-fill', (e) => {
+      // The panel says everything the tooltip did, and more; one is enough.
+      cancelAnimationFrame(hoverFrame);
+      setHover(null);
       if (e.defaultPrevented || onTop(e.point)) return;
       const name = e.features?.[0]?.properties?.name as string | undefined;
       if (!name) return;
@@ -291,6 +320,47 @@ export default function MapWorkspace() {
       setReady(false);
     };
   }, [globeData]);
+
+  // The choropleth. 'law' restores the style's own instrument colouring; any
+  // other metric repaints the same layers from the numbers each feature
+  // carries (see lib/countryMetrics.ts), so switching is a paint change, not a
+  // new source or a new layer, and pan, zoom, hover and selection carry over.
+  const lawPaint = useRef<{ color: unknown; opacity: unknown; extrusion: unknown } | null>(null);
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m || !m.getLayer('country-fill')) return;
+    if (!lawPaint.current) {
+      lawPaint.current = {
+        color: m.getPaintProperty('country-fill', 'fill-color'),
+        opacity: m.getPaintProperty('country-fill', 'fill-opacity'),
+        extrusion: m.getLayer('country-extrusion')
+          ? m.getPaintProperty('country-extrusion', 'fill-extrusion-color')
+          : null,
+      };
+    }
+    const saved = lawPaint.current;
+    const set = (layer: string, prop: string, value: unknown) => {
+      if (m.getLayer(layer)) m.setPaintProperty(layer, prop as never, value as never);
+    };
+    if (metric === 'law') {
+      set('country-fill', 'fill-color', saved.color);
+      set('country-fill', 'fill-opacity', saved.opacity);
+      if (saved.extrusion) set('country-extrusion', 'fill-extrusion-color', saved.extrusion);
+      return;
+    }
+    const def = metricById(metric);
+    const color = metricFillExpression(def, LAND_PAPER);
+    set('country-fill', 'fill-color', color);
+    set('country-fill', 'fill-opacity', [
+      'case',
+      ['boolean', ['feature-state', 'hover'], false],
+      1,
+      ['==', ['get', def.property], null],
+      0,
+      0.94,
+    ]);
+    set('country-extrusion', 'fill-extrusion-color', color);
+  }, [metric, ready]);
 
   // Globe and flat share one style, so flattening changes the projection only —
   // the compliance colours, relief and pins stay exactly as they are.
@@ -828,8 +898,20 @@ export default function MapWorkspace() {
             )}
           </div>
           )}
-          {layersOpen && <GlobeLegend />}
+          {layersOpen && (metric === 'law' ? <GlobeLegend /> : <MetricLegend def={metricById(metric)} />)}
           </div>
+
+          {/* The metric switcher, centred over the map so it reads as the map's
+              own control, not one of the panel's. */}
+          {webglOk && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 max-w-[calc(100%-15rem)] max-sm:left-3 max-sm:right-14 max-sm:translate-x-0 max-sm:max-w-none max-sm:top-auto max-sm:bottom-3">
+              <MetricSwitcher value={metric} onChange={setMetric} />
+            </div>
+          )}
+
+          {hover && webglOk && (
+            <CountryTooltip hover={hover} metric={metric} width={hover.w} height={hover.h} />
+          )}
 
           <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 ${webglOk && !layersOpen ? '' : 'hidden'}`}>
             Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
@@ -844,7 +926,7 @@ export default function MapWorkspace() {
           )}
           {selection?.kind === 'country' && (
             <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
-              <CountryPanel country={selection.id} onClose={() => setSelection(null)} />
+              <CountryPanel country={selection.id} metric={metric} onClose={() => setSelection(null)} />
             </aside>
           )}
           {selectedPlace && (
