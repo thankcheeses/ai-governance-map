@@ -3,6 +3,7 @@ import { feature } from 'topojson-client';
 import usStates from 'us-atlas/states-10m.json';
 import type { FeatureCollection, Geometry } from 'geojson';
 import { FRAMEWORKS, STATE_AI_LAWS } from '@/data/governance';
+import { INK } from '@/lib/mapInk';
 
 // ---------------------------------------------------------------------------
 // US state law, on the globe itself.
@@ -34,8 +35,8 @@ export interface StateLayerProps {
 }
 
 /** One colour, one meaning: this state has a binding AI statute. */
-export const STATE_BINDING_COLOR = '#B7811C';
-export const STATE_BINDING_EDGE = '#7E5812';
+export const STATE_BINDING_COLOR = INK.state.color;
+export const STATE_BINDING_EDGE = INK.state.edge;
 export const STATE_NONE_COLOR = '#0F172A';
 
 export function useStatesLayer(): FeatureCollection<Geometry, StateLayerProps> {

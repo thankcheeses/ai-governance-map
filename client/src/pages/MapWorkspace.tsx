@@ -36,6 +36,7 @@ import GlobeLegend from '@/components/workspace/GlobeLegend';
 import { MetricLegend, MetricSwitcher } from '@/components/workspace/MetricControls';
 import CountryTooltip, { type HoverState } from '@/components/workspace/CountryTooltip';
 import { type MetricId, metricById, metricFillExpression } from '@/lib/countryMetrics';
+import { MAP_CARD, MAP_CARD_HEADING, PAPER } from '@/lib/mapInk';
 import { LAND_PAPER } from '@/lib/lawPalette';
 import DeepOcean, { deepOceanReady } from '@/components/workspace/DeepOcean';
 import { coastalProximityAt } from '@/lib/coastField';
@@ -136,7 +137,11 @@ export default function MapWorkspace() {
   const [trailOn, setTrailOn] = useState(false);
   const [statesOn, setStatesOn] = useState(true);
   const [terrainOn, setTerrainOn] = useState(false);
-  const [layersOpen, setLayersOpen] = useState(true);
+  // Open on desktop; on a phone the card would cover most of the map, so it
+  // starts folded and the map comes first.
+  const [layersOpen, setLayersOpen] = useState(
+    () => typeof window === 'undefined' || !window.matchMedia || window.matchMedia('(min-width: 640px)').matches,
+  );
   // The NHID-Clinical reference module is opt-in. Its author built this map,
   // so it is not part of the default tour; a reader who wants it switches it
   // on from the Frameworks view and the choice is remembered in this browser.
@@ -325,7 +330,8 @@ export default function MapWorkspace() {
   // other metric repaints the same layers from the numbers each feature
   // carries (see lib/countryMetrics.ts), so switching is a paint change, not a
   // new source or a new layer, and pan, zoom, hover and selection carry over.
-  const lawPaint = useRef<{ color: unknown; opacity: unknown; extrusion: unknown } | null>(null);
+  const lawPaint = useRef<{ color: unknown; opacity: unknown; extrusion: unknown; edge: unknown } | null>(null);
+  const statePaint = useRef<{ opacity: unknown; line: unknown } | null>(null);
   useEffect(() => {
     const m = map.current;
     if (!ready || !m || !m.getLayer('country-fill')) return;
@@ -336,16 +342,33 @@ export default function MapWorkspace() {
         extrusion: m.getLayer('country-extrusion')
           ? m.getPaintProperty('country-extrusion', 'fill-extrusion-color')
           : null,
+        edge: m.getLayer('country-glow') ? m.getPaintProperty('country-glow', 'line-color') : null,
       };
     }
     const saved = lawPaint.current;
     const set = (layer: string, prop: string, value: unknown) => {
       if (m.getLayer(layer)) m.setPaintProperty(layer, prop as never, value as never);
     };
+    // US state law is a law-layer fact with no metric values, so under a
+    // metric the state ink steps back to outlines (still clickable) instead of
+    // reading as a sixth bin the legend does not list.
+    if (!statePaint.current && m.getLayer('state-fill')) {
+      statePaint.current = {
+        opacity: m.getPaintProperty('state-fill', 'fill-opacity'),
+        line: m.getPaintProperty('state-outline', 'line-color'),
+      };
+    }
+    if (statePaint.current) {
+      set('state-fill', 'fill-opacity', metric === 'law'
+        ? statePaint.current.opacity
+        : ['case', ['boolean', ['feature-state', 'hover'], false], 0.12, 0]);
+      set('state-outline', 'line-color', metric === 'law' ? statePaint.current.line : 'rgba(15,23,42,0.22)');
+    }
     if (metric === 'law') {
       set('country-fill', 'fill-color', saved.color);
       set('country-fill', 'fill-opacity', saved.opacity);
       if (saved.extrusion) set('country-extrusion', 'fill-extrusion-color', saved.extrusion);
+      if (saved.edge) set('country-glow', 'line-color', saved.edge);
       return;
     }
     const def = metricById(metric);
@@ -360,6 +383,8 @@ export default function MapWorkspace() {
       0.94,
     ]);
     set('country-extrusion', 'fill-extrusion-color', color);
+    // The law inks' edges would otherwise outline a metric map in six hues.
+    set('country-glow', 'line-color', 'rgba(15,23,42,0.55)');
   }, [metric, ready]);
 
   // Globe and flat share one style, so flattening changes the projection only —
@@ -816,12 +841,12 @@ export default function MapWorkspace() {
 
           {/* Layers and legend. Collapsible, because together they cover a
               sixth of the window and most of the time you want the map. */}
-          <div className={`absolute top-3 left-3 w-52 z-10 flex-col gap-2 max-h-[calc(100%-1.5rem)] overflow-y-auto ${webglOk ? 'flex' : 'hidden'}`}>
+          <div className={`${MAP_CARD} absolute top-3 left-3 w-56 z-10 flex-col max-h-[calc(100%-1.5rem)] overflow-y-auto ${webglOk ? 'flex' : 'hidden'}`}>
           <button
             type="button"
             onClick={() => setLayersOpen((v) => !v)}
             aria-expanded={layersOpen}
-            className="flex items-center gap-2 w-full bg-[#0b1220]/92 border border-white/12 rounded-md px-3 py-2 text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 hover:text-white"
+            className={`${MAP_CARD_HEADING} sticky top-0 z-[1] flex items-center gap-2 w-full bg-[#0b1220] rounded-t-lg px-3 py-2.5 hover:text-white ${layersOpen ? 'border-b border-white/10' : 'rounded-b-lg'}`}
           >
             <LayersIcon size={12} aria-hidden="true" />
             <span>Layers &amp; legend</span>
@@ -832,8 +857,8 @@ export default function MapWorkspace() {
             />
           </button>
           {layersOpen && (
-          <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-2">Layers</p>
+          <div className="px-3 pt-2.5 pb-3">
+            <p className={`${MAP_CARD_HEADING} mb-1.5`}>Layers</p>
             <LayerToggle
               label="Compliance relief"
               hint="Countries bound by a national AI law rise; nothing else does. Mutually exclusive with Terrain relief."
@@ -898,7 +923,11 @@ export default function MapWorkspace() {
             )}
           </div>
           )}
-          {layersOpen && (metric === 'law' ? <GlobeLegend /> : <MetricLegend def={metricById(metric)} />)}
+          {layersOpen && (
+            <div className="px-3 pt-3 pb-3 border-t border-white/10">
+              {metric === 'law' ? <GlobeLegend /> : <MetricLegend def={metricById(metric)} />}
+            </div>
+          )}
           </div>
 
           {/* The metric switcher, centred over the map so it reads as the map's
@@ -913,7 +942,7 @@ export default function MapWorkspace() {
             <CountryTooltip hover={hover} metric={metric} width={hover.w} height={hover.h} />
           )}
 
-          <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 ${webglOk && !layersOpen ? '' : 'hidden'}`}>
+          <p className={`absolute bottom-3 left-3 text-[0.72rem] text-white/70 max-w-sm pointer-events-none z-10 max-sm:hidden ${webglOk && !layersOpen ? '' : 'hidden'}`}>
             Click a country, a US state or an institution. Standards have no borders — open them from the views along the top. Local-only: your assessment data never leaves this browser.
           </p>
 
@@ -987,7 +1016,7 @@ function LayerToggle({
     // One line per layer; the explanation appears on hover or keyboard focus.
     // Seven always-open paragraphs covered a third of the map.
     <label className="group flex items-start gap-2 py-1 cursor-pointer">
-      <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 accent-teal-400" />
+      <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5" style={{ accentColor: PAPER }} />
       <span className="min-w-0">
         <span className="block text-xs text-white/90 leading-tight">{label}</span>
         <span className="sr-only group-hover:not-sr-only group-focus-within:not-sr-only group-hover:block group-focus-within:block text-[0.72rem] text-white/70 leading-snug mt-0.5">{hint}</span>

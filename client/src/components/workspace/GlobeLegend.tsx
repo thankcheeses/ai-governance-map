@@ -1,4 +1,5 @@
 import { LAND_PAPER, LAW_FAMILIES } from '@/lib/lawPalette';
+import { MAP_CARD_HEADING } from '@/lib/mapInk';
 import { BINDING_STATES, STATE_BINDING_COLOR } from '@/hooks/useStatesLayer';
 
 /**
@@ -17,7 +18,7 @@ import { BINDING_STATES, STATE_BINDING_COLOR } from '@/hooks/useStatesLayer';
  * Each swatch is shown as it appears on the map: ink on a chip of the land
  * paper. Dark inks laid straight onto this dark panel disappeared.
  */
-function Swatch({ color }: { color: string }) {
+export function Swatch({ color }: { color: string }) {
   return (
     <span
       aria-hidden="true"
@@ -29,10 +30,11 @@ function Swatch({ color }: { color: string }) {
   );
 }
 
+/** Renders bare: the map card it sits in supplies the surface. */
 export default function GlobeLegend() {
   return (
-    <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
-      <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-1">
+    <div>
+      <p className={`${MAP_CARD_HEADING} mb-1`}>
         Binding national AI law
       </p>
       <p className="text-[0.72rem] text-white/70 leading-snug mb-2">
@@ -56,7 +58,7 @@ export default function GlobeLegend() {
           are not the same kind of instrument, and folding them into one scale
           would imply they are. */}
       <div className="mt-3 pt-3 border-t border-white/10">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-1.5">
+        <p className={`${MAP_CARD_HEADING} mb-1.5`}>
           US state law
         </p>
         <div className="flex items-start gap-2">

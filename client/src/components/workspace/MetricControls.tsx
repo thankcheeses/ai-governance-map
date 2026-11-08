@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { COUNTRY_AI_LAWS } from '@/data/governance';
 import { METRICS, type MetricDef, type MetricId, binFor, metricValue } from '@/lib/countryMetrics';
 import { LAND_PAPER } from '@/lib/lawPalette';
+import { MAP_CARD, MAP_CARD_HEADING, PAPER } from '@/lib/mapInk';
+import { Swatch } from './GlobeLegend';
 
 /**
  * "Colour by": the choropleth's metric switcher.
@@ -16,9 +18,9 @@ export function MetricSwitcher({ value, onChange }: { value: MetricId; onChange:
     <div
       role="radiogroup"
       aria-label="Colour countries by"
-      className="flex items-center gap-1 bg-[#0b1220]/92 border border-white/12 rounded-lg p-1 shadow-lg max-w-full overflow-x-auto"
+      className={`${MAP_CARD} flex items-center gap-1 p-1 max-w-full overflow-x-auto`}
     >
-      <span className="px-2 text-[0.68rem] font-semibold uppercase tracking-widest text-white/60 whitespace-nowrap">
+      <span className={`${MAP_CARD_HEADING} px-2 whitespace-nowrap`}>
         Colour by
       </span>
       {METRICS.map((m) => {
@@ -30,8 +32,11 @@ export function MetricSwitcher({ value, onChange }: { value: MetricId; onChange:
             role="radio"
             aria-checked={on}
             onClick={() => onChange(m.id)}
-            className={`whitespace-nowrap rounded-md px-2.5 py-1 text-xs transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 ${
-              on ? 'bg-white text-[#0b1220] font-semibold' : 'text-white/75 hover:text-white hover:bg-white/10'
+            // The selected metric is "printed" in paper, the same material as
+            // the checked layers and the land itself.
+            style={on ? { backgroundColor: PAPER } : undefined}
+            className={`whitespace-nowrap rounded-md px-2.5 py-1 text-xs transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
+              on ? 'text-[#0b1220] font-semibold' : 'text-white/75 hover:text-white hover:bg-white/10'
             }`}
           >
             {m.label}
@@ -42,22 +47,11 @@ export function MetricSwitcher({ value, onChange }: { value: MetricId; onChange:
   );
 }
 
-function Swatch({ color }: { color: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="mt-[0.2rem] flex-shrink-0 rounded-[3px] p-[2px]"
-      style={{ backgroundColor: LAND_PAPER }}
-    >
-      <span className="block w-2.5 h-2.5 rounded-[2px] border border-black/15" style={{ backgroundColor: color }} />
-    </span>
-  );
-}
-
 /**
  * The key for a numeric metric: the question it answers, where the numbers
  * come from, each bin with how many countries fall in it, and the
  * not-researched swatch last, worded so blank never reads as zero.
+ * Renders bare: the map card it sits in supplies the surface.
  */
 export function MetricLegend({ def }: { def: MetricDef }) {
   const counts = useMemo(() => {
@@ -73,8 +67,8 @@ export function MetricLegend({ def }: { def: MetricDef }) {
   const bins = [...def.bins].reverse();
 
   return (
-    <div className="bg-[#0b1220]/92 border border-white/12 rounded-md p-3">
-      <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 mb-1">{def.question}</p>
+    <div>
+      <p className={`${MAP_CARD_HEADING} mb-1`}>{def.question}</p>
       <p className="text-[0.72rem] text-white/70 leading-snug mb-2">{def.basis}</p>
       <ul className="flex flex-col gap-1">
         {bins.map((b) => (

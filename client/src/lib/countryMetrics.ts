@@ -1,4 +1,5 @@
 import { COUNTRY_AI_LAWS, FRAMEWORKS, OBLIGATIONS, type Obligation } from '@/data/governance';
+import { PAPER, RAMP_COOL, RAMP_WARM } from './mapInk';
 
 /**
  * The choropleth's metrics: what the map can colour a country by.
@@ -51,10 +52,10 @@ export interface MetricValue {
 
 const NOT_RESEARCHED = 'Not yet researched';
 
-/** Sequential ink, light to dark — "more" reads darker. */
-const SEQ = ['#E9EEF5', '#BCCBE0', '#7F9CC6', '#45679F', '#1D3B70'];
-/** Urgency ink for deadlines — nearer reads darker. */
-const URGENT = ['#EEE9DD', '#F0D9B5', '#DDA567', '#B9662F', '#8A3418'];
+/** Sequential ink, paper to EU ink — "more" reads darker. See ./mapInk. */
+const SEQ = RAMP_COOL;
+/** Urgency ink for deadlines, paper to rust — nearer reads darker. */
+const URGENT = RAMP_WARM;
 
 const DAY = 86_400_000;
 
@@ -97,7 +98,7 @@ export const METRICS: MetricDef[] = [
     basis: 'Mandatory duties this register tracks for the country’s binding AI statute.',
     property: 'm_obligations',
     bins: [
-      { min: 0, label: 'None — no binding national AI law', color: '#EEE9DD' },
+      { min: 0, label: 'None — no binding national AI law', color: PAPER },
       { min: 1, label: '1–2 obligations', color: SEQ[1] },
       { min: 3, label: '3–5 obligations', color: SEQ[2] },
       { min: 6, label: '6+ obligations', color: SEQ[4] },
@@ -111,7 +112,7 @@ export const METRICS: MetricDef[] = [
     basis: 'Months since the earliest tracked obligation took effect.',
     property: 'm_inForce',
     bins: [
-      { min: 0, label: 'Not yet in force / no national law', color: '#EEE9DD' },
+      { min: 0, label: 'Not yet in force / no national law', color: PAPER },
       { min: 1, label: 'Under 6 months', color: SEQ[1] },
       { min: 6, label: '6–12 months', color: SEQ[2] },
       { min: 12, label: '1–2 years', color: SEQ[3] },
@@ -147,7 +148,7 @@ export const METRICS: MetricDef[] = [
     basis: 'The best evidence tier cited for the country’s tracked obligations.',
     property: 'm_evidence',
     bins: [
-      { min: 0, label: 'No citation on file yet', color: '#EEE9DD' },
+      { min: 0, label: 'No citation on file yet', color: PAPER },
       { min: 1, label: 'Secondary report', color: SEQ[1] },
       { min: 2, label: 'Official guidance', color: SEQ[2] },
       { min: 3, label: 'Primary text', color: SEQ[4] },
