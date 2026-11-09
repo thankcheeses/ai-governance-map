@@ -1,3 +1,5 @@
+import { INK, LAND_PAPER, PAPER } from './mapInk';
+
 // ---------------------------------------------------------------------------
 // Country colour, by the instrument that actually binds the country.
 //
@@ -56,20 +58,18 @@ export interface LawFamilyStyle {
 }
 
 // ONE SYSTEM, PRINTED-ATLAS STYLE. Land is pale sand paper; an instrument is
-// ink on that paper. The five inks sit on a lightness ramp (so they survive
-// colour-blindness and greyscale print), all muted to the same chroma so no
-// one law shouts louder than another, and all dark enough to read against
-// both the paper and the turquoise sea. Earlier pastel/neon fills were
-// translucent over navy and turned muddy where they overlapped the relief.
-export const LAND_PAPER = '#CBC4B3';
+// ink on that paper. The inks, the paper and the metric ramps all come from
+// ./mapInk, which explains how they were generated. Earlier pastel/neon fills
+// were translucent over navy and turned muddy where they overlapped the relief.
+export { LAND_PAPER };
 
 export const LAW_FAMILIES: LawFamilyStyle[] = [
   {
     id: 'eu',
     label: 'EU AI Act',
     frameworkSlug: 'eu-ai-act',
-    color: '#1D3B70',
-    edge: '#13284D',
+    color: INK.eu.color,
+    edge: INK.eu.edge,
     fillOpacity: 0.95,
     height: 230000,
   },
@@ -77,8 +77,8 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
     id: 'korea',
     label: 'Korea — AI Basic Act',
     frameworkSlug: 'korea-ai-basic-act',
-    color: '#7D6EC2',
-    edge: '#544896',
+    color: INK.korea.color,
+    edge: INK.korea.edge,
     fillOpacity: 0.95,
     height: 230000,
   },
@@ -86,8 +86,8 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
     id: 'china',
     label: 'China — GenAI Interim Measures',
     frameworkSlug: 'china-genai-interim-measures',
-    color: '#9C4022',
-    edge: '#6E2C17',
+    color: INK.china.color,
+    edge: INK.china.edge,
     fillOpacity: 0.95,
     height: 230000,
   },
@@ -95,8 +95,8 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
     id: 'india',
     label: 'India — IT Rules (synthetic media)',
     frameworkSlug: 'india-it-rules-synthetic-media',
-    color: '#7F9236',
-    edge: '#5A6825',
+    color: INK.india.color,
+    edge: INK.india.edge,
     fillOpacity: 0.95,
     height: 230000,
   },
@@ -104,15 +104,15 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
     id: 'vietnam',
     label: 'Vietnam — Law on AI',
     frameworkSlug: 'vietnam-ai-law',
-    color: '#7C2F57',
-    edge: '#55203C',
+    color: INK.vietnam.color,
+    edge: INK.vietnam.edge,
     fillOpacity: 0.95,
     height: 230000,
   },
   {
     id: 'no-national-law',
     label: 'No binding national AI law',
-    color: '#EEE9DD',
+    color: PAPER,
     edge: 'rgba(15,23,42,0.38)',
     fillOpacity: 0.9,
     height: 80000,
@@ -123,7 +123,7 @@ export const LAW_FAMILIES: LawFamilyStyle[] = [
   {
     id: 'unresearched',
     label: 'Not yet researched',
-    color: '#CBC4B3',
+    color: LAND_PAPER,
     edge: 'rgba(15,23,42,0.22)',
     fillOpacity: 0.0,
     height: 0,

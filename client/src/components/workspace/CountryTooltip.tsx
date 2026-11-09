@@ -1,5 +1,6 @@
 import { COUNTRY_AI_LAWS, FRAMEWORKS } from '@/data/governance';
 import { type MetricId, binFor, describeMetric, metricById } from '@/lib/countryMetrics';
+import { MAP_CARD } from '@/lib/mapInk';
 
 export interface HoverState {
   country: string;
@@ -46,7 +47,7 @@ export default function CountryTooltip({
   return (
     <div
       role="tooltip"
-      className="pointer-events-none absolute z-20 rounded-md border border-white/15 bg-[#0b1220]/95 px-3 py-2 shadow-xl backdrop-blur-sm"
+      className={`${MAP_CARD} pointer-events-none absolute z-20 px-3 py-2`}
       style={{ left, top, width: W, transition: 'left 60ms linear, top 60ms linear' }}
     >
       <p className="text-sm font-semibold text-white leading-tight">{hover.country}</p>
