@@ -14,9 +14,11 @@ const TIER_ORDER: EvidenceTier[] = ['primary', 'official-guidance', 'secondary']
 
 // One hue, three weights: evidence strength is an ordinal, not three categories.
 const TIER_BAR: Record<EvidenceTier, string> = {
-  primary: 'bg-[#334155]',
-  'official-guidance': 'bg-[#64748B]',
-  secondary: 'bg-[#A9B7C6]',
+  // On dark panels the ramp flips: the strongest tier is the lightest bar, so
+  // "more evidence" is still the segment that stands out from the track.
+  primary: 'bg-[#334155] dark:bg-[#E2E8F0]',
+  'official-guidance': 'bg-[#64748B] dark:bg-[#94A3B8]',
+  secondary: 'bg-[#A9B7C6] dark:bg-[#56657A]',
 };
 
 /**
