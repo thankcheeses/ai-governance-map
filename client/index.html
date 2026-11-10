@@ -3,13 +3,58 @@
 
   <head>
     <meta charset="UTF-8" />
+    <!-- No maximum-scale: pinch-zoom is how low-vision readers read a map key. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Governance Map — which AI law binds which country</title>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <link rel="icon" type="image/png" href="/nhid-logo.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/nhid-logo.png" />
-    <meta name="theme-color" content="#0F172A" />
-    <title>AI Governance Map v2 — Multi-Framework Compliance &amp; Risk Dashboard</title>
+      name="description"
+      content="An interactive world map of binding AI law. See which instrument binds each country and US state, what it requires and when, with every entry traced to a cited source." />
+    <link rel="canonical" href="https://thankcheeses.github.io/ai-governance-map/" />
+
+    <!-- Icons. Every path carries the base URL: the site is served from a
+         sub-path, and a bare "/icon.png" resolves to the wrong host root. -->
+    <link rel="icon" href="%BASE_URL%favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%BASE_URL%apple-touch-icon.png" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <meta name="theme-color" content="#04070E" />
+    <meta name="color-scheme" content="dark light" />
+
+    <!-- Link previews. Absolute URLs: crawlers do not resolve relative ones. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI Governance Map" />
+    <meta property="og:title" content="AI Governance Map — which AI law binds which country" />
+    <meta
+      property="og:description"
+      content="An interactive world map of binding AI law, with every entry traced to a cited source." />
+    <meta property="og:url" content="https://thankcheeses.github.io/ai-governance-map/" />
+    <meta property="og:image" content="https://thankcheeses.github.io/ai-governance-map/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A world map with Europe, China, India, South Korea and Vietnam coloured by the AI law that binds them." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI Governance Map — which AI law binds which country" />
+    <meta
+      name="twitter:description"
+      content="An interactive world map of binding AI law, with every entry traced to a cited source." />
+    <meta name="twitter:image" content="https://thankcheeses.github.io/ai-governance-map/og-image.png" />
+
+    <!-- Theme before first paint: a stored choice wins, otherwise the device's.
+         Mirrors ThemeContext, so React mounts into the theme already showing. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = t;
+        } catch (e) {}
+      })();
+    </script>
     <!-- Self-hosted. These faces were the last external host the site contacted;
          serving them from our own origin means a page load reaches nothing outside it. -->
     <link href="%BASE_URL%fonts/fonts.css" rel="stylesheet" />

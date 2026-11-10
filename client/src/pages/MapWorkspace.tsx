@@ -19,6 +19,8 @@ import {
   ShieldCheck,
   Target,
   X,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { COUNTRY_AI_LAWS, STATE_AI_LAWS } from '@/data/governance';
 import { stateHasBindingLaw } from '@/data/stateLaw';
@@ -33,6 +35,8 @@ import StatePanel from '@/components/workspace/StatePanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
+import Enter from '@/components/workspace/Enter';
+import { useTheme } from '@/contexts/ThemeContext';
 import { MetricLegend, MetricSwitcher } from '@/components/workspace/MetricControls';
 import CountryTooltip, { type HoverState } from '@/components/workspace/CountryTooltip';
 import { type MetricId, metricById, metricFillExpression } from '@/lib/countryMetrics';
@@ -117,6 +121,7 @@ export default function MapWorkspace() {
   const [selection, setSelection] = useState<Selection>(null);
   // What the countries are coloured by. 'law' is the original instrument map.
   const [metric, setMetric] = useState<MetricId>('law');
+  const { theme, toggleTheme } = useTheme();
   const [hover, setHover] = useState<(HoverState & { w: number; h: number }) | null>(null);
   // The map is the landing surface. "Start here" stays one click away in the
   // top bar; it no longer opens over the map on a first visit.
@@ -755,7 +760,16 @@ export default function MapWorkspace() {
           </div>
 
           {/* Projection toggle. Same style, same data — only the geometry changes. */}
-          <div className={`ml-auto flex items-center gap-1 ${webglOk ? '' : 'hidden'}`} role="group" aria-label="Projection">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch panels to light' : 'Switch panels to dark'}
+            title={theme === 'dark' ? 'Light panels' : 'Dark panels'}
+            className="ml-auto inline-flex items-center justify-center h-7 w-7 rounded-md border border-white/20 text-white/70 hover:text-white hover:border-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          >
+            {theme === 'dark' ? <Sun size={13} aria-hidden="true" /> : <Moon size={13} aria-hidden="true" />}
+          </button>
+          <div className={`flex items-center gap-1 ${webglOk ? '' : 'hidden'}`} role="group" aria-label="Projection">
             {(['globe', 'flat'] as const).map((p) => (
               <button
                 key={p}
@@ -924,9 +938,11 @@ export default function MapWorkspace() {
           </div>
           )}
           {layersOpen && (
-            <div className="px-3 pt-3 pb-3 border-t border-white/10">
+            // The key's rows arrive in reading order when the metric changes, so
+            // the eye is led down the new scale instead of finding it swapped.
+            <Enter from="left" stagger="li" motionKey={metric} className="px-3 pt-3 pb-3 border-t border-white/10">
               {metric === 'law' ? <GlobeLegend /> : <MetricLegend def={metricById(metric)} />}
-            </div>
+            </Enter>
           )}
           </div>
 
@@ -949,24 +965,26 @@ export default function MapWorkspace() {
           {deepOcean && <DeepOcean onClose={() => setDeepOcean(false)} />}
 
           {selection?.kind === 'state' && (
-            <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
+            <Enter as="aside" motionKey={`state-${selection.id}`} className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
               <StatePanel state={selection.id} onClose={() => setSelection(null)} />
-            </aside>
+            </Enter>
           )}
           {selection?.kind === 'country' && (
-            <aside className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
+            <Enter as="aside" motionKey={`country-${selection.id}`} className="absolute top-0 right-0 h-full w-[23rem] max-w-full bg-background border-l border-border overflow-y-auto z-20">
               <CountryPanel country={selection.id} metric={metric} onClose={() => setSelection(null)} />
-            </aside>
+            </Enter>
           )}
           {selectedPlace && (
-            <aside className="absolute top-3 right-3 w-[21rem] max-w-[calc(100%-1.5rem)] z-20">
+            <Enter as="aside" from="top" motionKey={`place-${selectedPlace.id}`} className="absolute top-3 right-3 w-[21rem] max-w-[calc(100%-1.5rem)] z-20">
               <PlaceCard place={selectedPlace} onClose={() => setSelection(null)} />
-            </aside>
+            </Enter>
           )}
 
           {/* Every register view, as a panel over the map. */}
           {activePanel && (
-            <section
+            <Enter
+              as="section"
+              motionKey={activePanel.id}
               aria-label={activePanel.label}
               className={`absolute inset-y-0 right-0 bg-background border-l border-border overflow-y-auto z-30 ${
                 activePanel.wide ? 'w-full max-w-[64rem]' : 'w-full max-w-[36rem]'
@@ -986,7 +1004,7 @@ export default function MapWorkspace() {
                 </button>
               </div>
               <div className="p-4">{panelBody()}</div>
-            </section>
+            </Enter>
           )}
         </div>
 
