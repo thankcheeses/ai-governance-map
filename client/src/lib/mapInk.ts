@@ -1,54 +1,60 @@
 // ---------------------------------------------------------------------------
 // One ink set for every layer on the map.
 //
-// The map used to pick its colours layer by layer: five law colours chosen one
-// at a time, an amber for US states, a blue ramp and a rust ramp for the
-// metrics, and a teal accent on the controls. Each was reasonable alone; side
-// by side they read as five different maps stacked on top of each other.
+// The globe is a night globe: a deep-navy sea, slate land, and law drawn in
+// light. An earlier version printed dark inks on sand-coloured land, which
+// read as a paper cut-out floating in space — flat, and at odds with the dark
+// workspace around it. Here the map is made of the same night as its chrome,
+// and the only bright things on it are the things the register knows.
 //
-// Everything now comes from here:
-//
-//  - **Paper.** Land is sand paper (`LAND_PAPER`); a country that was checked
-//    and has no binding national law is the lighter `PAPER`. Every metric's
-//    "none" bin is that same paper, so "checked, nothing" looks the same
-//    whichever way the map is coloured.
-//  - **Inks.** Each instrument is an ink printed on that paper. All six inks
-//    (five national laws plus US state law) share one OKLCH chroma (0.105;
-//    0.12 for the state ochre, which sits on the lighter paper) and sit on one
-//    lightness ramp from L 0.36 to L 0.70, so no instrument shouts louder than
-//    another and they still separate in greyscale. Edges are the same hue
-//    12 lightness points darker.
+//  - **Ground.** `OCEAN` is the sea. `LAND_PAPER` is land nobody has
+//    researched: one step above the sea, so continents read without claiming
+//    anything. `PAPER` is a country that was checked and has no binding
+//    national law: one more step up, visibly "looked at", still unlit. Every
+//    metric's "none" bin is that same tone.
+//  - **Inks.** Each instrument is a light. All six (five national laws plus US
+//    state law) share one OKLCH chroma (0.14) and sit on one lightness ramp
+//    from L 0.60 to L 0.87, so none shouts over another and they still
+//    separate in greyscale. Edges are the same hue, lighter, for the keyline.
 //  - **Ramps.** The two metric ramps are interpolated in OKLab from `PAPER` to
-//    an ink already on the map: cool ramps end in the EU ink, the deadline
-//    ramp ends in the rust ink. A metric map is the law map's own inks,
-//    thinned with paper.
-//  - **Chrome.** The cards, switcher and tooltip share one surface and use
-//    `PAPER` as their selected/checked accent, so the controls are visibly
-//    made of the same material as the map.
+//    an ink already on the map: cool ramps end in the EU blue, the deadline
+//    ramp ends in the coral. "More" and "sooner" read brighter.
+//  - **Chrome.** The cards, switcher and tooltip share one surface, and
+//    `ACCENT` marks what is selected or checked.
 //
-// Values were generated, not picked by eye; the script's rules are the
-// comments above, and lawPalette.test.ts holds the separation floors.
+// (`LAND_PAPER` and `PAPER` keep their names from the printed-atlas version;
+// they are the two ground tones, whatever the ground is made of.)
+//
+// Values were generated, not picked by eye; lawPalette.test.ts holds the
+// separation floors.
 // ---------------------------------------------------------------------------
 
+/** The sea. */
+export const OCEAN = '#0B1930';
 /** Bare land: a country nobody has researched yet. */
-export const LAND_PAPER = '#CBC4B3';
+export const LAND_PAPER = '#233048';
 /** Checked, nothing binding. Also every metric's "none" bin. */
-export const PAPER = '#EEE9DD';
+export const PAPER = '#3B4A66';
 
 export const INK = {
-  eu: { color: '#1C3A73', edge: '#011950' },
-  vietnam: { color: '#793456', edge: '#551136' },
-  china: { color: '#954B34', edge: '#6F2912' },
-  korea: { color: '#796BB0', edge: '#57488A' },
-  india: { color: '#869546', edge: '#647120' },
-  /** US state statutes: sub-national, so the lightest ink, on its own row. */
-  state: { color: '#C7943C', edge: '#9C7225' },
+  eu: { color: '#4081D2', edge: '#6A9EE0' },
+  vietnam: { color: '#D871A1', edge: '#EB96BC' },
+  china: { color: '#F68F5F', edge: '#FFB38D' },
+  korea: { color: '#C8AEFF', edge: '#E3CFFF' },
+  india: { color: '#B9E67E', edge: '#D9FDAC' },
+  /** US state statutes: sub-national, so its own gold, on its own row. */
+  state: { color: '#F0C551', edge: '#FFE48E' },
 } as const;
 
-/** PAPER → EU ink, five steps. "More" reads darker. */
-export const RAMP_COOL = ['#EEE9DD', '#B5BBC4', '#7F8FAA', '#4C648F', '#1C3A73'] as const;
-/** PAPER → rust ink, five steps. "Sooner" reads darker. */
-export const RAMP_WARM = ['#EEE9DD', '#DAC0B1', '#C49986', '#AD725D', '#954B34'] as const;
+/** PAPER → EU ink, five steps. "More" reads brighter. */
+export const RAMP_COOL = ['#3B4A66', '#3E5780', '#3F659A', '#4073B6', '#4081D2'] as const;
+/** PAPER → coral ink, five steps. "Sooner" reads brighter. */
+export const RAMP_WARM = ['#3B4A66', '#695D69', '#976F69', '#C67F66', '#F68F5F'] as const;
+
+/** Selected and checked controls. */
+export const ACCENT = '#E6EDF7';
+/** Borders between countries, and anything else drawn as a hairline on land. */
+export const HAIRLINE = 'rgba(203,213,225,0.26)';
 
 /** Night panel the map's controls sit on. */
 export const CHROME_SURFACE = '#0b1220';

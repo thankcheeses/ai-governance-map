@@ -141,7 +141,7 @@ await writeFile(cardFile, `<!doctype html><meta charset="utf-8">
   p{font-size:25px;line-height:1.4;color:#CBD5E1;margin:26px 0 0;max-width:540px;white-space:nowrap}
   ul{list-style:none;margin:auto 0 0;padding:0;display:flex;flex-wrap:wrap;gap:12px 20px;font-size:18px;color:#E2E8F0}
   li{display:flex;align-items:center;gap:9px}
-  i{width:17px;height:17px;border-radius:4px;border:3px solid #CBC4B3;box-sizing:border-box;background-clip:padding-box}
+  i{width:17px;height:17px;border-radius:4px;box-sizing:border-box;background-clip:padding-box}
 </style>
 <div class="map"></div><div class="scrim"></div>
 <div class="col">
