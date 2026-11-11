@@ -1,6 +1,7 @@
 import type { StyleSpecification } from 'maplibre-gl';
 import { placesGeoJSON } from '@/data/places';
 import { LAND_PAPER, familyMatch } from '@/lib/lawPalette';
+import { HAIRLINE, OCEAN } from '@/lib/mapInk';
 import { STATE_BINDING_COLOR, STATE_BINDING_EDGE, STATE_NONE_COLOR } from '@/hooks/useStatesLayer';
 
 // Esri World Imagery. Satellite photography cannot be bundled — the tiles stream
@@ -20,15 +21,40 @@ export const SPACE = '#05070f';
 export const TERRAIN_DEM =
   'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
 
+// The atmosphere is what makes a sphere read as a planet rather than a disc: a
+// thin band of light at the limb, strongest when the whole globe is in view
+// and gone by the time the reader is looking at one country.
 export const GLOBE_SKY = {
-  'sky-color': '#0B1426',
-  'sky-horizon-blend': 0.5,
-  'horizon-color': '#2E5A7A',
-  'horizon-fog-blend': 0.7,
-  'fog-color': '#0a1a3a',
-  'fog-ground-blend': 0.2,
-  'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 0.9, 6, 0.2],
+  'sky-color': '#060B16',
+  'sky-horizon-blend': 0.6,
+  'horizon-color': '#4F9BD9',
+  'horizon-fog-blend': 0.8,
+  'fog-color': '#0A1A33',
+  'fog-ground-blend': 0.15,
+  'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 4, 0.75, 6.5, 0.15],
 } as const;
+
+/**
+ * Meridians and parallels every 30°, as bundled geometry. Faint, but they are
+ * what tells the eye the surface curves: without them a single-colour sea is a
+ * flat disc. Each line is sampled every 5° so it bends with the globe.
+ */
+function graticule() {
+  const features: unknown[] = [];
+  const line = (coordinates: number[][]) =>
+    features.push({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates } });
+  for (let lon = -180; lon < 180; lon += 30) {
+    const c: number[][] = [];
+    for (let lat = -80; lat <= 80; lat += 5) c.push([lon, lat]);
+    line(c);
+  }
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const c: number[][] = [];
+    for (let lon = -180; lon <= 180; lon += 5) c.push([lon, lat]);
+    line(c);
+  }
+  return { type: 'FeatureCollection', features };
+}
 
 /**
  * The one definition of how the governance globe looks.
@@ -61,6 +87,7 @@ return {
         attribution:
           'Elevation: AWS Terrain Tiles (SRTM, GMTED2010, NED, and other public sources)',
       },
+      graticule: { type: 'geojson', data: graticule() as never },
       countries: { type: 'geojson', data: globeData as never, promoteId: 'name' },
       places: { type: 'geojson', data: placesGeoJSON() as never },
       states: {
@@ -70,6 +97,16 @@ return {
       },
     },
     layers: [
+      // The sea: one deep tone over the whole sphere. The animated glass ocean
+      // is still available from Layers; this is what the globe is by default,
+      // because a still sea lets the countries be the subject.
+      { id: 'ocean-base', type: 'background', paint: { 'background-color': OCEAN } },
+      {
+        id: 'graticule',
+        type: 'line',
+        source: 'graticule',
+        paint: { 'line-color': 'rgba(130,170,220,0.2)', 'line-width': 0.7 },
+      },
       // Hidden on load. MapLibre fetches no tiles for an invisible raster layer,
       // so the opt-in is real rather than cosmetic.
       {
@@ -166,7 +203,7 @@ return {
           'line-color': [
             'match', ['get', 'status'],
             'binding', STATE_BINDING_EDGE,
-            'rgba(15,23,42,0.22)',
+            HAIRLINE,
           ] as never,
           'line-width': [
             'case',
@@ -191,9 +228,25 @@ return {
         paint: {
           'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 6, 0.6] as never,
           'hillshade-illumination-direction': 315,
-          'hillshade-shadow-color': 'rgba(42,36,24,0.55)',
-          'hillshade-highlight-color': 'rgba(255,252,244,0.45)',
-          'hillshade-accent-color': 'rgba(42,36,24,0.25)',
+          'hillshade-shadow-color': 'rgba(2,6,14,0.6)',
+          'hillshade-highlight-color': 'rgba(190,215,245,0.35)',
+          'hillshade-accent-color': 'rgba(2,6,14,0.3)',
+        },
+      },
+      // Light bleeding off the border of a country that has a binding law, in
+      // that law's own colour. Wide, blurred and faint: it lifts the lit
+      // countries off the dark land without drawing a second outline.
+      {
+        id: 'country-halo',
+        type: 'line',
+        source: 'countries',
+        filter: ['==', ['get', 'status'], 'binding'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': familyMatch((f) => f.color, '#64748B') as never,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 12] as never,
+          'line-blur': ['interpolate', ['linear'], ['zoom'], 1, 5, 6, 10] as never,
+          'line-opacity': 0.4,
         },
       },
       {
@@ -203,10 +256,9 @@ return {
         filter: ['==', ['get', 'status'], 'binding'],
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          // A crisp keyline in the instrument's own darker ink — no blur, no
-          // neon. Binding countries are marked by a firmer edge, not by bloom.
-          'line-color': familyMatch((f) => f.edge, '#0F172A') as never,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 1.1, 6, 2.2] as never,
+          // A crisp keyline in the instrument's own lighter ink.
+          'line-color': familyMatch((f) => f.edge, HAIRLINE) as never,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.9, 6, 1.8] as never,
           'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.85] as never,
         },
       },
@@ -215,7 +267,7 @@ return {
         type: 'line',
         source: 'countries',
         paint: {
-          'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#0F172A', 'rgba(15,23,42,0.32)'] as never,
+          'line-color': ['case', ['boolean', ['feature-state', 'hover'], false], '#F8FAFC', HAIRLINE] as never,
           'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 1.6, 0.5],
         },
       },
@@ -256,8 +308,8 @@ return {
         minzoom: 2.6,
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 5, 6, 13],
-          'circle-color': '#0F172A',
-          'circle-opacity': 0.12,
+          'circle-color': '#F8FAFC',
+          'circle-opacity': 0.16,
         },
       },
       {
@@ -267,8 +319,8 @@ return {
         minzoom: 2.6,
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 2.6, 2.6, 6, 5.5],
-          'circle-color': '#0F172A',
-          'circle-stroke-color': '#F8FAFC',
+          'circle-color': '#F8FAFC',
+          'circle-stroke-color': OCEAN,
           'circle-stroke-width': 1.5,
         },
       },
@@ -285,8 +337,8 @@ return {
           'text-allow-overlap': false,
         },
         paint: {
-          'text-color': '#0F172A',
-          'text-halo-color': 'rgba(248,250,252,0.92)',
+          'text-color': '#F1F5F9',
+          'text-halo-color': 'rgba(11,25,48,0.9)',
           'text-halo-width': 1.4,
         },
       },

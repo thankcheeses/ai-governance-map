@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { COUNTRY_AI_LAWS } from '@/data/governance';
 import { METRICS, type MetricDef, type MetricId, binFor, metricValue } from '@/lib/countryMetrics';
 import { LAND_PAPER } from '@/lib/lawPalette';
-import { MAP_CARD, MAP_CARD_HEADING, PAPER } from '@/lib/mapInk';
+import { ACCENT, MAP_CARD, MAP_CARD_HEADING } from '@/lib/mapInk';
 import { Swatch } from './GlobeLegend';
 
 /**
@@ -32,9 +32,8 @@ export function MetricSwitcher({ value, onChange }: { value: MetricId; onChange:
             role="radio"
             aria-checked={on}
             onClick={() => onChange(m.id)}
-            // The selected metric is "printed" in paper, the same material as
-            // the checked layers and the land itself.
-            style={on ? { backgroundColor: PAPER } : undefined}
+            // Selected uses the same accent as the checked layers.
+            style={on ? { backgroundColor: ACCENT } : undefined}
             className={`whitespace-nowrap rounded-md px-2.5 py-1 text-xs transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
               on ? 'text-[#0b1220] font-semibold' : 'text-white/75 hover:text-white hover:bg-white/10'
             }`}

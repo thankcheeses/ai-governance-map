@@ -40,7 +40,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { MetricLegend, MetricSwitcher } from '@/components/workspace/MetricControls';
 import CountryTooltip, { type HoverState } from '@/components/workspace/CountryTooltip';
 import { type MetricId, metricById, metricFillExpression } from '@/lib/countryMetrics';
-import { MAP_CARD, MAP_CARD_HEADING, PAPER } from '@/lib/mapInk';
+import { ACCENT, HAIRLINE, MAP_CARD, MAP_CARD_HEADING } from '@/lib/mapInk';
 import { LAND_PAPER } from '@/lib/lawPalette';
 import DeepOcean, { deepOceanReady } from '@/components/workspace/DeepOcean';
 import { coastalProximityAt } from '@/lib/coastField';
@@ -136,7 +136,9 @@ export default function MapWorkspace() {
   // The map instance as state, not just the ref: the ocean canvas is a child
   // component and needs a render to learn the map exists.
   const [mapObj, setMapObj] = useState<maplibregl.Map | null>(null);
-  const [oceanOn, setOceanOn] = useState(true);
+  // Off by default: the sea is a still, deep tone so the countries are the
+  // subject. The animated ocean stays one click away in Layers.
+  const [oceanOn, setOceanOn] = useState(false);
   // Off by default: a light sweeping the borders read as countries smearing
   // behind the globe as it turned. It stays one click away in Layers.
   const [trailOn, setTrailOn] = useState(false);
@@ -201,8 +203,9 @@ export default function MapWorkspace() {
       m = new maplibregl.Map({
       container: mapContainer.current,
       style: buildGlobeStyle(globeData, statesData),
-      center: [-20, 20],
-      zoom: 1.95,
+      // Europe, India and China in one view: most of the binding law on file.
+      center: [52, 26],
+      zoom: globeZoom(mapContainer.current),
       minZoom: 0.8,
       maxZoom: 7,
       pitch: 0,
@@ -367,13 +370,14 @@ export default function MapWorkspace() {
       set('state-fill', 'fill-opacity', metric === 'law'
         ? statePaint.current.opacity
         : ['case', ['boolean', ['feature-state', 'hover'], false], 0.12, 0]);
-      set('state-outline', 'line-color', metric === 'law' ? statePaint.current.line : 'rgba(15,23,42,0.22)');
+      set('state-outline', 'line-color', metric === 'law' ? statePaint.current.line : HAIRLINE);
     }
     if (metric === 'law') {
       set('country-fill', 'fill-color', saved.color);
       set('country-fill', 'fill-opacity', saved.opacity);
       if (saved.extrusion) set('country-extrusion', 'fill-extrusion-color', saved.extrusion);
       if (saved.edge) set('country-glow', 'line-color', saved.edge);
+      set('country-halo', 'line-opacity', 0.4);
       return;
     }
     const def = metricById(metric);
@@ -389,7 +393,8 @@ export default function MapWorkspace() {
     ]);
     set('country-extrusion', 'fill-extrusion-color', color);
     // The law inks' edges would otherwise outline a metric map in six hues.
-    set('country-glow', 'line-color', 'rgba(15,23,42,0.55)');
+    set('country-glow', 'line-color', 'rgba(226,232,240,0.5)');
+    set('country-halo', 'line-opacity', 0);
   }, [metric, ready]);
 
   // Globe and flat share one style, so flattening changes the projection only —
@@ -411,7 +416,7 @@ export default function MapWorkspace() {
           { padding: 24, duration: 700 },
         );
       } else {
-        m.easeTo({ zoom: 1.95, duration: 700 });
+        m.easeTo({ zoom: globeZoom(m.getContainer()), duration: 700 });
       }
     }
   }, [projection, ready]);
@@ -514,6 +519,16 @@ export default function MapWorkspace() {
       m.off('moveend', check);
     };
   }, [ready]);
+
+  // The animated ocean is drawn on a canvas behind the map, so the solid sea
+  // has to step aside for it to show through.
+  useEffect(() => {
+    const m = map.current;
+    if (!ready || !m) return;
+    for (const id of ['ocean-base', 'graticule']) {
+      if (m.getLayer(id)) m.setLayoutProperty(id, 'visibility', oceanOn ? 'none' : 'visible');
+    }
+  }, [oceanOn, ready]);
 
   useEffect(() => {
     const m = map.current;
@@ -895,7 +910,7 @@ export default function MapWorkspace() {
               onChange={setTerrainOn}
             />
             <LayerToggle
-              label="Glass ocean"
+              label="Animated ocean"
               hint="Shades the sea so the globe reads as a body. Waves answer zoom and drag; click the water to drop a ripple."
               on={oceanOn}
               onChange={setOceanOn}
@@ -1019,6 +1034,19 @@ export default function MapWorkspace() {
   );
 }
 
+/**
+ * The zoom at which the whole globe fills the map area. A fixed zoom left the
+ * globe small in a large window and cropped in a short one; this sizes it to
+ * about nine-tenths of the shorter side, whatever the window is. The constant
+ * is the globe's on-screen diameter in pixels at zoom 0, measured.
+ */
+function globeZoom(el: HTMLElement | null): number {
+  const w = el?.clientWidth || 1200;
+  const h = el?.clientHeight || 700;
+  const target = Math.min(w, h) * 0.9;
+  return Math.min(3.2, Math.max(0.9, Math.log2(target / 136)));
+}
+
 function LayerToggle({
   label,
   hint,
@@ -1034,7 +1062,7 @@ function LayerToggle({
     // One line per layer; the explanation appears on hover or keyboard focus.
     // Seven always-open paragraphs covered a third of the map.
     <label className="group flex items-start gap-2 py-1 cursor-pointer">
-      <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5" style={{ accentColor: PAPER }} />
+      <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="mt-0.5" style={{ accentColor: ACCENT }} />
       <span className="min-w-0">
         <span className="block text-xs text-white/90 leading-tight">{label}</span>
         <span className="sr-only group-hover:not-sr-only group-focus-within:not-sr-only group-hover:block group-focus-within:block text-[0.72rem] text-white/70 leading-snug mt-0.5">{hint}</span>
