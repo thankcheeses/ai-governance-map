@@ -123,6 +123,17 @@
   --sidebar-ring: #2DD4BF;
 }
 
+/* The register panels were written for light cards, and these two deep text
+   tints sit on token surfaces (card, secondary, primary/10) that turn navy in
+   dark mode, where they all but vanish. Lift them rather than touch 40 call
+   sites. Chips that bring their own light fill keep the dark ink. */
+.dark .text-teal-900 {
+  color: #5EEAD4;
+}
+.dark .text-slate-700:not(.bg-slate-100) {
+  color: #CBD5E1;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

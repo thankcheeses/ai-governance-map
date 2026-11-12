@@ -551,7 +551,7 @@ export const CONTROLS: Control[] = [
     implementation: 'Mandate model cards for all production deployments. Include: intended use, out-of-scope uses, evaluation benchmarks, fairness metrics, and contact for reporting issues.' },
   { id: 13, code: 'CTRL-STA-003', title: 'AI System Disclosure & Transparency Notice', riskTier: 'All Systems', priority: 'Medium', ccmDomain: 'STA', status: 'In Progress', automation: 'automated',
     description: 'User-facing disclosure that AI is involved in decisions or content generation, consistent with regulatory transparency requirements.',
-    mappings: { 'NIST AI RMF': ['MEASURE 2.8', 'GOVERN 1.4'], 'ISO/IEC 42001': ['8.7'], 'EU AI Act': ['Art 50', 'Art 52'], 'Singapore MGF': ['Transparency'], 'Colorado AI Act': ['Consumer Notice'] },
+    mappings: { 'NIST AI RMF': ['MEASURE 2.8', 'GOVERN 1.4'], 'ISO/IEC 42001': ['8.7'], 'EU AI Act': ['Art 50'], 'Singapore MGF': ['Transparency'], 'Colorado AI Act': ['Consumer Notice'] },
     indicator: { name: 'AI Disclosure Implementation Rate', method: 'User-facing AI touchpoints with disclosure / total touchpoints', slo: '100%' },
     implementation: 'Display plain-language AI disclosure at point of interaction. For GPAI-generated content include labeling. For chatbots, disclose AI nature at session start.' },
   { id: 14, code: 'CTRL-TVM-001', title: 'AI Adversarial Testing & Red-Teaming', riskTier: 'High-Risk', priority: 'Critical', ccmDomain: 'TVM', status: 'Planned', automation: 'manual',
@@ -744,7 +744,7 @@ export const CROSSWALK_TOPICS = {
   // NIST cells cite subcategories (verified against the Playbook); '—' where none fits.
   headers: ['Topic', 'EU AI Act', 'ISO 42001', 'NIST RMF', 'OECD', 'Singapore MGF', 'OWASP/ATLAS', 'Colorado AI Act'],
   rows: [
-    ['Transparency', 'Mandatory (Art 52)', '—', 'MEASURE 2.8', 'Principle 3', 'Provenance & Reporting', '—', 'Consumer Notice'],
+    ['Transparency', 'Mandatory (Art 50)', '—', 'MEASURE 2.8', 'Principle 3', 'Provenance & Reporting', '—', 'Consumer Notice'],
     ['Human Oversight', 'Mandatory (Art 14)', '—', 'GOVERN 3.2, MAP 3.5', 'Principle 5', '—', '—', 'Appeal Rights'],
     ['Risk Management', 'Mandatory (Art 9)', 'Clause 6', 'GOVERN 1.4, MANAGE 1.3', 'Principle 5', '—', '—', 'Risk Mgmt Program'],
     ['Documentation', 'Mandatory (Art 11)', 'Clause 7.5', 'MAP 2.2', '—', '—', '—', '—'],
@@ -753,7 +753,7 @@ export const CROSSWALK_TOPICS = {
     ['Monitoring', 'Mandatory (Art 72)', 'Clause 9', 'MEASURE 2.4, MANAGE 4.1', 'Principle 5', '—', '—', '—'],
     ['Incident Response', 'Mandatory (Art 73)', 'Clause 10', 'MANAGE 4.3', '—', 'Incident Reporting', '—', '—'],
     ['Testing & Evaluation', '—', '—', 'MEASURE 2.1, MEASURE 2.3', '—', 'Testing & Assurance', 'ATLAS TTPs', '—'],
-    ['GPAI / Model', 'Mandatory (Title VIII)', '—', 'MANAGE 3.2', '—', '—', '—', '—'],
+    ['GPAI / Model', 'Mandatory (Chapter V)', '—', 'MANAGE 3.2', '—', '—', '—', '—'],
     ['Prohibited Practices', 'Mandatory (Art 5)', '—', '—', 'Principle 2', '—', '—', '—'],
   ] as const,
 };

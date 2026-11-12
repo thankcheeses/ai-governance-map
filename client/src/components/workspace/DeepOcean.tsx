@@ -45,7 +45,7 @@ export const DEEP_OCEAN_CARD: DeepOceanCard = {
     {
       label: 'This map',
       value:
-        '31 frameworks · 27 CCM-mapped controls · 75 dated obligations · runs entirely in your browser',
+        '31 frameworks · 27 CCM-mapped controls · 75 obligations · runs entirely in your browser',
     },
   ],
   links: [

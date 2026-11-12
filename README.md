@@ -1,7 +1,7 @@
 # AI Governance Map
 
 A local-only reference map for AI governance — **31 frameworks and standards**, **27
-CCM-mapped controls**, **75 dated obligations** and a **16-event timeline**, crosswalked
+CCM-mapped controls**, **75 obligations** and a **16-event timeline**, crosswalked
 across jurisdictions on an interactive globe and flat world map. Built for practitioners
 evaluating AI systems in any sector.
 
@@ -40,8 +40,8 @@ laptops where the GPU is blocked; only the globe needs it.
   the same data. Countries are coloured by *which instrument binds them* (EU AI Act, Korea,
   China, India, Vietnam each distinct), US states by whether they carry a binding statute, and
   clicking a state (or searching it) opens *that state's* instruments, obligations and the
-  federal rules that apply there — not the national "no AI law" answer. A band of light sweeps the borders of countries with binding national law. All 52 states and
-  every country render verified, sourced status only — no speculative data is ever painted on.
+  federal rules that apply there — not the national "no AI law" answer. A band of light sweeps the borders of countries with binding national law. All 50 states, DC,
+  Puerto Rico and every country render verified, sourced status only — no speculative data is ever painted on.
 - **Agent incident readiness** — the ten voluntary practices and 50 sub-practices from the
   NIST CAISSI / NSA SISC / CISA joint publication, transcribed verbatim, with their NIST CSF
   2.0 crosswalk and the open problems the document names.
@@ -207,6 +207,16 @@ Two details that matter for a project-site subpath:
 - **SPA fallback.** GitHub Pages has no rewrite engine, so the build copies `index.html` to
   `404.html` (see the `gh-pages-spa-fallback` plugin). A `.nojekyll` file is published so Pages
   serves `_`-prefixed paths instead of letting Jekyll drop them.
+
+## Author
+
+Built and maintained by **Brianna Baynard** — AI governance analyst (IAPP AIGP), Harrisburg, PA.
+[LinkedIn](https://www.linkedin.com/in/brianna-baynard) · [GitHub](https://github.com/thankcheeses)
+
+Related work: [NHID-Clinical](https://nhid-clinical.org) ·
+[AI Governance Practice](https://thankcheeses.github.io/ai-governance-practice/) ·
+[THE RECEIPT](https://thankcheeses.github.io/THE-RECEIPT/) ·
+[Dynamic Media Governance](https://thankcheeses.github.io/dynamic-media-governance/)
 
 ## License & attribution
 

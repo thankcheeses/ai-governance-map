@@ -96,7 +96,7 @@ export default function NhidTrustStack() {
         </p>
         <p className="text-body-sm text-amber-900 leading-relaxed">
           NHID-Clinical is authored by the same person who built this map. It is included here
-          as one framework among {'{'}31{'}'}, held to the same sourcing rules as the rest, and
+          as one framework among 31, held to the same sourcing rules as the rest, and
           nothing in the register scores or ranks it above any other instrument — but you should
           weigh its presence knowing that, not discover it afterwards. It remains an open
           voluntary proposal: not law, not a standard, not a certification, and not endorsed by

@@ -23,8 +23,6 @@
 
 ---
 
-# Changelog
-
 ## [2.0.0] - June 11, 2026
 
 ### Major Features
