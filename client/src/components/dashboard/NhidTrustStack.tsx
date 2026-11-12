@@ -10,7 +10,6 @@ import {
   HumanEscalationIcon,
   AuditTrailIcon,
   ImpersonationLatencyIcon,
-  CasGaugeIcon,
 } from './nhid-icons';
 import {
   CONTROLS,
@@ -26,7 +25,7 @@ import ImpersonationLatencySplit from './visuals/ImpersonationLatencySplit';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Each permanent NHID control has a dedicated glyph from the NHID icon system.
+// Each NHID control has a dedicated glyph from the NHID icon system.
 const CONTROL_ICON: Record<string, (p: { className?: string; size?: number }) => ReactElement> = {
   'IDG-01': IdentityDisclosureIcon,
   'PDX-01': PreDataGateIcon,
@@ -96,7 +95,7 @@ export default function NhidTrustStack() {
         </p>
         <p className="text-body-sm text-amber-900 leading-relaxed">
           NHID-Clinical is authored by the same person who built this map. It is included here
-          as one framework among {'{'}31{'}'}, held to the same sourcing rules as the rest, and
+          as one framework among 31, held to the same sourcing rules as the rest, and
           nothing in the register scores or ranks it above any other instrument — but you should
           weigh its presence knowing that, not discover it afterwards. It remains an open
           voluntary proposal: not law, not a standard, not a certification, and not endorsed by
@@ -237,14 +236,8 @@ export default function NhidTrustStack() {
           <div className="card-elevated p-5">
             <div className="flex items-center justify-between gap-2 mb-1">
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-                Permanent Controls — {NHID_CONFORMANCE_CONTROLS.length} / {NHID_CONFORMANCE_CONTROLS.length}
+                Five controls — four act on the call, one records it
               </p>
-              <span
-                className="inline-flex items-center gap-1.5 text-[0.65rem] font-mono font-semibold text-teal-900 bg-primary/10 border border-teal-700/30 rounded-full px-2 py-0.5"
-                title="Call Authorization Score — permanent controls met / total, in the conformant example trace"
-              >
-                <CasGaugeIcon size={13} /> CAS {NHID_CONFORMANCE_CONTROLS.length}/{NHID_CONFORMANCE_CONTROLS.length}
-              </span>
             </div>
             <p className="text-[0.62rem] text-muted-foreground mb-3">
               Evidence across all five is <span className="font-semibold">Prototype / Simulation only</span> — an
@@ -372,10 +365,9 @@ export default function NhidTrustStack() {
             <ImpersonationLatencyIcon size={20} className="text-teal-300" /> Impersonation Latency
           </h3>
           <p className="text-xs text-slate-300 leading-relaxed max-w-3xl mb-4">
-            Impersonation latency is the measurable trust delay between an AI agent initiating a call and
-            the receiving system verifying that the caller is authorized to represent the claimed provider
-            organization; in many current healthcare workflows, that delay is effectively infinite because
-            no standard verification pathway exists.
+            Impersonation latency is the number of turns between an AI agent connecting a call and
+            disclosing that it is not human. The target is zero. It measures timing; it does not
+            detect or prevent impersonation, and a disclosed agent may still be unauthorized.
           </p>
           <ImpersonationLatencySplit />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4 text-xs text-slate-300">
@@ -383,7 +375,7 @@ export default function NhidTrustStack() {
               <p className="font-semibold text-rose-300/90 mb-1.5">Without a standard</p>
               <ul className="space-y-1 list-disc list-inside text-slate-400">
                 <li>No proactive identity disclosure</li>
-                <li>PHI potentially exchanged before verification</li>
+                <li>PHI potentially exchanged before disclosure</li>
                 <li>No consistent escalation or audit trail</li>
                 <li>Infinite trust delay for the receiving system</li>
               </ul>
@@ -392,7 +384,7 @@ export default function NhidTrustStack() {
               <p className="font-semibold text-teal-300/90 mb-1.5">With NHID-Clinical v1.3</p>
               <ul className="space-y-1 list-disc list-inside text-slate-400">
                 <li>Mandatory early disclosure gate (IDG-01)</li>
-                <li>Pre-data-exchange verification checkpoint</li>
+                <li>No protected data before disclosure (PDX-01)</li>
                 <li>Defined human handoff + full audit requirements</li>
                 <li>Measurable, testable trust pathway</li>
               </ul>
@@ -408,7 +400,7 @@ export default function NhidTrustStack() {
       <div className="card-elevated p-5 mt-5">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-            {traceMode === 'pass' ? 'NHID-Clinical Compliant Event Trace Example' : 'NHID-Clinical Non-Conformant Event Trace Example'}
+            {traceMode === 'pass' ? 'NHID-Clinical Conformant Event Trace Example' : 'NHID-Clinical Non-Conformant Event Trace Example'}
           </p>
           <div className="flex items-center gap-1.5">
             <button
@@ -440,13 +432,12 @@ export default function NhidTrustStack() {
   "start_time": "${trace.start_time}",
   "disclosure_time": ${trace.disclosure_time ? `"${trace.disclosure_time}"` : 'null'},
   "disclosure_text": "${trace.disclosure_text}",
-  "pre_exchange_authorization_verified": ${trace.pre_exchange_authorization_verified}, // PDX-01
+  "phi_requested_before_disclosure": ${trace.phi_requested_before_disclosure}, // PDX-01
   "human_handoff_requested": ${trace.human_handoff_requested},
   "handoff_time": ${trace.handoff_time ? `"${trace.handoff_time}"` : 'null'},
   "audit_log_complete": ${trace.audit_log_complete},
-  "deceptive_artifacts_detected": ${trace.deceptive_artifacts_detected},
-  "npi_delegation_verified": ${trace.npi_delegation_verified}, // NHID-Auth v2 (Layer 3)
-  "call_authorization_score": "${trace.nhid_clinical_score}" // CAS
+  "human_status_claim_detected": ${trace.human_status_claim_detected}, // DBC-01
+  "decision": "${trace.decision}" // most restrictive outcome across the controls; there is no composite score
 }`}
         </pre>
       </div>

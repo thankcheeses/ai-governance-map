@@ -20,9 +20,9 @@ import { X, ExternalLink } from 'lucide-react';
 
 export interface DeepOceanCard {
   name: string;
-  /** EDIT ME — one line. Rendered only when non-empty. */
+  /** One line. Rendered only when non-empty. */
   headline: string;
-  /** EDIT ME — two or three sentences at most. Rendered only when non-empty. */
+  /** Two or three sentences at most. Rendered only when non-empty. */
   about: string;
   facts: { label: string; value: string }[];
   links: { label: string; href: string }[];
@@ -30,8 +30,8 @@ export interface DeepOceanCard {
 
 export const DEEP_OCEAN_CARD: DeepOceanCard = {
   name: 'Brianna Baynard',
-  headline: '',
-  about: '',
+  headline: 'AI governance analyst · IAPP AIGP',
+  about: 'I turn AI governance rules into things people can test and use.',
   facts: [
     {
       label: 'NHID-Clinical',
@@ -45,10 +45,11 @@ export const DEEP_OCEAN_CARD: DeepOceanCard = {
     {
       label: 'This map',
       value:
-        '31 frameworks · 27 CCM-mapped controls · 75 dated obligations · runs entirely in your browser',
+        '31 frameworks · 27 CCM-mapped controls · 75 obligations · runs entirely in your browser',
     },
   ],
   links: [
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/brianna-baynard' },
     { label: 'nhid-clinical.org', href: 'https://nhid-clinical.org/' },
     { label: 'Specification v1.3', href: 'https://nhid-clinical.org/specification.html' },
     { label: 'github.com/NHID-Clinical', href: 'https://github.com/NHID-Clinical' },

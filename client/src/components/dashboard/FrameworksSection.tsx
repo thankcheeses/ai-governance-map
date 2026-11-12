@@ -64,7 +64,7 @@ export default function FrameworksSection({
               whileHover={{ y: -2 }}
               transition={{ delay: i * 0.06, duration: 0.4, ease: EASE }}
               onClick={() => handleSelect(fw.shortCode)}
-              className={`text-left card-elevated p-5 transition-colors duration-200 ${
+              className={`flex flex-col text-left card-elevated p-5 transition-colors duration-200 ${
                 active ? 'border-[#0F172A]/40 ring-1 ring-[#0F172A]/20' : 'hover:border-primary/30'
               }`}
             >

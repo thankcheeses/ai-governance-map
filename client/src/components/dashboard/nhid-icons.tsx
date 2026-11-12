@@ -4,7 +4,7 @@
 // is applied by the caller via text color). One precise concept per icon, legible at 16px.
 //
 // Set: Identity Disclosure · Pre-Data Exchange Gate · Deceptive Behavior · Human Escalation
-//      Audit Trail · Impersonation Latency · Call Authorization Score (CAS) · Trust Stack.
+//      Audit Trail · Impersonation Latency · Trust Stack.
 
 interface IconProps {
   className?: string;
@@ -59,7 +59,7 @@ export function PreDataGateIcon(p: IconProps) {
   );
 }
 
-/** DBC-01 — no voice mimicry / deceptive behavior: an impersonation mask, prohibited. */
+/** DBC-01 — deceptive behavior check: an impersonation mask, prohibited. */
 export function DeceptiveBehaviorIcon(p: IconProps) {
   return (
     <Svg {...p} label="Deceptive behavior">
@@ -103,18 +103,6 @@ export function ImpersonationLatencyIcon(p: IconProps) {
       <circle cx="9.5" cy="9.5" r="6.5" />
       <path d="M9.5 6v3.5l2.3 1.4" />
       <path d="M15.5 19c-1 0-1.6-1-1.6-1.6 0-1 .8-1.4 1.6-1.4s1.6.4 1.6 1.4c0 .6-.6 1.6-1.6 1.6Zm0 0c1 0 1.6 1 1.6 1.6 0 1-.8 1.4-1.6 1.4s-1.6-.4-1.6-1.4c0-.6.6-1.6 1.6-1.6Z" opacity="0.9" />
-    </Svg>
-  );
-}
-
-/** Call Authorization Score (CAS): a verification gauge. */
-export function CasGaugeIcon(p: IconProps) {
-  return (
-    <Svg {...p} label="Call Authorization Score">
-      <path d="M4 17a8 8 0 0 1 16 0" />
-      <path d="M4 17h1.5M18.5 17H20M6.5 10.5l1 1M17.5 10.5l-1 1M12 6.5V8" opacity="0.6" />
-      <path d="M12 17l4-3.5" />
-      <circle cx="12" cy="17" r="1.5" fill="currentColor" />
     </Svg>
   );
 }

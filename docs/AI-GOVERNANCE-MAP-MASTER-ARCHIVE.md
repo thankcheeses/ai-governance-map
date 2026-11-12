@@ -426,8 +426,8 @@ demo mode) is managed in React hooks — chiefly `useGovernanceState.ts` — and
 **Scripts:** `dev` (vite), `build` (vite build), `preview`, `check` (`tsc --noEmit`),
 `format` (prettier), `test` (vitest run).
 
-**Deployment.** Hosted on **Vercel** (`ai-governance-map.vercel.app`); PR previews deploy
-automatically. CI signals observed in-session: Vercel preview build + CodeRabbit review bot.
+**Deployment.** Hosted on **GitHub Pages** (`thankcheeses.github.io/ai-governance-map`) since
+29 Aug 2026; before that on Vercel, where PR previews deployed automatically. CI signals observed in-session: Vercel preview build + CodeRabbit review bot.
 
 **Known build note:** the production bundle exceeds Vite's 500 kB chunk-size warning
 threshold (~2.5 MB / ~715 kB gzip with MapLibre added) — a candidate for code-splitting
