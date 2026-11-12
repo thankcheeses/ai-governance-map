@@ -4,6 +4,8 @@ import {
   FRAMEWORKS,
   HEATMAP_CELLS,
   NHID_CONFORMANCE_CONTROLS,
+  NHID_EVENT_TRACE,
+  NHID_EVENT_TRACE_FAIL,
   NHID_LAYERS,
   OBLIGATIONS,
   RISK_DOMAINS,
@@ -231,6 +233,16 @@ describe('NHID-Clinical scope and status', () => {
     for (const code of ['IDG-01', 'PDX-01', 'DBC-01', 'EIT-01']) {
       expect(byCode[code].kind).toBe('behavioral gate');
     }
+  });
+
+  it('carries no composite score: the trace ends in a decision, not a number', () => {
+    // NHID-Clinical withdrew the Call Authorization Score and replaced it with
+    // nothing. The example traces report the most restrictive outcome instead.
+    for (const trace of [NHID_EVENT_TRACE, NHID_EVENT_TRACE_FAIL]) {
+      expect(Object.keys(trace).some((k) => /score/i.test(k))).toBe(false);
+    }
+    expect(NHID_EVENT_TRACE.decision).toBe('CONTINUE_AI');
+    expect(NHID_EVENT_TRACE_FAIL.decision).toBe('DENY_DATA');
   });
 
   it('does not claim deployed-at-scale evidence', () => {

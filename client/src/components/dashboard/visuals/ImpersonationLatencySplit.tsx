@@ -99,7 +99,7 @@ export default function ImpersonationLatencySplit() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         />
-        {/* Disclosure + authorization gate (IDG-01 · PDX-01) */}
+        {/* Disclosure gate (IDG-01 · PDX-01) */}
         <g filter="url(#lat-glow)">
           <rect x="496" y="86" width="46" height="68" rx="7" fill="url(#lat-gate)" opacity="0.92" />
           <rect x="507" y="100" width="24" height="40" rx="4" fill="#022c26" />
@@ -124,7 +124,7 @@ export default function ImpersonationLatencySplit() {
           trust delay: measurable
         </text>
         <text x="364" y="228" fontSize="9" fill="#94a3b8" fontFamily="Inter, sans-serif">
-          Disclosure + authorization gate (IDG-01 · PDX-01) · verified before data exchange · audited
+          Disclosure gate (IDG-01 · PDX-01) · disclosed before data exchange · audited
         </text>
       </svg>
       {/* Upgrade path for maintainers lives in client/public/3d-renders/PROMPTS.md;

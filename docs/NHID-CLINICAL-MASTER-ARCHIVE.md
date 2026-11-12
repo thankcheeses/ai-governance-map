@@ -483,7 +483,7 @@ Known exception types from available source:
 **`vercel.json`:** Empty `buildCommand`, `outputDirectory: "."` — Vercel serves `index.html` directly as the static site root.
 
 **Branch strategy:**
-- `main` → Vercel production deployment (https://ai-governance-map.vercel.app/)
+- `main` → production deployment (Vercel at the time; now GitHub Pages, https://thankcheeses.github.io/ai-governance-map/)
 - `claude/governance-map-website-design-envee0` → Active development branch
 
 ### NHID-Clinical Implementation Repo
@@ -1434,7 +1434,7 @@ If a test couldn't run because the simulation system ran out of processing credi
 | `index.html` | `/home/user/ai-governance-map/index.html` | Static site; NHID-Clinical section (lines 550–629), all framework data, controls, obligations |
 | `CHANGELOG.md` | `/home/user/ai-governance-map/CHANGELOG.md` | v2.0.0 and v1.0.0 changelogs |
 | `README.md` | `/home/user/ai-governance-map/README.md` | Project overview, NHID-Clinical relationship |
-| `ideas.md` | `/home/user/ai-governance-map/ideas.md` | Design exploration for v2 UI |
+| `ideas.md` | `/home/user/ai-governance-map/docs/ideas.md` | Design exploration for v2 UI |
 | `todo.md` | `/home/user/ai-governance-map/todo.md` | Feature checklist |
 | `references/periodic-updates.md` | `/home/user/ai-governance-map/references/periodic-updates.md` | Scheduled task / cron architecture |
 | Session conversation record | Context window | ElevenLabs agent tasks, version fix history, test suite context |

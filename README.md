@@ -220,8 +220,10 @@ Related work: [NHID-Clinical](https://nhid-clinical.org) ·
 
 ## License & attribution
 
-Code in this repository is provided for reference. NHID-Clinical material is licensed
-**CC BY 4.0** and referenced here as an open proposal; see
+The code in this repository is licensed under the **MIT License** — see [`LICENSE`](LICENSE).
+
+NHID-Clinical material carries its own licences (specification and documents **CC BY 4.0**) and
+is referenced here as an open proposal; see
 [nhid-clinical.org](https://nhid-clinical.org) and
 [github.com/NHID-Clinical](https://github.com/NHID-Clinical). Framework names and control
 identifiers belong to their respective standards bodies.

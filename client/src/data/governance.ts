@@ -107,7 +107,7 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Regulation (Binding)', jurisdiction: 'India', version: 'G.S.R. 120(E), in force Feb 20, 2026', coverage: 20,
     summary: 'Binding amendment to the IT Rules 2021 (delegated under the IT Act, 2000) targeting AI-generated/synthetic content: mandatory labelling and provenance metadata, a 3-hour takedown duty for unlabeled synthetic media, and loss of intermediary safe-harbor for noncompliance.',
   },
-  // ── International / EU normative layer (verified mid-2026; see AI-GOVERNANCE-LIBRARY.md) ──
+  // ── International / EU normative layer (verified mid-2026; see docs/AI-GOVERNANCE-LIBRARY.md) ──
   {
     slug: 'gdpr', shortCode: 'GDPR', name: 'General Data Protection Regulation (EU 2016/679)',
     type: 'Regulation (Binding)', jurisdiction: 'EU', version: 'Regulation (EU) 2016/679, applicable 25 May 2018', coverage: 30,
@@ -123,7 +123,7 @@ export const FRAMEWORKS: Framework[] = [
     type: 'Recommendation (Voluntary)', jurisdiction: 'Global', version: 'Adopted 23 Nov 2021 by 193 member states', coverage: 22,
     summary: 'First global standard-setting instrument on AI ethics, adopted by all 193 UNESCO member states. Non-binding; states commit to implementing values (human rights/dignity, transparency, fairness, human oversight, sustainability) via national policy and tools like the Ethical Impact Assessment.',
   },
-  // ── Healthcare & voice-AI sector (verified mid-2026; see AI-GOVERNANCE-LIBRARY.md) ──
+  // ── Healthcare & voice-AI sector (verified mid-2026; see docs/AI-GOVERNANCE-LIBRARY.md) ──
   {
     slug: 'fda-ai-pccp', shortCode: 'FDA', name: 'FDA AI-Enabled Device Software — PCCP Guidance',
     type: 'Guidance (Non-binding)', jurisdiction: 'US', version: 'Final guidance 3 Dec 2024 (under FD&C Act §515C / FDORA 2022)', coverage: 20,
@@ -175,7 +175,7 @@ export const FRAMEWORKS: Framework[] = [
   {
     slug: 'nhid-clinical', shortCode: 'NHID', name: 'NHID-Clinical v1.3',
     type: 'Reference Implementation (Voluntary)', jurisdiction: 'Healthcare voice / Global', version: 'v1.3 — public comment NIST-2025-0035-0026', coverage: 0,
-    summary: 'Open behavioral baseline for AI voice agents on B2B healthcare payer–provider administrative calls — disclosure, no mimicry, human handoff, audit, and pre-data-exchange authorization. Scope is administrative calls only: patient-facing calls and clinical decision support are expressly out of scope. A voluntary, testable proposal (CC BY 4.0) — not law, not an official standard, not a certification, and not a general healthcare AI mandate. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains. Conflict of interest: authored by the same person who built this register, disclosed here and at the top of its panel rather than in a footnote. Listed here as one framework among the rest, not first, and its reference module is off by default. Coverage reads 0%: none of the register\u2019s 27 controls maps to any of its five v1.3 controls by code; two cite its Layer 3 authentication layer, which is not one of the five. It previously read 100% only because its own module supplied its own controls.',
+    summary: 'Open behavioral baseline for AI voice agents on B2B healthcare payer–provider administrative calls — identity disclosure before any protected data, no claim of human status, human handoff on request, and an audit trace. Scope is administrative calls only: patient-facing calls and clinical decision support are expressly out of scope. A voluntary, testable proposal (CC BY 4.0) — not law, not an official standard, not a certification, and not a general healthcare AI mandate. Reference-implementation, evaluation and audit-event work has continued past the published v1.3 baseline; v1.3 remains the citable public-comment artifact. Orthogonal to CCM: it governs voice-channel behavior, not CCM control domains. Conflict of interest: authored by the same person who built this register, disclosed here and at the top of its panel rather than in a footnote. Listed here as one framework among the rest, not first, and its reference module is off by default. Coverage reads 0%: none of the register\u2019s 27 controls maps to any of its five v1.3 controls by code; two cite its Layer 3 authentication layer, which is not one of the five. It previously read 100% only because its own module supplied its own controls.',
   },
 ];
 
@@ -328,11 +328,11 @@ export const OBLIGATIONS: Obligation[] = [
   { id: 'obl68', title: 'Risk management & documentation for high-risk AI', framework: 'VN', topic: 'Risk Management', type: 'mandatory', effective: '2026-03-01', severity: 'critical', summary: 'Providers/deployers of high-risk AI must conduct impact assessments and maintain a risk-management system, technical documentation, and logging (grace periods to 2027 for existing systems in finance, healthcare, and education).' },
   { id: 'obl69', title: 'Transparency & serious-incident reporting', framework: 'VN', topic: 'Transparency', type: 'mandatory', effective: '2026-03-01', severity: 'high', summary: 'Deployers must disclose how high-risk AI systems operate and report serious AI-caused incidents to the regulator; unacceptable-risk uses are prohibited.' },
   // NHID-Clinical (author's own voluntary proposal) — listed last, like any other voluntary entry.
-  { id: 'obl-nhid-idg', title: 'IDG-01 · Disclose AI identity before any data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: agent discloses it is automated and names the originating practice/vendor before requesting or sharing PHI or benefits data.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'IDG-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-pdx', title: 'PDX-01 · Verify authorization before operational data exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical v1.3 baseline: a pre-data-exchange gate holds operational data until the caller\'s authorization to represent the claimed provider organization is verified — the checkpoint that closes impersonation latency.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'PDX-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-dbc', title: 'DBC-01 · No human voice mimicry or impersonation', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: synthetic persona is prohibited from claiming a human name or simulating human cues designed to pass as human.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'DBC-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-eit', title: 'EIT-01 · Offer human handoff on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: any handoff-intent utterance triggers immediate transfer or callback queuing; the agent cannot stall or talk the caller out of it.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'EIT-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
-  { id: 'obl-nhid-atr', title: 'ATR-01 · Minimal audit log of call and disclosures', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical v1.3 baseline: every call emits a structured trace (IDs, disclosure time, handoff, outcome) forwarded to a FHIR AuditEvent layer for retention.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'ATR-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-idg', title: 'IDG-01 · Identity Disclosure Gate — disclose non-human identity before any PHI exchange', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical baseline: the calling agent discloses that it is not human before any PHI exchange, and a disclosure counts only if it was heard. It shows the agent said it is automated, not that its other claims are true.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'IDG-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-pdx', title: 'PDX-01 · Pre-Data Exchange Gate — no protected data until identity is disclosed', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'high', summary: 'Voluntary NHID-Clinical baseline: no protected data is exchanged until the agent has disclosed its identity, which closes the impersonation-latency window. A disclosure and a request in the same turn still fails. Disclosure is not authorization: authority to receive the data is a separate check.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'PDX-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-dbc', title: 'DBC-01 · Deceptive Behavior Check — no claim of human status or licensed-professional standing', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical baseline: the agent makes no claim, explicit or implied, to be human or a licensed professional. Judged on the agent\'s own words in the transcript; non-blocking, logged and routed to human review.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'DBC-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-eit', title: 'EIT-01 · Escalation Implementation Test — a clear human-handoff path, honored on request', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical baseline: a request for a human is honored through a clear handoff path. A handoff counts only when it is recorded with a timestamp and an outcome.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'EIT-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
+  { id: 'obl-nhid-atr', title: 'ATR-01 · Audit Trail Requirements — every interaction produces a machine-readable trace', framework: 'NHID', topic: 'Voice Agent & Non-Human Identity', type: 'recommended', effective: 'Ongoing', severity: 'medium', summary: 'Voluntary NHID-Clinical baseline: every interaction produces a machine-readable trace recording what the other four controls decided. It changes no behavior.', source: { tier: 'primary', citation: 'NHID-Clinical v1.3 baseline specification (public-comment artifact NIST-2025-0035-0026), CC BY 4.0', provision: 'ATR-01', url: 'https://nhid-clinical.org/', checked: '2026-10-01', note: 'Voluntary proposal, not law and not a certification. Reference-implementation work has continued past the published v1.3 baseline; v1.3 remains the citable public artifact.' } },
 ];
 
 export interface StateAILaw {
@@ -541,7 +541,7 @@ export const CONTROLS: Control[] = [
     implementation: 'Deploy monitoring for input distribution shift, prediction drift, and performance degradation. Set automated SLO breach alerts. Trigger re-evaluation workflow on threshold breach.' },
   { id: 11, code: 'CTRL-STA-001', title: 'AI Third-Party & Supplier Oversight', riskTier: 'High-Risk', priority: 'High', ccmDomain: 'STA', status: 'In Progress', automation: 'manual',
     description: 'Due diligence and contractual controls for AI vendors, foundation model providers, and data suppliers.',
-    mappings: { 'NIST AI RMF': ['GOVERN 6.1', 'MANAGE 3.1'], 'ISO/IEC 42001': ['8.6'], 'EU AI Act': ['Art 25', 'Art 28'] },
+    mappings: { 'NIST AI RMF': ['GOVERN 6.1', 'MANAGE 3.1'], 'ISO/IEC 42001': ['8.6'], 'EU AI Act': ['Art 25'] },
     indicator: { name: 'AI Vendor Risk Assessment Coverage', method: 'Critical AI vendors with completed risk assessments / total critical vendors', slo: '100% annually' },
     implementation: 'Conduct AI-specific vendor risk assessments. Require SLAs covering model update notifications, bias testing results, and security incident disclosure within 48 hours.' },
   { id: 12, code: 'CTRL-STA-002', title: 'AI Model Provenance & Documentation', riskTier: 'All Systems', priority: 'High', ccmDomain: 'STA', status: 'In Progress', automation: 'manual',
@@ -566,7 +566,7 @@ export const CONTROLS: Control[] = [
     implementation: 'Run AI-specific vulnerability scans quarterly. Include dependency scanning of ML frameworks and model serving infrastructure. Track CVEs for all model serving libraries.' },
   { id: 16, code: 'CTRL-AA-001', title: 'AI Internal Audit Program', riskTier: 'High-Risk', priority: 'High', ccmDomain: 'A&A', status: 'Planned', automation: 'manual',
     description: 'Annual internal audit program verifying AI governance controls, model risk management practices, and regulatory compliance posture.',
-    mappings: { 'NIST AI RMF': ['MEASURE 1.2', 'MEASURE 1.3', 'GOVERN 1.5'], 'ISO/IEC 42001': ['9.2'], 'EU AI Act': ['Art 17', 'Art 61'] },
+    mappings: { 'NIST AI RMF': ['MEASURE 1.2', 'MEASURE 1.3', 'GOVERN 1.5'], 'ISO/IEC 42001': ['9.2'], 'EU AI Act': ['Art 17'] },
     indicator: { name: 'Audit Finding Remediation Rate', method: 'High/critical audit findings closed on time / total high/critical findings', slo: '≥95% within agreed remediation date' },
     implementation: 'Scope annual AI audit to cover governance structure, model risk, data governance, and incident history. Issue findings with risk ratings. Track remediation through to closure.' },
   { id: 17, code: 'CTRL-AA-002', title: 'AI Third-Party Audit & Attestation', riskTier: 'High-Risk', priority: 'Medium', ccmDomain: 'A&A', status: 'Planned', automation: 'manual',
@@ -611,8 +611,9 @@ export const CONTROLS: Control[] = [
     implementation: 'Deploy AI training workloads in isolated VPCs without internet egress. Enforce GPU node isolation. Apply network micro-segmentation between inference and data tiers.' },
   { id: 25, code: 'CTRL-IPY-001', title: 'AI Model Portability & Interoperability', riskTier: 'All Systems', priority: 'Medium', ccmDomain: 'IPY', status: 'Planned', automation: 'manual',
     description: 'Open standards and export capabilities ensuring AI models and their associated data can be migrated across platforms without proprietary lock-in.',
-    // No NIST AI RMF subcategory addresses portability or lock-in, so none is cited.
-    mappings: { 'ISO/IEC 42001': ['8.3'], 'EU AI Act': ['Art 84'] },
+    // No NIST AI RMF subcategory and no EU AI Act article addresses portability or
+    // lock-in, so neither is cited.
+    mappings: { 'ISO/IEC 42001': ['8.3'] },
     indicator: { name: 'Standard Format Adoption Rate', method: 'Models exportable in open format (ONNX/PMML) / total production models', slo: '≥80% of new models' },
     implementation: 'Require ONNX or equivalent open format export for all new model deployments. Document API contracts using OpenAPI. Avoid proprietary inference formats for high-risk systems.' },
   { id: 26, code: 'CTRL-SEF-001', title: 'AI Security Incident Response & Remediation', riskTier: 'High-Risk', priority: 'Critical', ccmDomain: 'SEF', status: 'Planned', automation: 'semi-automated',
@@ -782,7 +783,7 @@ export interface NhidLayer {
 export const NHID_LAYERS: NhidLayer[] = [
   { layer: 0, title: 'NPI Registry', scope: 'No delegation proof, no call-time authorization.' },
   { layer: 1, title: 'STIR/SHAKEN', scope: 'Carrier attestation (A/B/C levels) — verifies phone number origin only.' },
-  { layer: 2, title: 'NHID-Clinical v1.3 — Behavioral Baseline', scope: 'Disclosure, no mimicry, human handoff, audit log.', isCore: true },
+  { layer: 2, title: 'NHID-Clinical v1.3 — Behavioral Baseline', scope: 'Identity disclosure before protected data, no claim of human status, human handoff, audit trace.', isCore: true },
   { layer: 3, title: 'NHID-Auth v2', scope: 'Cryptographic authorization layer: Ed25519 delegation chain + DPoP call-nonce binding (reference implementation, CC BY 4.0).' },
   { layer: 4, title: 'FHIR AuditEvent R4', scope: 'Healthcare-native structured logging (HL7 base spec v4.0.1); no named Implementation Guide (e.g. IHE BALP) conformance claimed.' },
   { layer: 5, title: 'OpenTelemetry → SIEM', scope: 'Spans forwarded to enterprise observability / security pipeline.' },
@@ -816,47 +817,47 @@ export const NHID_CONFORMANCE_CONTROLS: NhidConformanceControl[] = [
   {
     code: 'IDG-01',
     kind: 'behavioral gate',
-    requirement: 'Disclose AI identity before any data exchange',
+    requirement: 'Identity Disclosure Gate — disclose non-human identity before any PHI exchange',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
     indicator: { name: 'Pre-Exchange Disclosure Rate', method: 'Calls with disclosure timestamp before first data exchange / total calls', slo: '100% of calls' },
-    implementation: 'Agent states it is automated and names the originating practice/vendor within the first conversational turn, before requesting or sharing any PHI or benefits data. Disclosure timestamp is captured in the event trace.',
+    implementation: 'The agent states that it is automated before requesting or sharing any PHI. A disclosure counts only if it was heard; an interrupted one does not. The control shows the agent said it is automated, not that its claims are true.',
   },
   {
     code: 'PDX-01',
     kind: 'behavioral gate',
-    requirement: 'Verify authorization before any operational data exchange',
+    requirement: 'Pre-Data Exchange Gate — no protected data until identity is disclosed',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
-    indicator: { name: 'Pre-Exchange Authorization Rate', method: 'Calls where caller authorization is verified before the first operational (PHI / benefits) data exchange / total calls', slo: '100% of calls, verification before first data turn' },
-    implementation: 'A pre-data-exchange gate holds any operational data (PHI, eligibility, benefits) until the caller\'s authorization to represent the claimed provider organization is checked. No standard verification pathway means this gate is where impersonation latency is closed; the authorization checkpoint and its timestamp are captured in the event trace.',
+    indicator: { name: 'Pre-Disclosure Data Request Rate', method: 'Calls where protected data is requested or shared before identity disclosure / total calls', slo: '0 calls; impersonation latency of zero turns' },
+    implementation: 'The gate holds protected data (PHI, eligibility, claim status) until the agent has disclosed its identity, closing the impersonation-latency window. Disclosure in the same turn as the request still fails. Disclosure is not authorization: authority to receive the data is checked separately.',
   },
   {
     code: 'DBC-01',
     kind: 'behavioral gate',
-    requirement: 'No human voice mimicry or impersonation',
+    requirement: 'Deceptive Behavior Check — no claim of human status or licensed-professional standing',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
-    indicator: { name: 'Deceptive Artifact Detection Rate', method: 'Calls flagged for mimicry cues (filler words, false pauses, human-name self-reference) / total calls', slo: '0 flagged per 1,000 calls' },
-    implementation: 'Voice model is restricted to a disclosed synthetic persona; prohibited from claiming a human name, simulating hesitation/breath patterns designed to pass as human, or denying its automated nature if asked directly.',
+    indicator: { name: 'Human-Status Claim Rate', method: 'Calls whose transcript contains an explicit or implied claim to be human or a licensed professional / total calls', slo: '0 flagged per 1,000 calls' },
+    implementation: 'Judged on the agent\'s own words in the transcript: no explicit or implied claim to be human or to hold a professional licence. Non-blocking: a finding is logged and routed to human review. Acoustic detection is not claimed.',
   },
   {
     code: 'EIT-01',
     kind: 'behavioral gate',
-    requirement: 'Offer human handoff on request',
+    requirement: 'Escalation Implementation Test — a clear human-handoff path, honored on request',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
     indicator: { name: 'Handoff Honor Rate', method: 'Handoff requests routed to a human / total handoff requests', slo: '100%, median handoff time < 60s' },
-    implementation: 'Any caller utterance matching handoff intent (e.g. "speak to a person") triggers immediate transfer or callback queuing — the agent cannot stall, downplay, or talk the caller out of the request.',
+    implementation: 'A request for a human (e.g. "speak to a person") is honored through a clear handoff path. A handoff counts only when it is recorded with a timestamp and an outcome.',
   },
   {
     code: 'ATR-01',
     kind: 'evidence',
-    requirement: 'Minimal audit log of call and disclosures',
+    requirement: 'Audit Trail Requirements — every interaction produces a machine-readable trace',
     status: 'Conformant',
     evidence: 'Prototype / Simulation only',
-    indicator: { name: 'Audit Log Completeness Rate', method: 'Calls with complete event trace (disclosure, handoff, outcome) / total calls', slo: '100% logged, retained per FHIR AuditEvent R4' },
-    implementation: 'Every call emits a structured trace — call/agent IDs, disclosure time, handoff requests, and outcome — forwarded to the FHIR AuditEvent layer for retention and downstream SIEM correlation.',
+    indicator: { name: 'Audit Trace Completeness Rate', method: 'Calls with a complete machine-readable trace (disclosure, handoff, decisions) / total calls', slo: '100% of calls traced' },
+    implementation: 'Every interaction produces a machine-readable trace recording what the other four controls decided. The trace changes no behavior, and logging an event does not authorize disclosure.',
   },
 ];
 
@@ -866,14 +867,13 @@ export const NHID_EVENT_TRACE = {
   start_time: '2026-06-04T09:12:00Z',
   disclosure_time: '2026-06-04T09:12:02Z',
   disclosure_text: "I'm an automated assistant from Dr. Smith's office.",
-  pre_exchange_authorization_verified: true,
+  phi_requested_before_disclosure: false,
   operational_data_exchanged: '09:12:08Z',
   human_handoff_requested: true,
   handoff_time: '2026-06-04T09:12:22Z',
   audit_log_complete: true,
-  deceptive_artifacts_detected: false,
-  npi_delegation_verified: true,
-  nhid_clinical_score: '5/5',
+  human_status_claim_detected: false,
+  decision: 'CONTINUE_AI',
 };
 
 export const NHID_EVENT_TRACE_FAIL = {
@@ -882,14 +882,13 @@ export const NHID_EVENT_TRACE_FAIL = {
   start_time: '2026-06-11T14:03:00Z',
   disclosure_time: null,
   disclosure_text: '',
-  pre_exchange_authorization_verified: false,
+  phi_requested_before_disclosure: true,
   operational_data_exchanged: '14:03:05Z',
   human_handoff_requested: true,
   handoff_time: null,
   audit_log_complete: false,
-  deceptive_artifacts_detected: true,
-  npi_delegation_verified: false,
-  nhid_clinical_score: '1/5',
+  human_status_claim_detected: true,
+  decision: 'DENY_DATA',
 };
 
 export const NHID_SIMULATOR_URL = 'https://nhid-clinical.org/gov-sim.html?scenario=spoofed-identity';

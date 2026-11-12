@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Repository and site clean-up
+- Removed the site-builder plugins and debug collector that were being published with the site; the built `index.html` drops from 372 kB to under 6 kB and ships no third-party script.
+- Fixed the bold Sora face (it pointed at a font file that did not exist) and dark-mode contrast for badges and links in the register panels. Framework cards are top-aligned.
+- NHID-Clinical module brought in line with the current project: the Call Authorization Score is withdrawn and no score replaces it, so the badge and the trace field are gone; the five controls use their published names and rules; the example trace ends in the engine's decision (`CONTINUE_AI` / `DENY_DATA`); impersonation latency is defined as turns between connect and disclosure.
+- EU AI Act references corrected to the final numbering of Regulation (EU) 2024/1689: transparency is Article 50, GPAI is Chapter V, and three control mappings that pointed at unrelated articles (28, 61, 84) were removed.
+- MIT `LICENSE` added; README names the author and the licence. Author card filled in.
+- Archive and design notes moved to `docs/`; unused template files, a second lockfile and a disabled workflow removed. `package.json` version now matches this changelog (3.0.0).
+- The not-found page uses the site's own colours in light and dark.
+
 ### NIST AI RMF Playbook layer
 - New **NIST AI RMF Playbook** section (Full register and GRC views): the 72 subcategories grouped by function, each opening to NIST's outcome statement, suggested actions and Transparency & Documentation questions. Search, function filter, and a "Not mapped by any control" filter that shows coverage gaps. Text is verbatim from NIST; the Playbook's not-a-checklist / voluntary framing is shown with a source link.
 - NIST subcategory chips in **Controls** now open the cited subcategory in a side sheet.
