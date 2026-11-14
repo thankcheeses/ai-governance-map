@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### CMS roadmap added to the timeline
+- New timeline event, 12 November 2026: the CMS Clinical Super Intelligence Roadmap, read in full and recorded as a non-binding statement of intent. The date is the PDF's creation date, because the document's text carries none. Timeline coverage is 17 of 17; with obligations, 88 of 92 rows cite a source.
+- The 16 October 2026 joint key-practices entry moves from "current" to "past", since the roadmap is now the latest event.
+
 ### Sources for the remaining rows
 - Ten more obligations now cite a source: GDPR (2), South Korea (3), Viet Nam (2), IEEE 7000 (2) and the second CHAI row. Coverage is 71 of 75 obligations and 16 of 16 timeline events. The four ISO/IEC 42001 rows stay marked "no source recorded": the standard is paywalled and its clause titles could not be confirmed from ISO's free pages.
 - Each of these rows says in its note what was actually read: an unofficial mirror for GDPR, an unofficial English translation for the Korean Act, a Government Portal summary for the Vietnamese Law, the abstract only for IEEE 7000, and passages of CHAI's draft guide.
