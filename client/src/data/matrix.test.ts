@@ -159,6 +159,22 @@ describe('obligation status', () => {
 });
 
 describe('provenance', () => {
+  it('does not show a treaty awaiting ratifications as in force or as voluntary', () => {
+    const coe = OBLIGATIONS.filter((o) => o.framework === 'COE');
+    expect(coe.length).toBeGreaterThan(0);
+    for (const obl of coe) {
+      expect(obl.effective).toBe('Not yet in force');
+      expect(obligationStatus(obl)).toBe('Applies later');
+    }
+  });
+
+  it('gives every timeline event a source, and leaves the unread obligations marked as gaps', () => {
+    expect(sourceCoverage(TIMELINE_EVENTS).unsourced).toBe(0);
+    // Paywalled standards and texts that could not be read stay unsourced on purpose.
+    const unsourced = OBLIGATIONS.filter((o) => !o.source).map((o) => o.framework);
+    expect(new Set(unsourced)).toEqual(new Set(['ISO', 'KR', 'GDPR', 'CHAI', 'IEEE', 'VN']));
+  });
+
   it('reports coverage honestly rather than counting unsourced rows as sourced', () => {
     const coverage = sourceCoverage([...OBLIGATIONS, ...TIMELINE_EVENTS]);
     expect(coverage.total).toBe(OBLIGATIONS.length + TIMELINE_EVENTS.length);

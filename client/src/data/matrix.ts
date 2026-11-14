@@ -234,7 +234,12 @@ function controlEffectiveness(codes: string[], controlState: Maturities) {
 export const OBLIGATION_STATUSES = ['In force', 'Applies later', 'Ongoing (voluntary)'] as const;
 export type ObligationStatus = (typeof OBLIGATION_STATUSES)[number];
 
+/** A binding instrument that has not entered into force carries this instead of a date. */
+export const NOT_YET_IN_FORCE = 'Not yet in force';
+
 export function obligationStatus(obl: Obligation): ObligationStatus {
+  // A treaty awaiting ratifications is neither voluntary nor in force: it applies later.
+  if (obl.effective === NOT_YET_IN_FORCE) return 'Applies later';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(obl.effective)) return 'Ongoing (voluntary)';
   return daysUntil(obl.effective) <= 0 ? 'In force' : 'Applies later';
 }

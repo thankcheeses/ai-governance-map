@@ -127,8 +127,19 @@ reconciled against Commission guidance and commentary rather than the Official J
 Rows with no citation render **“no source recorded”** rather than being left blank, so an
 unattested row reads as a known gap instead of inheriting the credibility of its neighbours.
 The **Evidence coverage** panel on the decision desk publishes the resulting ratio for the
-register as a whole. The number is deliberately unflattering; closing it is ordinary editorial
-work, and hiding it would not be.
+register as a whole, and hiding it would not be honest.
+
+As of 14 November 2026, **61 of 75 obligations** and **all 16 timeline events** carry a source
+(77 of 91 rows). The 14 obligations still marked *no source recorded* are the ones whose text
+could not be read for this pass: ISO/IEC 42001 and IEEE 7000 (paywalled), the Korean and
+Vietnamese statutes (no official text could be loaded), the two GDPR rows (EUR-Lex could not
+be reached) and one CHAI row. They stay unsourced rather than being cited from memory.
+
+For voluntary instruments the tiers are read as follows: a formally adopted instrument or the
+issuing body's own text (OECD, UNESCO, OWASP, MITRE, CHAI, NHID-Clinical) is **Primary text**;
+a document published by a government agency or the WHO that is not law (NIST AI RMF, FDA and
+WHO guidance, Singapore's framework, White House recommendations) is **Official guidance**.
+Where only part of a document was read, the row's note says which part.
 
 ### Freshness
 
