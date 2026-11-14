@@ -47,8 +47,11 @@ describe('country metrics are derived from the register, not invented', () => {
 
   it('reports the strongest evidence tier on file, and its absence honestly', () => {
     expect(metricValue('evidence', 'Italy', TODAY)).toBe(3); // EU rows cite the Official Journal
-    expect(metricValue('evidence', 'Vietnam', TODAY)).toBe(0); // binding, but no citation on file yet
-    expect(describeMetric('evidence', 'Vietnam', TODAY).display).toBe('No citation on file yet');
+    // Weaker sourcing must show as weaker, never be rounded up to the enacted text.
+    expect(metricValue('evidence', 'Vietnam', TODAY)).toBe(2); // rests on a Government Portal summary
+    expect(describeMetric('evidence', 'Vietnam', TODAY).display).toBe('Official guidance');
+    expect(metricValue('evidence', 'South Korea', TODAY)).toBe(1); // rests on an unofficial translation
+    expect(describeMetric('evidence', 'South Korea', TODAY).display).toBe('Secondary report');
   });
 });
 

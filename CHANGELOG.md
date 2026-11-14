@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Sources for the remaining rows
+- Ten more obligations now cite a source: GDPR (2), South Korea (3), Viet Nam (2), IEEE 7000 (2) and the second CHAI row. Coverage is 71 of 75 obligations and 16 of 16 timeline events. The four ISO/IEC 42001 rows stay marked "no source recorded": the standard is paywalled and its clause titles could not be confirmed from ISO's free pages.
+- Each of these rows says in its note what was actually read: an unofficial mirror for GDPR, an unofficial English translation for the Korean Act, a Government Portal summary for the Vietnamese Law, the abstract only for IEEE 7000, and passages of CHAI's draft guide.
+- Corrections: the Korean domestic-representative thresholds are set by Presidential Decree, not the Act, so the KRW figures are removed, as is a grace period for fines that the Act does not contain. The Vietnamese rows drop details the official summary does not state. The NHID-Auth layer description no longer mentions DPoP, which its repository does not.
+
 ### Sources for the register
 - 47 obligations and 4 timeline events that had no source now cite one, each reconciled against the document on 14 November 2026. Coverage is 61 of 75 obligations and 16 of 16 timeline events. Fourteen obligations stay marked "no source recorded" because their text could not be read (ISO/IEC 42001, IEEE 7000, the Korean and Vietnamese statutes, GDPR, one CHAI row).
 - Corrections found while reconciling:
