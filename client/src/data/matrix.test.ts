@@ -170,9 +170,10 @@ describe('provenance', () => {
 
   it('gives every timeline event a source, and leaves the unread obligations marked as gaps', () => {
     expect(sourceCoverage(TIMELINE_EVENTS).unsourced).toBe(0);
-    // Paywalled standards and texts that could not be read stay unsourced on purpose.
+    // ISO/IEC 42001 is paywalled and its clause titles could not be confirmed, so it stays a gap.
     const unsourced = OBLIGATIONS.filter((o) => !o.source).map((o) => o.framework);
-    expect(new Set(unsourced)).toEqual(new Set(['ISO', 'KR', 'GDPR', 'CHAI', 'IEEE', 'VN']));
+    expect(new Set(unsourced)).toEqual(new Set(['ISO']));
+    expect(unsourced).toHaveLength(4);
   });
 
   it('reports coverage honestly rather than counting unsourced rows as sourced', () => {
