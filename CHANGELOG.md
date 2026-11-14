@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Sources for the register
+- 47 obligations and 4 timeline events that had no source now cite one, each reconciled against the document on 14 November 2026. Coverage is 61 of 75 obligations and 16 of 16 timeline events. Fourteen obligations stay marked "no source recorded" because their text could not be read (ISO/IEC 42001, IEEE 7000, the Korean and Vietnamese statutes, GDPR, one CHAI row).
+- Corrections found while reconciling:
+  - Council of Europe AI Convention (CETS 225) is **not in force**: two of the five required ratifications were recorded as of 13 November 2026. It was listed as in force since 1 November 2025.
+  - HIPAA Security Rule compliance date is 20 April 2005, not 21 April. Two rows no longer say NHID-Auth "satisfies" an encryption specification, and wording added to the regulation's text ("AI agent", "at rest") is removed. Each row now says whether it is a standard, required or addressable.
+  - Texas TRAIGA: the biometric-identification restriction binds governmental entities, not all developers and deployers.
+  - India IT Rules: the three-hour removal limit applies to unlawful information on actual knowledge, not to unlabelled synthetic content as such.
+  - China Interim Measures: the filing and security-assessment duty covers services with public-opinion attributes or social-mobilisation capability, not every public-facing service.
+  - California AI Transparency Act: no separate visible-disclosure duty in the section as amended; the tool is a disclosure verification tool.
+  - NYC Local Law 144: candidates may request an alternative selection process or accommodation; there is no general opt-out.
+  - Utah: the on-request disclosure duty falls on suppliers in consumer transactions; the regulated-occupation duty is for high-risk interactions.
+  - FCC AI-voice ruling: the opt-out mechanism is required for advertising and telemarketing messages, not every artificial-voice call.
+  - Tennessee ELVIS Act: rows now describe civil liability for the specific knowing uses in the text.
+  - FDA PCCP guidance was first issued 4 December 2024, not 3 December. Singapore's generative-AI framework is not a "2nd edition". OWASP entries use the 2025 names. CHAI documents are drafts. NHID-Auth row no longer mentions DPoP, which its repository does not.
+- The page description no longer says "every entry traced to a cited source". It now says each entry shows the source it was checked against and that entries with no source recorded are marked.
+
 ### Repository and site clean-up
 - Removed the site-builder plugins and debug collector that were being published with the site; the built `index.html` drops from 372 kB to under 6 kB and ships no third-party script.
 - Fixed the bold Sora face (it pointed at a font file that did not exist) and dark-mode contrast for badges and links in the register panels. Framework cards are top-aligned.

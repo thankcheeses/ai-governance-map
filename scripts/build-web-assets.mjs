@@ -76,7 +76,7 @@ await writeFile(
     {
       name: 'AI Governance Map',
       short_name: 'Governance Map',
-      description: 'Which AI law binds which country, traced to a cited source.',
+      description: 'Which AI law binds which country, with sources shown and gaps marked.',
       start_url: '.',
       scope: '.',
       display: 'standalone',
@@ -147,7 +147,7 @@ await writeFile(cardFile, `<!doctype html><meta charset="utf-8">
 <div class="col">
   <div class="brand">${markDark}<span>AI Governance Map</span></div>
   <h1>Which AI law binds which country</h1>
-  <p>Every entry traced to a cited source.</p>
+  <p>Sources shown, gaps marked.</p>
   <ul>${legend.map(([l, c]) => `<li><i style="background-color:${c}"></i>${l}</li>`).join('')}</ul>
 </div>`);
 await card.goto(pathToFileURL(cardFile).href);
