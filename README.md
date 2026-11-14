@@ -129,8 +129,8 @@ unattested row reads as a known gap instead of inheriting the credibility of its
 The **Evidence coverage** panel on the decision desk publishes the resulting ratio for the
 register as a whole, and hiding it would not be honest.
 
-As of 14 November 2026, **71 of 75 obligations** and **all 16 timeline events** carry a source
-(87 of 91 rows). The four obligations still marked *no source recorded* are the ISO/IEC 42001
+As of 14 November 2026, **71 of 75 obligations** and **all 17 timeline events** carry a source
+(88 of 92 rows). The four obligations still marked *no source recorded* are the ISO/IEC 42001
 rows: the standard is paywalled and its clause titles could not be confirmed from the
 publisher's free pages, so they stay unsourced rather than being cited from memory.
 
