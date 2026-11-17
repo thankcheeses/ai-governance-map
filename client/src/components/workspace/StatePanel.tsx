@@ -37,7 +37,7 @@ export default function StatePanel({ state, onClose }: { state: string; onClose:
           type="button"
           onClick={onClose}
           aria-label="Close state panel"
-          className="p-1 text-muted-foreground hover:text-foreground"
+          className="p-3.5 -m-2.5 text-muted-foreground hover:text-foreground"
         >
           <X size={16} />
         </button>

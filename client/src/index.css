@@ -335,6 +335,8 @@ header.sticky { background: rgba(247,248,245,.92) !important; border-color: var(
 .section-icon { border-radius: 7px !important; background: #e0f4ef !important; color: var(--signal-deep) !important; box-shadow: none !important; }
 /* Was #859298 at 9px: 3.06:1 and too small to read. */
 .section-kicker { color: #4a5a62; font-size: 11px; letter-spacing: .14em; margin-bottom: 3px; }
+/* #4a5a62 is 2.6:1 on the dark panel surface; use the dark muted-foreground. */
+.dark .section-kicker { color: #94A3B8; }
 .stat-accent::after { height: 2px; background: var(--signal); }
 
 #heatmap .card-elevated { background: #f1f3ef; }

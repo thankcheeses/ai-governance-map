@@ -1,7 +1,7 @@
 # AI Governance Map
 
 A local-only reference map for AI governance — **31 frameworks and standards**, **27
-CCM-mapped controls**, **75 obligations** and a **16-event timeline**, crosswalked
+CCM-mapped controls**, **75 obligations** and a **17-event timeline**, crosswalked
 across jurisdictions on an interactive globe and flat world map. Built for practitioners
 evaluating AI systems in any sector.
 

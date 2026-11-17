@@ -150,7 +150,7 @@ export default function NistPlaybookSection() {
             </button>
             {perFunction.map((p) => (
               <button key={p.fn} type="button" className={pill(fn === p.fn)} aria-pressed={fn === p.fn} onClick={() => setFn(p.fn)}>
-                {p.fn} <span className="opacity-70">{p.total || ''}</span>
+                {p.fn} <span>{p.total || ''}</span>
               </button>
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function NistPlaybookSection() {
                 setFn('ALL');
               }}
             >
-              Not mapped by any control <span className="opacity-70">{playbook ? unmappedCount : ''}</span>
+              Not mapped by any control <span>{playbook ? unmappedCount : ''}</span>
             </button>
           </div>
           <span className="sm:ml-auto text-xs text-muted-foreground font-mono">

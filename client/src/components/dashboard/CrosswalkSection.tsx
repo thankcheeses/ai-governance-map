@@ -69,7 +69,7 @@ export default function CrosswalkSection() {
                         {CORE_FRAMEWORKS.map((fw) => (
                           <td key={fw} className="text-center px-2 py-2.5">
                             {mapped[fw]
-                              ? <span className="inline-block w-5 h-5 rounded-full bg-primary/20 text-primary text-[0.6rem] font-bold leading-5">✓</span>
+                              ? <span className="inline-block w-5 h-5 rounded-full bg-primary/20 text-teal-900 text-[0.6rem] font-bold leading-5">✓</span>
                               : <span className="text-border">—</span>}
                           </td>
                         ))}
