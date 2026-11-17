@@ -49,7 +49,7 @@ export default function CountryPanel({
           type="button"
           onClick={onClose}
           aria-label="Close jurisdiction panel"
-          className="p-1 text-muted-foreground hover:text-foreground"
+          className="p-3.5 -m-2.5 text-muted-foreground hover:text-foreground"
         >
           <X size={16} />
         </button>

@@ -105,7 +105,7 @@ export default function MaturityRadarSection() {
               className="flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg"
             >
               <span className="font-mono text-xs font-medium text-muted-foreground">{d.domain}</span>
-              <span className="font-mono text-xs text-primary font-semibold">{d.maturity > 0 ? `${d.maturity} / 5` : '—'}</span>
+              <span className="font-mono text-xs text-teal-900 font-semibold">{d.maturity > 0 ? `${d.maturity} / 5` : '—'}</span>
             </motion.div>
           ))}
           <div className="mt-3 px-3 py-2.5 bg-primary/5 border border-dashed border-primary/30 rounded-lg">

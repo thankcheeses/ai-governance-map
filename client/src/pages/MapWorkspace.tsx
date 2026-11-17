@@ -744,9 +744,11 @@ export default function MapWorkspace() {
     <div className="fixed inset-0 flex flex-col bg-[#04070e]">
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="flex items-center gap-3 px-4 h-12 border-b border-white/10 flex-shrink-0">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-white/75 whitespace-nowrap hidden md:block">
+          {/* The page's only h1. Below md it stays in the accessibility tree
+              (sr-only) instead of vanishing with display:none. */}
+          <h1 className="text-[0.72rem] font-semibold [font-family:inherit] leading-normal uppercase tracking-widest text-white/75 whitespace-nowrap max-md:sr-only">
             Governance map
-          </p>
+          </h1>
           <div className="relative flex-1 max-w-sm">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/70" aria-hidden="true" />
             <input
@@ -754,7 +756,7 @@ export default function MapWorkspace() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search a jurisdiction or institution"
               aria-label="Search a jurisdiction or institution"
-              className="w-full bg-white/5 border border-white/15 rounded-md pl-7 pr-2 py-1 text-xs text-white placeholder:text-white/70 focus:outline-none focus:border-white/40"
+              className="w-full bg-white/5 border border-white/15 rounded-md pl-7 pr-2 py-1 text-xs text-white placeholder:text-white/70 focus:outline-none focus:border-white/40 focus-visible:ring-2 focus-visible:ring-white/70"
             />
             {results.length > 0 && (
               <ul className="absolute top-full left-0 right-0 mt-1 bg-[#0b1220] border border-white/15 rounded-md overflow-hidden z-40">
@@ -780,7 +782,7 @@ export default function MapWorkspace() {
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Switch panels to light' : 'Switch panels to dark'}
             title={theme === 'dark' ? 'Light panels' : 'Dark panels'}
-            className="ml-auto inline-flex items-center justify-center h-7 w-7 rounded-md border border-white/20 text-white/70 hover:text-white hover:border-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            className="ml-auto relative after:absolute after:-inset-2 inline-flex items-center justify-center h-7 w-7 rounded-md border border-white/20 text-white/70 hover:text-white hover:border-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             {theme === 'dark' ? <Sun size={13} aria-hidden="true" /> : <Moon size={13} aria-hidden="true" />}
           </button>
@@ -791,7 +793,7 @@ export default function MapWorkspace() {
                 type="button"
                 onClick={() => setProjection(p)}
                 aria-pressed={projection === p}
-                className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border ${
+                className={`relative after:absolute after:inset-x-0 after:-inset-y-[9px] inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border ${
                   projection === p ? 'bg-white text-[#0b1220] border-white' : 'border-white/20 text-white/70 hover:text-white'
                 }`}
               >
@@ -818,7 +820,7 @@ export default function MapWorkspace() {
                 onClick={() => setPanel(active ? null : item.id)}
                 aria-pressed={active}
                 title={item.label}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs whitespace-nowrap border-b-2 ${
+                className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 max-sm:min-h-11 max-sm:min-w-11 text-xs whitespace-nowrap border-b-2 ${
                   active
                     ? 'text-white border-teal-300 bg-white/10'
                     : 'text-white/80 hover:text-white border-transparent'
@@ -1005,7 +1007,7 @@ export default function MapWorkspace() {
                 activePanel.wide ? 'w-full max-w-[64rem]' : 'w-full max-w-[36rem]'
               }`}
             >
-              <div className="sticky top-0 bg-background border-b border-border px-4 py-2 flex items-center justify-between z-10">
+              <div className="sticky top-0 bg-background border-b border-border px-4 flex items-center justify-between z-10">
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                   {activePanel.label}
                 </p>
@@ -1013,7 +1015,7 @@ export default function MapWorkspace() {
                   type="button"
                   onClick={() => setPanel(null)}
                   aria-label={`Close ${activePanel.label}`}
-                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  className="inline-flex items-center gap-1 min-h-11 pl-3 pr-2 -mr-2 text-xs text-muted-foreground hover:text-foreground"
                 >
                   <X size={13} aria-hidden="true" /> Close
                 </button>

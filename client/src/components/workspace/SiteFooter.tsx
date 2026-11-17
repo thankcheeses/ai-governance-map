@@ -32,8 +32,10 @@ interface SiteFooterProps {
   quickLinks: FooterLink[];
 }
 
-function LinkItem({ link, muted = true }: { link: FooterLink; muted?: boolean }) {
-  const cls = `text-left text-xs ${muted ? 'text-white/75' : 'text-white/80'} hover:text-white transition-colors`;
+function LinkItem({ link, muted = true, tall = false }: { link: FooterLink; muted?: boolean; tall?: boolean }) {
+  // `tall` pads the link to the full height of the collapsed bar, so it is a
+  // finger-sized target there without changing where the text sits.
+  const cls = `text-left text-xs ${tall ? 'py-3 ' : ''}${muted ? 'text-white/75' : 'text-white/80'} hover:text-white transition-colors`;
   if (link.href) {
     return (
       <a href={link.href} target="_blank" rel="noreferrer noopener" className={cls}>
@@ -147,7 +149,7 @@ export default function SiteFooter({ open, onToggle, columns, quickLinks }: Site
         <div className="flex items-center gap-3 overflow-x-auto">
           {quickLinks.map((link) => (
             <span key={link.label} className="whitespace-nowrap">
-              <LinkItem link={link} muted={false} />
+              <LinkItem link={link} muted={false} tall />
             </span>
           ))}
         </div>
@@ -155,7 +157,7 @@ export default function SiteFooter({ open, onToggle, columns, quickLinks }: Site
           type="button"
           onClick={onToggle}
           aria-expanded={open}
-          className="ml-auto inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white whitespace-nowrap"
+          className="ml-auto inline-flex items-center gap-1.5 h-10 pl-2 text-xs text-white/80 hover:text-white whitespace-nowrap"
         >
           {open ? <X size={12} aria-hidden="true" /> : <ChevronUp size={12} aria-hidden="true" />}
           {open ? 'Hide all views' : 'All views'}

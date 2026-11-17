@@ -113,7 +113,7 @@ export default function IncidentPracticesSection() {
               }`}
             >
               {s === 'all' ? 'All stages' : s}
-              <span className="font-mono opacity-80">{count}</span>
+              <span className="font-mono">{count}</span>
             </button>
           );
         })}
