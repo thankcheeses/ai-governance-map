@@ -34,7 +34,7 @@ import CountryPanel from '@/components/workspace/CountryPanel';
 import StatePanel from '@/components/workspace/StatePanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
-import GlobeShade, { GLOBE_PX_AT_Z0 } from '@/components/workspace/GlobeShade';
+import GlobeShade, { GLOBE_PX_AT_Z0, measureGlobeDiameter } from '@/components/workspace/GlobeShade';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
 import Enter from '@/components/workspace/Enter';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -239,6 +239,8 @@ export default function MapWorkspace() {
     m.on('style.load', () => {
       m.setProjection({ type: 'globe' });
       m.setSky({ ...GLOBE_SKY } as never);
+      // The first zoom is an estimate; correct it against the globe as drawn.
+      m.once('idle', () => m.jumpTo({ zoom: fittedGlobeZoom(m) }));
       setReady(true);
     });
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
@@ -430,7 +432,7 @@ export default function MapWorkspace() {
           { padding: 24, duration: 700 },
         );
       } else {
-        m.easeTo({ zoom: globeZoom(m.getContainer()), duration: 700 });
+        m.easeTo({ zoom: fittedGlobeZoom(m), duration: 700 });
       }
     }
   }, [projection, ready]);
@@ -1089,6 +1091,28 @@ function globeZoom(el: HTMLElement | null): number {
   const h = el?.clientHeight || 700;
   const target = Math.min(w, h) * 0.9;
   return Math.min(3.2, Math.max(0.9, Math.log2(target / GLOBE_PX_AT_Z0)));
+}
+
+/**
+ * The zoom at which the globe, as actually drawn, fills about nine-tenths of
+ * the shorter side. `globeZoom` guesses from a constant; the camera makes the
+ * true size vary with the window's shape (on a phone the guess overshot the
+ * screen), so this measures and corrects. The size is close to exponential in
+ * zoom, so two corrections land within a pixel or two.
+ */
+function fittedGlobeZoom(m: maplibregl.Map): number {
+  const el = m.getContainer();
+  const target = Math.min(el.clientWidth || 1200, el.clientHeight || 700) * 0.9;
+  const start = m.getZoom();
+  let z = start;
+  for (let i = 0; i < 2; i++) {
+    m.jumpTo({ zoom: z });
+    const d = measureGlobeDiameter(m);
+    if (!(d > 0)) break;
+    z = Math.min(3.2, Math.max(0.8, z + Math.log2(target / d)));
+  }
+  m.jumpTo({ zoom: start });
+  return z;
 }
 
 function LayerToggle({
