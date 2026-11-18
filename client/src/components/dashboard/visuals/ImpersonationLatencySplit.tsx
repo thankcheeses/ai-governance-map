@@ -48,12 +48,12 @@ export default function ImpersonationLatencySplit() {
         <rect x="336" y="0" width="8" height="260" fill="#020617" />
 
         {/* ===== LEFT: the problem ===== */}
-        <text x="20" y="28" fontSize="11" fontWeight="700" fill="#fda4af" fontFamily="Inter, sans-serif">
+        <text x="20" y="28" fontSize="11" fontWeight="700" fill="#fda4af" fontFamily="Geist, ui-sans-serif, sans-serif">
           WITHOUT A STANDARD
         </text>
         {/* AI caller */}
         <circle cx="60" cy="120" r="22" fill="#1e293b" stroke="#64748b" strokeWidth="1.5" />
-        <text x="60" y="124" fontSize="9" fill="#cbd5e1" textAnchor="middle" fontFamily="monospace">AI?</text>
+        <text x="60" y="124" fontSize="9" fill="#cbd5e1" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">AI?</text>
         {/* broken/questioning path */}
         <path
           d="M 88 120 C 130 100, 150 140, 190 120 S 250 100, 288 120"
@@ -64,31 +64,31 @@ export default function ImpersonationLatencySplit() {
           opacity="0.7"
         />
         {['?', '?', '?'].map((q, i) => (
-          <text key={i} x={125 + i * 60} y={104} fontSize="13" fill="#fb7185" fontFamily="monospace" opacity="0.85">
+          <text key={i} x={125 + i * 60} y={104} fontSize="13" fill="#fb7185" fontFamily="'Geist Mono', ui-monospace, monospace" opacity="0.85">
             {q}
           </text>
         ))}
         {/* receiving system */}
         <rect x="288" y="98" width="34" height="44" rx="5" fill="#1e293b" stroke="#64748b" strokeWidth="1.5" />
-        <text x="305" y="124" fontSize="8" fill="#cbd5e1" textAnchor="middle" fontFamily="monospace">RX</text>
+        <text x="305" y="124" fontSize="8" fill="#cbd5e1" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">RX</text>
         {/* infinite delay badge */}
         <g filter="url(#lat-glow)">
           <rect x="118" y="160" width="140" height="30" rx="15" fill="#1c1226" stroke="#fb7185" strokeWidth="1.4" />
-          <text x="188" y="179" fontSize="11" fill="#fda4af" textAnchor="middle" fontFamily="monospace" fontWeight="700">
+          <text x="188" y="179" fontSize="11" fill="#fda4af" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace" fontWeight="700">
             trust delay: ∞
           </text>
         </g>
-        <text x="20" y="228" fontSize="9" fill="#94a3b8" fontFamily="Inter, sans-serif">
+        <text x="20" y="228" fontSize="9" fill="#94a3b8" fontFamily="Geist, ui-sans-serif, sans-serif">
           No disclosure · no verification pathway · PHI at risk before any check
         </text>
 
         {/* ===== RIGHT: the verified pathway ===== */}
-        <text x="364" y="28" fontSize="11" fontWeight="700" fill="#5eead4" fontFamily="Inter, sans-serif">
+        <text x="364" y="28" fontSize="11" fontWeight="700" fill="#5eead4" fontFamily="Geist, ui-sans-serif, sans-serif">
           WITH NHID-CLINICAL v1.3
         </text>
         {/* AI caller (disclosed) */}
         <circle cx="404" cy="120" r="22" fill="#0f3733" stroke="#14b8a6" strokeWidth="1.5" />
-        <text x="404" y="124" fontSize="9" fill="#ccfbf1" textAnchor="middle" fontFamily="monospace">AI ✓</text>
+        <text x="404" y="124" fontSize="9" fill="#ccfbf1" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">AI ✓</text>
         {/* solid pathway into the gate */}
         <motion.path
           d="M 432 120 H 496"
@@ -103,8 +103,8 @@ export default function ImpersonationLatencySplit() {
         <g filter="url(#lat-glow)">
           <rect x="496" y="86" width="46" height="68" rx="7" fill="url(#lat-gate)" opacity="0.92" />
           <rect x="507" y="100" width="24" height="40" rx="4" fill="#022c26" />
-          <text x="519" y="122" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="monospace">IDG</text>
-          <text x="519" y="132" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="monospace">PDX</text>
+          <text x="519" y="122" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">IDG</text>
+          <text x="519" y="132" fontSize="8" fill="#5eead4" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">PDX</text>
         </g>
         {/* verified continuation */}
         <motion.path
@@ -117,13 +117,13 @@ export default function ImpersonationLatencySplit() {
           transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
         />
         <rect x="606" y="98" width="34" height="44" rx="5" fill="#0f3733" stroke="#14b8a6" strokeWidth="1.5" />
-        <text x="623" y="124" fontSize="8" fill="#ccfbf1" textAnchor="middle" fontFamily="monospace">RX</text>
+        <text x="623" y="124" fontSize="8" fill="#ccfbf1" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace">RX</text>
         {/* measurable delay badge */}
         <rect x="462" y="160" width="156" height="30" rx="15" fill="#0b2530" stroke="#14b8a6" strokeWidth="1.4" />
-        <text x="540" y="179" fontSize="11" fill="#5eead4" textAnchor="middle" fontFamily="monospace" fontWeight="700">
+        <text x="540" y="179" fontSize="11" fill="#5eead4" textAnchor="middle" fontFamily="'Geist Mono', ui-monospace, monospace" fontWeight="700">
           trust delay: measurable
         </text>
-        <text x="364" y="228" fontSize="9" fill="#94a3b8" fontFamily="Inter, sans-serif">
+        <text x="364" y="228" fontSize="9" fill="#94a3b8" fontFamily="Geist, ui-sans-serif, sans-serif">
           Disclosure gate (IDG-01 · PDX-01) · disclosed before data exchange · audited
         </text>
       </svg>

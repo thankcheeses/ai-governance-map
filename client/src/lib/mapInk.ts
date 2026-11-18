@@ -64,8 +64,9 @@ export const CHROME_SURFACE = '#0b1220';
  * colour-by switcher, tooltip. Change it here, not per component.
  */
 export const MAP_CARD =
-  'bg-[#0b1220]/92 border border-white/12 rounded-lg shadow-lg backdrop-blur-sm';
+  'bg-[#0b1220]/90 border border-white/[0.09] rounded-xl backdrop-blur-md ' +
+  'shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_4px_8px_rgba(0,0,0,0.35)]';
 
 /** Section heading inside a map card. */
 export const MAP_CARD_HEADING =
-  'text-[0.68rem] font-semibold uppercase tracking-widest text-white/70';
+  'font-mono text-[0.66rem] font-medium uppercase tracking-[0.14em] text-white/[0.62]';

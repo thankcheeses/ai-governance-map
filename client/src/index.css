@@ -9,8 +9,10 @@
      `font-mono` and `font-sans` utility rendered in a different family from the
      body and headings. Binding the tokens makes the utilities and the base
      styles one system. */
-  --font-sans: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-sans: 'Geist', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-display: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -140,33 +142,52 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Geist', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 14px;
     line-height: 1.6;
+    /* Geist at text sizes: slightly open spacing, real kerning, and figures
+       that line up in columns wherever numbers are compared. */
+    font-feature-settings: 'kern', 'ss01';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     background-image:
       radial-gradient(60rem 30rem at 100% -10%, rgba(20,184,166,0.07), transparent 60%),
       radial-gradient(50rem 26rem at -10% 0%, rgba(15,23,42,0.05), transparent 60%);
     background-attachment: fixed;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-weight: 700;
-    line-height: 1.2;
+  /* Headings are set in Newsreader, a text serif: a panel title should read
+     like the heading of a register entry, not like a button. h4-h6 stay in
+     the interface face, because at those sizes they are labels. */
+  h1, h2, h3 {
+    font-family: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+    font-weight: 560;
+    line-height: 1.15;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    font-variant-numeric: lining-nums proportional-nums;
+  }
+  h4, h5, h6 {
+    font-family: 'Geist', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
   }
   h1 {
     font-size: 32px;
-    font-weight: 800;
   }
   h2 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 26px;
   }
   h3 {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 21px;
+  }
+  p {
+    text-wrap: pretty;
   }
   code, pre, .mono {
-    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
     font-size: 13px;
   }
   button:not(:disabled),
@@ -212,7 +233,7 @@
     @apply text-xs font-normal;
   }
   .text-mono {
-    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
   }
   
   /**
@@ -299,7 +320,7 @@ body { background: var(--paper-100); background-image: linear-gradient(rgba(15,2
    follow it; left at its light-mode value the header rendered dark-on-dark. */
 [data-sidebar="sidebar"] { --sidebar-foreground: #E2E8F0; }
 [data-sidebar="sidebar"] [data-sidebar="header"] { border-bottom: 1px solid #263343; padding: 20px 16px !important; }
-[data-sidebar="sidebar"] [data-sidebar="group-label"] { color: #6e8290; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
+[data-sidebar="sidebar"] [data-sidebar="group-label"] { color: #6e8290; font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
 [data-sidebar="sidebar"] [data-sidebar="menu-button"] { color: #8ea0aa; border-radius: 5px; font-size: 12px; min-height: 35px; }
 [data-sidebar="sidebar"] [data-sidebar="menu-button"]:hover { background: #1b2a3a; color: #f5f7f6; }
 [data-sidebar="sidebar"] [data-sidebar="menu-button"][data-active="true"] { color: #e8fffb; background: #173d42 !important; box-shadow: inset 2px 0 0 var(--signal); }
@@ -340,7 +361,7 @@ header.sticky { background: rgba(247,248,245,.92) !important; border-color: var(
 .stat-accent::after { height: 2px; background: var(--signal); }
 
 #heatmap .card-elevated { background: #f1f3ef; }
-#heatmap .grid button { min-height: 74px; border-radius: 4px !important; border-width: 1px !important; box-shadow: none !important; font-family: 'IBM Plex Mono', monospace; font-size: 10px !important; letter-spacing: -.02em; }
+#heatmap .grid button { min-height: 74px; border-radius: 4px !important; border-width: 1px !important; box-shadow: none !important; font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace; font-size: 10px !important; letter-spacing: -.02em; }
 #heatmap .grid button[class*="bg-teal-100"] { background: #d8eeeb !important; border-color: #9ccfc6 !important; color: #155e59 !important; }
 #heatmap .grid button[class*="bg-cyan-300"] { background: #a9dce0 !important; border-color: #70bdc3 !important; color: #154e56 !important; }
 #heatmap .grid button[class*="bg-amber-500"] { background: #e8bb68 !important; border-color: #cd9132 !important; color: #503a11 !important; }
