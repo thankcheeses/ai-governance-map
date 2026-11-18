@@ -925,6 +925,47 @@ export function sourceCoverage(rows: { source?: SourceRef }[]): SourceCoverage {
   return { total: rows.length, sourced, unsourced: rows.length - sourced, byTier };
 }
 
+/** Binding instruments are the ones whose type says so; everything else is voluntary or non-binding. */
+export const isBinding = (fw: Framework) => /\(Binding\)/.test(fw.type);
+
+export interface FrameworkSources {
+  framework: Framework;
+  /** Obligation rows this register holds for the framework. */
+  rows: number;
+  /** How many of those rows cite a document. */
+  sourced: number;
+  /** The distinct documents cited, first citation of each kept. */
+  sources: SourceRef[];
+}
+
+/**
+ * Every framework with the documents its obligation rows cite, read straight
+ * from OBLIGATIONS. Nothing is written here by hand: a framework with no cited
+ * row comes back with an empty list, and the page says so. `extra` adds a
+ * source the register holds outside OBLIGATIONS (the CAISSI practices).
+ */
+export function frameworkSources(
+  extra: Partial<Record<Framework['shortCode'], SourceRef[]>> = {},
+): FrameworkSources[] {
+  return FRAMEWORKS.map((framework) => {
+    const obligations = OBLIGATIONS.filter((o) => o.framework === framework.shortCode);
+    const seen = new Set<string>();
+    const sources: SourceRef[] = [];
+    for (const s of [...obligations.flatMap((o) => (o.source ? [o.source] : [])), ...(extra[framework.shortCode] ?? [])]) {
+      const key = s.url ?? s.citation;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      sources.push(s);
+    }
+    return {
+      framework,
+      rows: obligations.length,
+      sourced: obligations.filter((o) => o.source).length,
+      sources,
+    };
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Freshness.
 //

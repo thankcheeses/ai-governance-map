@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { BookOpenCheck, ArrowUpRight } from 'lucide-react';
-import { FRAMEWORKS } from '@/data/governance';
+import { EVIDENCE_TIER_LABEL, FRAMEWORKS, frameworkSources } from '@/data/governance';
+import { SI_PRACTICES_SOURCE } from '@/data/si-incident-practices';
 import SectionHeader from './SectionHeader';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -93,6 +94,64 @@ export default function FrameworksSection({
           );
         })}
       </div>
+
+      <FrameworkSourceList />
     </section>
+  );
+}
+
+/**
+ * The documents behind each framework, generated from the register's own rows.
+ * The header's framework count links here, so the number on the first screen
+ * can be checked against what each entry actually cites.
+ */
+export function FrameworkSourceList() {
+  // The CAISSI practices are held in their own register, not as obligations.
+  const list = frameworkSources({ CAISSI: [SI_PRACTICES_SOURCE] });
+  return (
+    <div id="framework-sources" className="scroll-mt-16 mt-8 border border-border bg-card rounded-md p-4">
+      <h3 className="text-sm font-semibold text-foreground">Sources for all {list.length} frameworks</h3>
+      <p className="text-xs text-muted-foreground leading-relaxed mt-1 mb-3 max-w-2xl">
+        Each entry lists the documents this register cites for it, and the tier of each. An entry with no
+        cited document says so. The full citation, provision and note are on each row in the Timeline view.
+      </p>
+      <ol className="flex flex-col divide-y divide-border">
+        {list.map(({ framework, rows, sourced, sources }) => (
+          <li key={framework.slug} className="py-2.5 text-xs">
+            <div className="flex items-baseline justify-between gap-3 flex-wrap">
+              <span className="font-medium text-foreground">{framework.name}</span>
+              <span className="text-[0.65rem] text-muted-foreground">
+                {framework.type} · {rows === 0 ? 'no obligation rows' : `${sourced} of ${rows} rows sourced`}
+              </span>
+            </div>
+            {sources.length === 0 ? (
+              <p className="mt-1 text-muted-foreground">No source recorded.</p>
+            ) : (
+              <ul className="mt-1 flex flex-col gap-1">
+                {sources.map((s) => (
+                  <li key={s.url ?? s.citation} className="flex items-baseline gap-2">
+                    <span className="flex-shrink-0 text-[0.6rem] font-semibold uppercase tracking-wider text-muted-foreground w-28">
+                      {EVIDENCE_TIER_LABEL[s.tier]}
+                    </span>
+                    {s.url ? (
+                      <a
+                        href={s.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="min-w-0 break-words text-foreground underline underline-offset-2 hover:no-underline"
+                      >
+                        {s.citation}
+                      </a>
+                    ) : (
+                      <span className="min-w-0 break-words text-foreground">{s.citation}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }

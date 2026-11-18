@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Who it is for, and what the count rests on
+- The first screen now has one sentence under the views bar saying who the map is for and what it covers: "18 binding laws and 13 non-binding frameworks", counted from each entry's declared type. The count links to a new list at the end of the Frameworks view.
+- That list shows all 31 frameworks with the documents the register cites for each and the tier of each document, generated from the obligation rows (and, for the joint key practices, from their own source). The ISO/IEC 42001 entry reads "No source recorded".
+- The header's subtitle reads "AI governance register" instead of "AI law register": 13 of the 31 entries are not laws.
+
 ### CMS roadmap added to the timeline
 - New timeline event, 12 November 2026: the CMS Clinical Super Intelligence Roadmap, read in full and recorded as a non-binding statement of intent. The date is the PDF's creation date, because the document's text carries none. Timeline coverage is 17 of 17; with obligations, 88 of 92 rows cite a source.
 - The 16 October 2026 joint key-practices entry moves from "current" to "past", since the roadmap is now the latest event.
