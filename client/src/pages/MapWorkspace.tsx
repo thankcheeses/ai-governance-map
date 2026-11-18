@@ -34,6 +34,7 @@ import CountryPanel from '@/components/workspace/CountryPanel';
 import StatePanel from '@/components/workspace/StatePanel';
 import Starfield from '@/components/workspace/Starfield';
 import GlassOcean from '@/components/workspace/GlassOcean';
+import GlobeShade, { GLOBE_PX_AT_Z0 } from '@/components/workspace/GlobeShade';
 import GlobeLegend from '@/components/workspace/GlobeLegend';
 import Enter from '@/components/workspace/Enter';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -746,8 +747,20 @@ export default function MapWorkspace() {
         <header className="flex items-center gap-3 px-4 h-12 border-b border-white/10 flex-shrink-0">
           {/* The page's only h1. Below md it stays in the accessibility tree
               (sr-only) instead of vanishing with display:none. */}
-          <h1 className="text-[0.72rem] font-semibold [font-family:inherit] leading-normal uppercase tracking-widest text-white/75 whitespace-nowrap max-md:sr-only">
-            Governance map
+          <h1 className="flex items-center gap-2 whitespace-nowrap max-md:sr-only">
+            <img
+              src={`${import.meta.env.BASE_URL}logo-mark-dark.svg`}
+              alt=""
+              width={22}
+              height={22}
+              className="h-[22px] w-[22px]"
+            />
+            <span className="font-display text-[1.06rem] font-[560] leading-none tracking-[-0.01em] text-white">
+              Governance Map
+            </span>
+            <span className="font-mono text-[0.62rem] font-medium uppercase tracking-[0.14em] text-white/50 leading-none mt-px">
+              AI law register
+            </span>
           </h1>
           <div className="relative flex-1 max-w-sm">
             <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/70" aria-hidden="true" />
@@ -838,6 +851,8 @@ export default function MapWorkspace() {
           {/* Behind the (transparent) map canvas, in front of the stars. */}
           <GlassOcean map={mapObj} enabled={oceanOn} />
           <div ref={mapContainer} className="w-full h-full" />
+          {/* Over the map, under every card: lighting for the sphere. */}
+          <GlobeShade map={mapObj} enabled={webglOk && projection === 'globe'} />
 
           {!webglOk && (
             <div className="absolute inset-0 z-20 flex items-center justify-center p-6">
@@ -1046,7 +1061,7 @@ function globeZoom(el: HTMLElement | null): number {
   const w = el?.clientWidth || 1200;
   const h = el?.clientHeight || 700;
   const target = Math.min(w, h) * 0.9;
-  return Math.min(3.2, Math.max(0.9, Math.log2(target / 136)));
+  return Math.min(3.2, Math.max(0.9, Math.log2(target / GLOBE_PX_AT_Z0)));
 }
 
 function LayerToggle({

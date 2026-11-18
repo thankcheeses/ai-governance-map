@@ -130,14 +130,14 @@ await writeFile(cardFile, `<!doctype html><meta charset="utf-8">
 <link rel="stylesheet" href="${pathToFileURL(path.join(PUB, 'fonts/fonts.css')).href}">
 <style>
   html,body{margin:0}
-  body{width:1200px;height:630px;position:relative;overflow:hidden;background:${NIGHT};font-family:'Sora',sans-serif;color:#F1F5F9}
+  body{width:1200px;height:630px;position:relative;overflow:hidden;background:${NIGHT};font-family:'Geist',sans-serif;color:#F1F5F9}
   .map{position:absolute;inset:0;background:url(data:image/png;base64,${map.toString('base64')}) center/cover}
   /* A scrim, for legibility only: the text column sits on night, the map shows through to the right. */
   .scrim{position:absolute;inset:0;background:linear-gradient(90deg,${NIGHT} 0%,${NIGHT} 34%,rgba(11,18,32,.8) 44%,rgba(11,18,32,0) 60%)}
   .col{position:absolute;left:64px;top:60px;bottom:56px;width:560px;display:flex;flex-direction:column}
-  .brand{display:flex;align-items:center;gap:14px;font-size:19px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#CBD5E1}
+  .brand{display:flex;align-items:center;gap:14px;font-size:19px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#CBD5E1}
   .brand svg{width:40px;height:40px}
-  h1{font-family:'Raleway',sans-serif;font-weight:800;font-size:66px;line-height:1.04;letter-spacing:-.02em;margin:54px 0 0;text-wrap:balance}
+  h1{font-family:'Newsreader',serif;font-weight:560;font-size:72px;line-height:1.02;letter-spacing:-.015em;margin:54px 0 0;text-wrap:balance}
   p{font-size:25px;line-height:1.4;color:#CBD5E1;margin:26px 0 0;max-width:540px;white-space:nowrap}
   ul{list-style:none;margin:auto 0 0;padding:0;display:flex;flex-wrap:wrap;gap:12px 20px;font-size:18px;color:#E2E8F0}
   li{display:flex;align-items:center;gap:9px}
@@ -156,7 +156,7 @@ await card.waitForTimeout(400);
 // fonts.check() is true for a family that does not exist, so ask which faces actually loaded.
 const fontsOk = await card.evaluate(() => {
   const loaded = [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/['"]/g, ''));
-  return loaded.includes('Raleway') && loaded.includes('Sora');
+  return loaded.includes('Newsreader') && loaded.includes('Geist');
 });
 if (!fontsOk) throw new Error('Site fonts did not load; refusing to write a card set in fallback faces.');
 await writeFile(path.join(PUB, 'og-image.png'), await card.screenshot());

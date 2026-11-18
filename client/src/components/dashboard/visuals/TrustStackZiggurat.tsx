@@ -128,7 +128,7 @@ export default function TrustStackZiggurat({ activeLayer, onSelect }: TrustStack
                 x={s.x + 10}
                 y={s.y + 13}
                 fontSize="8.5"
-                fontFamily="ui-monospace, monospace"
+                fontFamily="'Geist Mono', ui-monospace, monospace"
                 fill={isActive ? '#ccfbf1' : '#94a3b8'}
                 fontWeight="700"
               >
@@ -138,14 +138,14 @@ export default function TrustStackZiggurat({ activeLayer, onSelect }: TrustStack
                 x={s.x + 32}
                 y={s.y + 13}
                 fontSize="9.5"
-                fontFamily="Inter, ui-sans-serif, sans-serif"
+                fontFamily="Geist, ui-sans-serif, sans-serif"
                 fill={isActive ? '#f0fdfa' : '#cbd5e1'}
                 fontWeight={isActive || isCore ? 700 : 500}
               >
                 {layer.title.length > 34 ? layer.title.slice(0, 33) + '…' : layer.title}
               </text>
               {isCore && (
-                <text x={s.x + 10} y={s.y + 25} fontSize="7.5" fontFamily="Inter, ui-sans-serif, sans-serif" fill="#5eead4">
+                <text x={s.x + 10} y={s.y + 25} fontSize="7.5" fontFamily="Geist, ui-sans-serif, sans-serif" fill="#5eead4">
                   ★ behavioral baseline (core)
                 </text>
               )}

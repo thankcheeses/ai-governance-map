@@ -75,11 +75,11 @@ export default function MaturityRadarSection() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
                   <PolarGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <PolarAngleAxis dataKey="domain" tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: 'var(--muted-foreground)' }} />
+                  <PolarAngleAxis dataKey="domain" tick={{ fontSize: 10, fontFamily: "'Geist Mono', ui-monospace, monospace", fill: 'var(--muted-foreground)' }} />
                   <Radar name="Maturity" dataKey="maturity" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.22} strokeWidth={2} />
                   <Tooltip
                     formatter={(val: number) => [`${val} / 5`, 'Avg Maturity']}
-                    contentStyle={{ fontFamily: 'IBM Plex Mono', fontSize: 11, background: 'var(--card)', border: '1px solid var(--border)' }}
+                    contentStyle={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11, background: 'var(--card)', border: '1px solid var(--border)' }}
                   />
                 </RadarChart>
               </ResponsiveContainer>
@@ -134,11 +134,11 @@ export default function MaturityRadarSection() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: 'var(--muted-foreground)' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fontFamily: 'IBM Plex Mono', fill: 'var(--muted-foreground)' }} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fontFamily: "'Geist Mono', ui-monospace, monospace", fill: 'var(--muted-foreground)' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fontFamily: "'Geist Mono', ui-monospace, monospace", fill: 'var(--muted-foreground)' }} />
                 <Tooltip
                   formatter={(val: number) => [`${val}%`, 'Posture Score']}
-                  contentStyle={{ fontFamily: 'IBM Plex Mono', fontSize: 11, background: 'var(--card)', border: '1px solid var(--border)' }}
+                  contentStyle={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11, background: 'var(--card)', border: '1px solid var(--border)' }}
                 />
                 <Line type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={2.5} dot={{ r: 3 }} />
               </LineChart>

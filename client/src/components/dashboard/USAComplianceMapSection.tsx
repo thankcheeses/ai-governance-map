@@ -229,8 +229,8 @@ export default function USAComplianceMapSection() {
       popup
         .setLngLat(e.lngLat)
         .setHTML(
-          `<div style="font:600 12px Inter,sans-serif;color:#0f172a">${name}</div>` +
-            `<div style="font:400 10px Inter,sans-serif;color:#64748b">${fw ? fw.name : 'No AI-specific law tracked'}</div>`,
+          `<div style="font:600 12px Geist,ui-sans-serif,sans-serif;color:#0f172a">${name}</div>` +
+            `<div style="font:400 10px Geist,ui-sans-serif,sans-serif;color:#64748b">${fw ? fw.name : 'No AI-specific law tracked'}</div>`,
         )
         .addTo(m);
     });
