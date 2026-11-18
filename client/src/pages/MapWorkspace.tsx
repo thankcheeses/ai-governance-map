@@ -22,7 +22,7 @@ import {
   Moon,
   Sun,
 } from 'lucide-react';
-import { COUNTRY_AI_LAWS, STATE_AI_LAWS } from '@/data/governance';
+import { COUNTRY_AI_LAWS, FRAMEWORKS, STATE_AI_LAWS, isBinding } from '@/data/governance';
 import { stateHasBindingLaw } from '@/data/stateLaw';
 import { GOVERNANCE_PLACES } from '@/data/places';
 import { GLOBE_SKY, buildGlobeStyle } from '@/lib/globeStyle';
@@ -170,6 +170,19 @@ export default function MapWorkspace() {
     if (!on && panel === 'nhid') setPanel(null);
   };
   const visiblePanels = PANELS.filter((p) => p.id !== 'nhid' || nhidOn);
+  const bindingCount = FRAMEWORKS.filter(isBinding).length;
+  // Opens the Frameworks view at its source list. The panel mounts on the
+  // next render, so the scroll waits a frame for it.
+  const openSources = () => {
+    setPanel('frameworks');
+    let tries = 0;
+    const scroll = () => {
+      const el = document.getElementById('framework-sources');
+      if (el) el.scrollIntoView({ block: 'start' });
+      else if (tries++ < 20) requestAnimationFrame(scroll);
+    };
+    requestAnimationFrame(scroll);
+  };
 
   // MapLibre needs WebGL and throws without it. On a locked-down corporate or
   // hospital laptop — GPU blocked by policy, no software fallback — that throw
@@ -759,7 +772,7 @@ export default function MapWorkspace() {
               Governance Map
             </span>
             <span className="font-mono text-[0.62rem] font-medium uppercase tracking-[0.14em] text-white/50 leading-none mt-px">
-              AI law register
+              AI governance register
             </span>
           </h1>
           <div className="relative flex-1 max-w-sm">
@@ -845,6 +858,20 @@ export default function MapWorkspace() {
             );
           })}
         </nav>
+
+        {/* Who this is for, in one sentence, and the count it rests on. The
+            count links to the list of what each framework cites. */}
+        <p className="px-4 py-1.5 border-b border-white/10 flex-shrink-0 text-xs text-white/80 leading-snug">
+          For compliance, risk and policy teams who need to see where{' '}
+          <button
+            type="button"
+            onClick={openSources}
+            className="text-white underline underline-offset-2 decoration-white/40 hover:decoration-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm"
+          >
+            {bindingCount} binding laws and {FRAMEWORKS.length - bindingCount} non-binding frameworks
+          </button>{' '}
+          apply, and what each one requires.
+        </p>
 
         <div className="relative w-full flex-1 min-h-0">
           <Starfield />
